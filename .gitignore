@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+dist/
+build/
+
+# Data files (large, downloaded)
+backend/data/raw/
+backend/data/processed/*.db
+*.csv
+*.xlsx
+*.zip
+
+# Node
+node_modules/
+frontend/build/
+frontend/dist/
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
