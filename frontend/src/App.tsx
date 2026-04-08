@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import USMap from './components/USMap'
 import WorldMap from './components/WorldMap'
 import CountyDetailPanel from './components/CountyDetailPanel'
@@ -7,6 +7,7 @@ import JobSearch from './components/JobSearch'
 import ControlPanel from './components/ControlPanel'
 import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries } from './utils/api'
+import { applyScenarioModifiers } from './utils/scenarios'
 
 type Tab = 'map' | 'simulate' | 'job'
 type MapView = 'us' | 'world'
@@ -41,7 +42,7 @@ export default function App() {
   const updateScenario = useCallback((updates: Partial<ScenarioState>) => {
     setScenario(prev => ({ ...prev, ...updates }))
   }, [])
-  const [counties, setCounties] = useState<CountyScore[]>([])
+  const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
   const [countries, setCountries] = useState<Record<string, unknown>[]>([])
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -49,12 +50,18 @@ export default function App() {
 
   useEffect(() => {
     Promise.all([
-      fetchCounties().then(data => setCounties(data.counties)),
+      fetchCounties().then(data => setBaseCounties(data.counties)),
       fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
     ])
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
+
+  // Apply scenario modifiers to base county scores (client-side, instant)
+  const counties = useMemo(
+    () => applyScenarioModifiers(baseCounties, scenario),
+    [baseCounties, scenario],
+  )
 
   const handleCountyClick = useCallback((fips: string) => {
     setSelectedCounty(prev => prev === fips ? null : fips)
