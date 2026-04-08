@@ -96,12 +96,26 @@ function govtResponseModifier(response: string, year: number): number {
   }
 }
 
+/**
+ * Fed response with policy normalization.
+ * Years 1-2: full effect of selected policy.
+ * Years 2-5: drifts toward neutral.
+ * Years 5+: scenario-dependent (unemployment/inflation driven).
+ * No central bank maintains one posture for a full decade.
+ */
 function fedResponseModifier(fed: string, year: number): number {
   if (fed === 'hold') return 1.0
-  const ramp = Math.min(1, Math.max(0, (year - 2026) / 3))
+  const yearsOut = year - 2025
+
+  // Policy effect strength: full for 2 years, fades over next 3, minimal after 5
+  let policyStrength: number
+  if (yearsOut <= 2) policyStrength = 1.0
+  else if (yearsOut <= 5) policyStrength = 1.0 - (yearsOut - 2) / 3 * 0.7  // Fades to 0.3
+  else policyStrength = 0.15  // Residual effect from structural changes
+
   switch (fed) {
-    case 'cut': return 1.0 - 0.05 * ramp
-    case 'zero': return 1.0 + 0.15 * ramp
+    case 'cut': return 1.0 - 0.05 * policyStrength
+    case 'zero': return 1.0 + 0.15 * policyStrength
     default: return 1.0
   }
 }

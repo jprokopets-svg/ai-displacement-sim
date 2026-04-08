@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { getUncertaintyState, BAND_LABELS } from '../utils/uncertainty'
 
 export interface ScenarioState {
@@ -35,12 +36,13 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
       {/* Section 1: Time and Scenario */}
       <SectionHeader title="Time & Scenario" />
 
-      <label style={labelStyle}>
-        Year: <strong>{state.year}</strong>
-        <span style={{ color: bandInfo.color, marginLeft: 6, fontSize: 10 }}>
-          {bandInfo.label}
-        </span>
-      </label>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <label style={{ ...labelStyle, marginBottom: 0 }}>
+          Year: <strong>{state.year}</strong>
+          <span style={{ color: bandInfo.color, marginLeft: 6, fontSize: 10 }}>{bandInfo.label}</span>
+        </label>
+        <InfoTip text="Projection year. Near-term uses deployment evidence. Long-term uses scenario modeling with wider uncertainty." />
+      </div>
       <input
         type="range" min="2025" max="2040" step="1"
         value={state.year}
@@ -48,12 +50,12 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
         style={{ width: '100%' }}
       />
 
-      <label style={labelStyle}>
-        Feedback Loop: {state.feedbackAggressiveness.toFixed(1)}
-        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-          {' '}(Goldman gradual ← → Full cascade)
-        </span>
-      </label>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <label style={{ ...labelStyle, marginBottom: 0 }}>
+          Feedback Loop: {state.feedbackAggressiveness.toFixed(1)}
+        </label>
+        <InfoTip text="How aggressively AI displacement accelerates itself. Left = Goldman Sachs gradual baseline. Right = full self-reinforcing cascade." />
+      </div>
       <div style={{ position: 'relative' }}>
         <input
           type="range" min="0" max="1" step="0.05"
@@ -82,6 +84,7 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
 
       <SelectControl label="Trade Policy" value={state.tradePolicy}
         onChange={v => onChange({ tradePolicy: v as ScenarioState['tradePolicy'] })}
+        info="Current tariffs boost manufacturing robotics ROI. Free trade increases offshoring risk. Escalating tariffs amplify reshoring paradox."
         options={[
           { value: 'current', label: 'Current tariffs' },
           { value: 'free_trade', label: 'Free trade' },
@@ -90,6 +93,7 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
       />
       <SelectControl label="Government Response" value={state.govtResponse}
         onChange={v => onChange({ govtResponse: v as ScenarioState['govtResponse'] })}
+        info="Policy intervention reduces displacement over time but requires deficit spending."
         options={[
           { value: 'none', label: 'No intervention' },
           { value: 'retraining', label: 'Retraining programs' },
@@ -98,6 +102,7 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
       />
       <SelectControl label="Corporate Profits" value={state.corporateProfit}
         onChange={v => onChange({ corporateProfit: v as ScenarioState['corporateProfit'] })}
+        info="Profit surge generates tax revenue that funds government floor. Decline accelerates deficit spiral."
         options={[
           { value: 'baseline', label: 'Baseline growth' },
           { value: 'surge', label: 'Profit surge (10x)' },
@@ -106,6 +111,7 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
       />
       <SelectControl label="AI Equity Loop" value={state.equityLoop}
         onChange={v => onChange({ equityLoop: v as ScenarioState['equityLoop'] })}
+        info="Speculative. Loop intact = AI capex sustains equity wealth effect. Loop breaks = AI investment disappoints, triggering spending contraction."
         options={[
           { value: 'intact', label: 'Loop intact' },
           { value: 'breaks', label: 'Loop breaks (speculative)' },
@@ -113,6 +119,7 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
       />
       <SelectControl label="Fed Response" value={state.fedResponse}
         onChange={v => onChange({ fedResponse: v as ScenarioState['fedResponse'] })}
+        info="Federal Reserve interest rate policy. Long-term projections assume policy normalization after 2-5 years regardless of initial stance."
         options={[
           { value: 'hold', label: 'Hold rates' },
           { value: 'cut', label: 'Rate cuts' },
@@ -173,19 +180,57 @@ function SectionHeader({ title }: { title: string }) {
   )
 }
 
-function SelectControl({ label, value, onChange, options }: {
+function SelectControl({ label, value, onChange, options, info }: {
   label: string
   value: string
   onChange: (v: string) => void
   options: { value: string; label: string }[]
+  info?: string
 }) {
   return (
     <div style={{ marginBottom: 6 }}>
-      <label style={{ ...labelStyle, marginBottom: 2 }}>{label}</label>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+        <label style={{ ...labelStyle, marginBottom: 0 }}>{label}</label>
+        {info && <InfoTip text={info} />}
+      </div>
       <select value={value} onChange={e => onChange(e.target.value)} style={selectStyle}>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
+  )
+}
+
+function InfoTip({ text }: { text: string }) {
+  const [show, setShow] = useState(false)
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        onClick={() => setShow(!show)}
+        style={{
+          background: 'none', border: '1px solid #555', borderRadius: '50%',
+          width: 14, height: 14, fontSize: 9, color: '#888', cursor: 'pointer',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          padding: 0, lineHeight: 1, flexShrink: 0,
+        }}
+      >i</button>
+      {show && (
+        <div style={{
+          position: 'absolute', left: 18, top: -4, zIndex: 200,
+          background: '#1a1a25', border: '1px solid #444', borderRadius: 4,
+          padding: '6px 8px', fontSize: 10, color: '#ccc',
+          width: 200, lineHeight: 1.4,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        }}>
+          {text}
+          <div
+            onClick={() => setShow(false)}
+            style={{ color: '#666', cursor: 'pointer', marginTop: 4, fontSize: 9 }}
+          >
+            close
+          </div>
+        </div>
+      )}
+    </span>
   )
 }
 

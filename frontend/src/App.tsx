@@ -8,7 +8,7 @@ import ControlPanel from './components/ControlPanel'
 import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
-import DebugPanel from './components/DebugPanel'
+// Debug panel removed from production
 
 type Tab = 'map' | 'simulate' | 'job'
 type MapView = 'us' | 'world'
@@ -184,7 +184,7 @@ export default function App() {
                 )}
               </>
             ) : (
-              <WorldMap countries={countries as never[]} />
+              <WorldMap countries={countries as never[]} year={scenario.year} tradePolicy={scenario.tradePolicy} />
             )}
           </div>
         )}
@@ -210,12 +210,6 @@ export default function App() {
         </span>
       </footer>
 
-      {/* Debug panel — shows scenario modifier deltas */}
-      <DebugPanel
-        scenario={scenario}
-        baseCounties={baseCounties as never[]}
-        adjustedCounties={counties as never[]}
-      />
     </>
   )
 }

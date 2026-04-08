@@ -25,6 +25,8 @@ interface CountryScore {
 
 interface WorldMapProps {
   countries: CountryScore[]
+  year?: number
+  tradePolicy?: string
 }
 
 const WORLD_TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
@@ -42,7 +44,7 @@ const TIER_LABELS = {
   tier3: 'Insufficient data',
 }
 
-export default function WorldMap({ countries }: WorldMapProps) {
+export default function WorldMap({ countries, year = 2025, tradePolicy = 'current' }: WorldMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [topoData, setTopoData] = useState<Topology | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
@@ -51,10 +53,19 @@ export default function WorldMap({ countries }: WorldMapProps) {
   const [selectedCountry, setSelectedCountry] = useState<CountryScore | null>(null)
 
   // Build lookup by numeric ID (what TopoJSON uses)
+  // Apply scenario modifiers to country scores
+  const yearMod = year <= 2025 ? 1.0 : 1.0 + (year - 2025) * 0.008
+  const tradeMod = tradePolicy === 'free_trade' ? 1.10 : tradePolicy === 'escalating_tariffs' ? 0.95 : 1.0
+
   const countryByNumeric = new Map<string, CountryScore>()
   for (const c of countries) {
     if (c.numeric_id) {
-      countryByNumeric.set(c.numeric_id, c)
+      if (c.ai_exposure_score !== null) {
+        const adjusted = Math.min(1, c.ai_exposure_score * yearMod * tradeMod)
+        countryByNumeric.set(c.numeric_id, { ...c, ai_exposure_score: adjusted })
+      } else {
+        countryByNumeric.set(c.numeric_id, c)
+      }
     }
   }
 
@@ -142,7 +153,7 @@ export default function WorldMap({ countries }: WorldMapProps) {
       })
     svg.call(zoom)
 
-  }, [topoData, countries])
+  }, [topoData, countries, year, tradePolicy])
 
   const scoredCount = countries.filter(c => c.ai_exposure_score !== null).length
 

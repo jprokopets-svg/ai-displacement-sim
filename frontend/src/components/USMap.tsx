@@ -135,6 +135,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       })
       .on('click', (_event, d) => {
         const fips = String(d.id).padStart(5, '0')
+        setTooltip(prev => ({ ...prev, visible: false }))
         onCountyClick(fips)
       })
 
