@@ -83,17 +83,24 @@ def get_county_detail(county_fips: str) -> Optional[Dict]:
 
 
 def search_occupation(query: str) -> List[Dict]:
-    """Search occupations by title and return exposure scores."""
+    """Search occupations by title. Supports comma-separated multi-term search."""
+    terms = [t.strip() for t in query.split(",") if t.strip()]
+    if not terms:
+        return []
+
     with get_db() as conn:
+        # Build OR query for each term
+        clauses = " OR ".join(["occupation_title LIKE ?" for _ in terms])
+        params = [f"%{t}%" for t in terms]
         rows = conn.execute(
-            """
+            f"""
             SELECT soc_code, occupation_title, ai_exposure
             FROM occupation_exposure
-            WHERE occupation_title LIKE ?
+            WHERE {clauses}
             ORDER BY ai_exposure DESC
-            LIMIT 20
+            LIMIT 50
             """,
-            (f"%{query}%",),
+            params,
         ).fetchall()
     return [dict(r) for r in rows]
 

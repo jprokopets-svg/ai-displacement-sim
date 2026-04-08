@@ -2,26 +2,32 @@ import { useState } from 'react'
 import { searchOccupations } from '../utils/api'
 import { getOccupationExposureColor, formatExposure } from '../utils/colors'
 
-// Common search term aliases
+// Multi-term aliases: broad terms expand to comma-separated search across O*NET
+// Backend splits on commas and runs OR query for each term
 const ALIASES: Record<string, string> = {
-  doctor: 'physician',
-  lawyer: 'attorney',
-  programmer: 'software',
-  coder: 'software developer',
-  teacher: 'school teacher',
-  engineer: 'engineer',
-  driver: 'driver',
-  cop: 'police',
-  firefighter: 'fire',
-  secretary: 'secretary',
-  janitor: 'janitor',
-  plumber: 'plumber',
+  doctor: 'physician,surgeon,surgical,psychiatrist,radiologist,anesthesiologist,dermatologist,cardiologist,neurologist,oncologist,orthopedic,pediatrician,obstetrician,gynecologist,urologist,ophthalmologist',
+  lawyer: 'attorney,counsel,lawyer,judge,magistrate,legal',
+  engineer: 'engineer,mechanical,electrical,civil,chemical,aerospace,industrial,structural',
+  teacher: 'teacher,professor,instructor,educator,tutor,principal,librarian',
+  trader: 'broker,trader,portfolio,investment,financial advisor,wealth manager',
+  programmer: 'software,programmer,developer,coder',
+  coder: 'software,programmer,developer',
+  driver: 'driver,truck,chauffeur,taxi',
+  cop: 'police,detective,sheriff,patrol',
+  firefighter: 'firefighter,fire',
+  secretary: 'secretary,administrative assistant',
+  janitor: 'janitor,custodian,cleaner',
+  plumber: 'plumber,pipefitter',
   electrician: 'electrician',
-  chef: 'cook',
-  waiter: 'waiter',
-  waitress: 'waiter',
-  banker: 'financial',
-  realtor: 'real estate',
+  chef: 'cook,chef,food preparation',
+  waiter: 'waiter,waitress,server,food service',
+  waitress: 'waiter,waitress,server',
+  banker: 'financial,banker,loan officer,teller',
+  realtor: 'real estate,appraiser,property',
+  nurse: 'nurse,nursing,registered nurse',
+  accountant: 'accountant,auditor,bookkeep,tax',
+  analyst: 'analyst,research,data',
+  manager: 'manager,supervisor,director,executive',
 }
 
 // Simulated multi-track scores (derived from occupation group)
@@ -77,17 +83,17 @@ export default function JobSearch() {
     setLoading(true)
     setSelected(null)
 
-    // Try original query first, then alias
-    let searchTerm = query
-    const aliasMatch = ALIASES[query.toLowerCase()]
+    // Use alias expansion if available — sends comma-separated multi-term query
+    const aliasMatch = ALIASES[query.toLowerCase().trim()]
+    const searchTerm = aliasMatch || query
 
     try {
       let data = await searchOccupations(searchTerm)
+      // If alias didn't help, try the raw query
       if (data.occupations.length === 0 && aliasMatch) {
-        searchTerm = aliasMatch
-        data = await searchOccupations(searchTerm)
+        data = await searchOccupations(query)
       }
-      // If still no results, try first 3 chars
+      // Last resort: 3-char prefix
       if (data.occupations.length === 0 && query.length >= 3) {
         data = await searchOccupations(query.substring(0, 3))
       }
@@ -130,13 +136,17 @@ export default function JobSearch() {
           {loading ? '...' : 'Search'}
         </button>
       </div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
+        Search returns all matching O*NET occupations. Scores shown are for 2025 baseline.
+      </div>
 
-      {/* Results list */}
+      {/* Results list — scrollable */}
       {results.length > 0 && !selected && (
         <div style={{ marginTop: 12 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
             {results.length} occupation{results.length !== 1 ? 's' : ''} found — click for details
           </div>
+          <div style={{ maxHeight: 400, overflowY: 'auto' }}>
           {results.map((occ, i) => (
             <div key={i} onClick={() => setSelected(occ)} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -155,6 +165,7 @@ export default function JobSearch() {
               </div>
             </div>
           ))}
+          </div>
         </div>
       )}
 
