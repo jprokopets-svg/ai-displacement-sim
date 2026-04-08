@@ -1,16 +1,18 @@
 import * as d3 from 'd3'
 
 /**
- * Color scale for AI exposure using percentile breakpoints:
- *   Bottom 40% (p0-p40):   green shades
- *   Middle 40% (p40-p80):  yellow to orange
- *   Top 20% (p80-p100):    orange to deep red
+ * Color scale for AI exposure using aggressive percentile breakpoints:
+ *   Bottom 25% (p0-p25):    deep green → green
+ *   25-50% (p25-p50):       green → yellow-green
+ *   50-75% (p50-p75):       yellow → orange
+ *   75-90% (p75-p90):       orange → red
+ *   Top 10% (p90-p100):     red → deep red
  *
- * This ensures readable contrast — not everything appears red.
+ * This ensures scenario modifiers visibly shift counties between color bands.
  */
 export const exposureColorScale = d3.scaleLinear<string>()
-  .domain([0, 20, 40, 60, 80, 90, 100])
-  .range(['#15803d', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444', '#991b1b'])
+  .domain([0, 25, 50, 75, 90, 100])
+  .range(['#15803d', '#4ade80', '#eab308', '#f97316', '#ef4444', '#7f1d1d'])
   .clamp(true)
 
 /**
@@ -22,7 +24,6 @@ export function getExposureColor(percentile: number): string {
 
 /**
  * Get color for an individual occupation's exposure score (0-1 range).
- * Maps the 0-1 score to the same percentile color scale.
  */
 export function getOccupationExposureColor(score: number): string {
   return exposureColorScale(Math.max(0, Math.min(100, score * 100)))

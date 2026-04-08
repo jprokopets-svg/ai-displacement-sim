@@ -3,10 +3,10 @@
  *
  * The backend serves base county scores (computed for year=2025, current tariffs).
  * This module applies scenario adjustments in real-time as the user changes
- * control panel settings, avoiding round-trips to the server.
+ * control panel settings.
  *
- * Modifiers are multiplicative: adjusted_score = base_score * modifier
- * Then re-percentiled across all counties.
+ * Modifiers are multiplicative and LARGE ENOUGH to visibly shift map colors.
+ * A 25% modifier should move a county across at least one color band.
  */
 
 import type { ScenarioState } from '../components/ControlPanel'
@@ -22,107 +22,106 @@ interface CountyScore {
 }
 
 /**
- * Trade policy modifiers by county characteristics.
- * Manufacturing-heavy counties are more affected by tariff changes.
+ * Trade policy modifier.
+ * Manufacturing counties (mid-range scores) are most affected by tariff changes.
+ * Knowledge counties (high scores) are most affected by free trade.
  */
-function tradePolicyModifier(score: number, _county: CountyScore, policy: string): number {
-  // Without per-county manufacturing data on the client, we use score-based heuristics:
-  // Mid-range scores (0.3-0.5) are typically manufacturing/physical — most affected by trade
-  // High scores (0.6+) are typically knowledge work — less affected by tariffs
-  const isMfgLikely = score > 0.3 && score < 0.55
+function tradePolicyModifier(score: number, policy: string): number {
+  const isMfgLikely = score > 0.25 && score < 0.55
+  const isKnowledgeLikely = score > 0.55
 
   switch (policy) {
     case 'escalating_tariffs':
-      // Robotics acceleration: manufacturing counties get redder
-      return isMfgLikely ? 1.12 : 1.03
+      // Robotics acceleration in manufacturing + general automation pressure
+      return isMfgLikely ? 1.25 : 1.08
     case 'free_trade':
-      // Offshoring acceleration: knowledge workers get redder, manufacturing eases
-      return isMfgLikely ? 0.95 : 1.06
+      // Offshoring acceleration for knowledge workers
+      return isKnowledgeLikely ? 1.20 : (isMfgLikely ? 0.90 : 1.05)
     default:
       return 1.0
   }
 }
 
 /**
- * Year-based modifier: scores generally increase with time as AI capabilities grow.
+ * Year modifier: scores increase as AI capabilities expand.
  */
 function yearModifier(score: number, year: number): number {
   if (year <= 2025) return 1.0
 
-  // Agentic AI ramp: knowledge workers (high score) accelerate after 2026
-  const agenticRamp = year > 2026 ? Math.min(1, (year - 2026) / 4) : 0
-  const highScoreBoost = score > 0.5 ? agenticRamp * 0.15 : 0
+  const yearsOut = year - 2025
 
-  // Robotics ramp: mid-score occupations accelerate
-  const roboticsRamp = Math.min(1, (year - 2025) / 10)
-  const midScoreBoost = (score > 0.3 && score < 0.55) ? roboticsRamp * 0.10 : 0
+  // Agentic AI ramp for knowledge workers (post-2026)
+  const agenticRamp = year > 2026 ? Math.min(1, (year - 2026) / 4) : 0
+  const highScoreBoost = score > 0.5 ? agenticRamp * 0.25 : 0
+
+  // Robotics ramp for physical occupations
+  const roboticsRamp = Math.min(1, yearsOut / 10)
+  const midScoreBoost = (score > 0.25 && score < 0.55) ? roboticsRamp * 0.20 : 0
 
   // General time progression
-  const timeBoost = (year - 2025) * 0.005
+  const timeBoost = yearsOut * 0.008
 
   return 1.0 + timeBoost + highScoreBoost + midScoreBoost
 }
 
 /**
- * Corporate profit scenario modifier.
+ * Corporate profit scenario.
  */
 function corporateProfitModifier(profit: string): number {
   switch (profit) {
     case 'surge':
-      return 0.95  // Profit surge slightly reduces displacement (more adaptation budget)
+      return 0.85  // -15%: profit surge funds adaptation, reduces displacement pressure
     case 'decline':
-      return 1.08  // Profit decline accelerates cost-cutting automation
+      return 1.20  // +20%: profit decline accelerates cost-cutting automation
     default:
       return 1.0
   }
 }
 
 /**
- * AI equity loop modifier.
+ * AI equity loop.
  */
 function equityLoopModifier(loop: string, year: number): number {
   if (loop === 'intact' || year <= 2027) return 1.0
-  // Loop break: GDP drag increases displacement pressure over time
-  const timeIntensity = Math.min(1, (year - 2027) / 8)
-  return 1.0 + 0.10 * timeIntensity  // Up to +10% displacement
+  const timeIntensity = Math.min(1, (year - 2027) / 6)
+  return 1.0 + 0.25 * timeIntensity  // Up to +25%
 }
 
 /**
- * Government response modifier.
+ * Government response.
  */
 function govtResponseModifier(response: string, year: number): number {
   if (response === 'none') return 1.0
-  // Policy takes 1-2 years to implement
   const ramp = year >= 2027 ? Math.min(1, (year - 2025) / 3) : 0
   switch (response) {
     case 'retraining':
-      return 1.0 - 0.08 * ramp  // Up to -8% displacement
+      return 1.0 - 0.12 * ramp  // Up to -12%
     case 'ubi':
-      return 1.0 - 0.03 * ramp  // UBI preserves spending but doesn't reduce displacement much
+      return 1.0 - 0.20 * ramp  // Up to -20%: UBI preserves spending, slows cascade
     default:
       return 1.0
   }
 }
 
 /**
- * Fed response modifier.
+ * Fed response.
  */
 function fedResponseModifier(fed: string, year: number): number {
   if (fed === 'hold') return 1.0
   const ramp = Math.min(1, Math.max(0, (year - 2026) / 3))
   switch (fed) {
     case 'cut':
-      return 1.0 - 0.02 * ramp  // Slight GDP boost reduces displacement pressure
+      return 1.0 - 0.05 * ramp
     case 'zero':
-      return 1.0 - 0.04 * ramp  // Stronger boost
+      // Zero rates: cheap capital accelerates automation investment
+      return 1.0 + 0.15 * ramp  // +15%: more displacement, not less
     default:
       return 1.0
   }
 }
 
 /**
- * Apply all scenario modifiers to a set of county scores.
- * Returns new array with adjusted scores and re-computed percentiles.
+ * Apply all scenario modifiers and recompute percentiles.
  */
 export function applyScenarioModifiers(
   counties: CountyScore[],
@@ -130,13 +129,12 @@ export function applyScenarioModifiers(
 ): CountyScore[] {
   if (!counties.length) return counties
 
-  // Apply modifiers to each county
   const adjusted = counties.map(county => {
     const base = county.ai_exposure_score
 
     let modifier = 1.0
     modifier *= yearModifier(base, scenario.year)
-    modifier *= tradePolicyModifier(base, county, scenario.tradePolicy)
+    modifier *= tradePolicyModifier(base, scenario.tradePolicy)
     modifier *= corporateProfitModifier(scenario.corporateProfit)
     modifier *= equityLoopModifier(scenario.equityLoop, scenario.year)
     modifier *= govtResponseModifier(scenario.govtResponse, scenario.year)
@@ -150,12 +148,12 @@ export function applyScenarioModifiers(
     }
   })
 
-  // Re-compute percentiles on adjusted scores
-  const scores = adjusted.map(c => c.ai_exposure_score).sort((a, b) => a - b)
-  const n = scores.length
+  // Recompute percentiles
+  const sorted = adjusted.map(c => c.ai_exposure_score).sort((a, b) => a - b)
+  const n = sorted.length
 
   return adjusted.map(county => {
-    const rank = scores.filter(s => s <= county.ai_exposure_score).length
+    const rank = sorted.filter(s => s <= county.ai_exposure_score).length
     return {
       ...county,
       exposure_percentile: Math.round((rank / n) * 1000) / 10,
