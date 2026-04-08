@@ -1,6 +1,3 @@
 [build]
 builder = 'dockerfile'
 dockerfilePath = 'backend/Dockerfile'
-
-[deploy]
-startCommand = 'cd backend && bash start.sh'
