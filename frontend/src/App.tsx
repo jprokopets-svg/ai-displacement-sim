@@ -184,7 +184,7 @@ export default function App() {
                 )}
               </>
             ) : (
-              <WorldMap countries={countries as never[]} year={scenario.year} tradePolicy={scenario.tradePolicy} />
+              <WorldMap countries={countries as never[]} scenario={scenario} />
             )}
           </div>
         )}

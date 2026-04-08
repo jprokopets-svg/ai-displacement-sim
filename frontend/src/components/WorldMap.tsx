@@ -23,10 +23,19 @@ interface CountryScore {
   top_occupations: CountryOccupation[]
 }
 
+interface ScenarioState {
+  year: number
+  feedbackAggressiveness: number
+  tradePolicy: string
+  govtResponse: string
+  corporateProfit: string
+  equityLoop: string
+  fedResponse: string
+}
+
 interface WorldMapProps {
   countries: CountryScore[]
-  year?: number
-  tradePolicy?: string
+  scenario?: ScenarioState
 }
 
 const WORLD_TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
@@ -44,7 +53,12 @@ const TIER_LABELS = {
   tier3: 'Insufficient data',
 }
 
-export default function WorldMap({ countries, year = 2025, tradePolicy = 'current' }: WorldMapProps) {
+export default function WorldMap({ countries, scenario }: WorldMapProps) {
+  const year = scenario?.year ?? 2025
+  const tradePolicy = scenario?.tradePolicy ?? 'current'
+  const feedbackAgg = scenario?.feedbackAggressiveness ?? 0.5
+  const corporateProfit = scenario?.corporateProfit ?? 'baseline'
+  const equityLoop = scenario?.equityLoop ?? 'intact'
   const svgRef = useRef<SVGSVGElement>(null)
   const [topoData, setTopoData] = useState<Topology | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
@@ -53,20 +67,45 @@ export default function WorldMap({ countries, year = 2025, tradePolicy = 'curren
   const [selectedCountry, setSelectedCountry] = useState<CountryScore | null>(null)
 
   // Build lookup by numeric ID (what TopoJSON uses)
-  // Apply scenario modifiers to country scores
-  const yearMod = year <= 2025 ? 1.0 : 1.0 + (year - 2025) * 0.008
-  const tradeMod = tradePolicy === 'free_trade' ? 1.10 : tradePolicy === 'escalating_tariffs' ? 0.95 : 1.0
-
+  // Apply full scenario modifiers to country scores (same logic as US counties)
   const countryByNumeric = new Map<string, CountryScore>()
   for (const c of countries) {
-    if (c.numeric_id) {
-      if (c.ai_exposure_score !== null) {
-        const adjusted = Math.min(1, c.ai_exposure_score * yearMod * tradeMod)
-        countryByNumeric.set(c.numeric_id, { ...c, ai_exposure_score: adjusted })
-      } else {
-        countryByNumeric.set(c.numeric_id, c)
-      }
+    if (!c.numeric_id) continue
+    if (c.ai_exposure_score === null) {
+      countryByNumeric.set(c.numeric_id, c)
+      continue
     }
+
+    const base = c.ai_exposure_score
+    let mod = 1.0
+
+    // Year modifier
+    if (year > 2025) {
+      const agenticRamp = year > 2026 ? Math.min(1, (year - 2026) / 4) : 0
+      mod *= 1.0 + (year - 2025) * 0.008 + (base > 0.45 ? agenticRamp * 0.20 : 0)
+    }
+
+    // Trade policy
+    if (tradePolicy === 'escalating_tariffs') mod *= base < 0.45 ? 1.20 : 1.05
+    else if (tradePolicy === 'free_trade') mod *= base > 0.45 ? 1.15 : 0.92
+
+    // Corporate profit
+    if (corporateProfit === 'surge') mod *= 0.88
+    else if (corporateProfit === 'decline') mod *= 1.18
+
+    // Equity loop
+    if (equityLoop === 'breaks' && year > 2027) {
+      mod *= 1.0 + 0.22 * Math.min(1, (year - 2027) / 6)
+    }
+
+    // Feedback aggressiveness (medium/long term only)
+    if (year > 2026) {
+      const timeRamp = Math.min(1, (year - 2026) / 6)
+      mod *= 1.0 + feedbackAgg * 0.28 * timeRamp
+    }
+
+    const adjusted = Math.min(1, Math.max(0, base * mod))
+    countryByNumeric.set(c.numeric_id, { ...c, ai_exposure_score: adjusted })
   }
 
   useEffect(() => {
@@ -153,7 +192,7 @@ export default function WorldMap({ countries, year = 2025, tradePolicy = 'curren
       })
     svg.call(zoom)
 
-  }, [topoData, countries, year, tradePolicy])
+  }, [topoData, countries, year, tradePolicy, feedbackAgg, corporateProfit, equityLoop])
 
   const scoredCount = countries.filter(c => c.ai_exposure_score !== null).length
 
@@ -178,7 +217,7 @@ export default function WorldMap({ countries, year = 2025, tradePolicy = 'curren
           <span style={{ color: 'var(--text-muted)' }}>Low</span>
           <div style={{
             width: 120, height: 10, borderRadius: 2,
-            background: 'linear-gradient(to right, #15803d, #4ade80, #eab308, #f97316, #ef4444, #7f1d1d)',
+            background: 'linear-gradient(to right, #2ecc71, #a3d977, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
           }} />
           <span style={{ color: 'var(--text-muted)' }}>High</span>
         </div>

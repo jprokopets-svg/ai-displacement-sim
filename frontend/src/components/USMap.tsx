@@ -361,7 +361,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
           <span style={{ color: 'var(--text-muted)' }}>Low</span>
           <div style={{
             width: 120, height: 10, borderRadius: 2,
-            background: 'linear-gradient(to right, #15803d, #4ade80, #eab308, #f97316, #ef4444, #7f1d1d)',
+            background: 'linear-gradient(to right, #2ecc71, #a3d977, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
           }} />
           <span style={{ color: 'var(--text-muted)' }}>High</span>
         </div>

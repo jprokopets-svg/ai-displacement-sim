@@ -1,18 +1,21 @@
 import * as d3 from 'd3'
 
 /**
- * Color scale for AI exposure using aggressive percentile breakpoints:
- *   Bottom 25% (p0-p25):    deep green → green
- *   25-50% (p25-p50):       green → yellow-green
- *   50-75% (p50-p75):       yellow → orange
- *   75-90% (p75-p90):       orange → red
- *   Top 10% (p90-p100):     red → deep red
+ * Perceptually uniform color scale with extra separation at the top 25%.
  *
- * This ensures scenario modifiers visibly shift counties between color bands.
+ *   p0-p25:    green → yellow-green
+ *   p25-p50:   yellow-green → yellow
+ *   p50-p75:   yellow → orange
+ *   p75-p90:   orange → red
+ *   p90-p97:   red → deep red
+ *   p97-p100:  deep red → near-black dark red
+ *
+ * Three distinct steps in the top 10% so high, very-high, and extreme
+ * counties are visually distinguishable.
  */
 export const exposureColorScale = d3.scaleLinear<string>()
-  .domain([0, 25, 50, 75, 90, 100])
-  .range(['#15803d', '#4ade80', '#eab308', '#f97316', '#ef4444', '#7f1d1d'])
+  .domain([0, 25, 50, 75, 90, 97, 100])
+  .range(['#2ecc71', '#a3d977', '#f1c40f', '#e67e22', '#e74c3c', '#c0392b', '#7b241c'])
   .clamp(true)
 
 /**
