@@ -107,6 +107,23 @@ function fedResponseModifier(fed: string, year: number): number {
 }
 
 /**
+ * Feedback loop aggressiveness modifier.
+ * At year 2025: minimal effect regardless of slider position.
+ * At year 2030+: slider position strongly amplifies displacement.
+ * Goldman gradual (0.0) = no feedback amplification.
+ * Full cascade (1.0) = displacement accelerates displacement.
+ */
+function feedbackModifier(aggressiveness: number, year: number): number {
+  if (year <= 2026) return 1.0
+  // Feedback loops only matter in medium/long term
+  const timeRamp = Math.min(1, (year - 2026) / 6)  // Full effect by 2032
+  // At aggressiveness 0.5 (default): +10% at full time ramp
+  // At aggressiveness 1.0 (full cascade): +30% at full time ramp
+  const amplification = aggressiveness * 0.30 * timeRamp
+  return 1.0 + amplification
+}
+
+/**
  * Apply scenario modifiers and map adjusted scores to BASELINE percentiles.
  *
  * This is the key fix: percentiles come from the original unmodified distribution,
@@ -133,6 +150,7 @@ export function applyScenarioModifiers(
     modifier *= equityLoopModifier(scenario.equityLoop, scenario.year)
     modifier *= govtResponseModifier(scenario.govtResponse, scenario.year)
     modifier *= fedResponseModifier(scenario.fedResponse, scenario.year)
+    modifier *= feedbackModifier(scenario.feedbackAggressiveness, scenario.year)
 
     const adjustedScore = Math.min(1, Math.max(0, base * modifier))
 

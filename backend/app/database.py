@@ -142,6 +142,67 @@ def get_all_country_scores() -> List[Dict]:
     return results
 
 
+def get_county_overlays() -> Dict:
+    """Get all overlay data keyed by county FIPS for the frontend."""
+    import json as _json
+    with get_db() as conn:
+        # Dynamics: cascade, reshoring paradox, manufacturing
+        dynamics = {}
+        try:
+            for r in conn.execute(
+                """SELECT county_fips, cascade_score, reshoring_paradox_score,
+                          manufacturing_emp_pct, small_biz_concentration,
+                          sector_ai_pressure, consumer_facing_pct
+                   FROM county_dynamics"""
+            ):
+                dynamics[r["county_fips"]] = dict(r)
+        except Exception:
+            pass
+
+        # Government floor: transfer payments, govt employment
+        govt = {}
+        try:
+            for r in conn.execute(
+                """SELECT county_fips, govt_floor_score, govt_pct, federal_pct,
+                          transfer_pct, transfer_dependency_label
+                   FROM county_govt_floor"""
+            ):
+                govt[r["county_fips"]] = dict(r)
+        except Exception:
+            pass
+
+        # K-shape: equity/wage ratio, scores
+        kshape = {}
+        try:
+            for r in conn.execute(
+                """SELECT county_fips, kshape_score, equity_insulation,
+                          equity_fragility, equity_wage_ratio,
+                          per_capita_income, gini_coefficient
+                   FROM county_kshape"""
+            ):
+                kshape[r["county_fips"]] = dict(r)
+        except Exception:
+            pass
+
+    return {
+        "dynamics": dynamics,
+        "govt_floor": govt,
+        "kshape": kshape,
+    }
+
+
+def get_company_displacement() -> List[Dict]:
+    """Load company displacement data from the scraper export."""
+    import json as _json
+    from pathlib import Path
+    path = Path(__file__).parent.parent / "data" / "company_displacement.json"
+    if not path.exists():
+        return []
+    with open(path) as f:
+        data = _json.load(f)
+    return data.get("companies", [])
+
+
 def get_model_assumptions() -> List[Dict]:
     """Get all documented model assumptions."""
     with get_db() as conn:

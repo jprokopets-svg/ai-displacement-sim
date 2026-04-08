@@ -20,6 +20,8 @@ from .database import (
     get_occupation_detail,
     get_model_assumptions,
     get_all_country_scores,
+    get_county_overlays,
+    get_company_displacement,
 )
 from .models import SimulationParams, SimulationResult
 from .simulation import run_simulation
@@ -67,6 +69,19 @@ def list_countries():
     """International country-level AI exposure scores."""
     scores = get_all_country_scores()
     return {"countries": scores, "count": len(scores)}
+
+
+@app.get("/api/overlays")
+def county_overlays():
+    """All county overlay data: dynamics, govt floor, K-shape."""
+    return get_county_overlays()
+
+
+@app.get("/api/companies")
+def company_data():
+    """Company displacement data with office locations."""
+    companies = get_company_displacement()
+    return {"companies": companies, "count": len(companies)}
 
 
 @app.get("/api/occupations/search")

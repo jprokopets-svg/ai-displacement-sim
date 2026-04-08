@@ -6,7 +6,7 @@ import SimulationPanel from './components/SimulationPanel'
 import JobSearch from './components/JobSearch'
 import ControlPanel from './components/ControlPanel'
 import type { ScenarioState } from './components/ControlPanel'
-import { fetchCounties, fetchCountries } from './utils/api'
+import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
 import DebugPanel from './components/DebugPanel'
 
@@ -45,6 +45,8 @@ export default function App() {
   }, [])
   const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
   const [countries, setCountries] = useState<Record<string, unknown>[]>([])
+  const [overlays, setOverlays] = useState<Record<string, Record<string, Record<string, unknown>>>>({})
+  const [companyData, setCompanyData] = useState<Record<string, unknown>[]>([])
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,6 +55,8 @@ export default function App() {
     Promise.all([
       fetchCounties().then(data => setBaseCounties(data.counties)),
       fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
+      fetchOverlays().then(setOverlays).catch(() => {}),
+      fetchCompanyDisplacement().then(data => setCompanyData(data.companies || [])).catch(() => {}),
     ])
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
@@ -158,6 +162,9 @@ export default function App() {
                   onCountyClick={handleCountyClick}
                   year={scenario.year}
                   selectedCounty={selectedCounty}
+                  overlays={overlays}
+                  companyData={companyData}
+                  scenario={scenario}
                 />
                 {selectedCounty && (
                   <CountyDetailPanel

@@ -4,6 +4,7 @@ import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
 import { getExposureColor, formatExposure, formatNumber } from '../utils/colors'
 import { getUncertaintyState, getHatchPatternDef, BAND_LABELS } from '../utils/uncertainty'
+import type { ScenarioState } from './ControlPanel'
 
 interface CountyScore {
   county_fips: string
@@ -20,6 +21,9 @@ interface USMapProps {
   onCountyClick: (fips: string) => void
   selectedCounty: string | null
   year?: number
+  overlays?: Record<string, Record<string, Record<string, unknown>>>
+  companyData?: Record<string, unknown>[]
+  scenario?: ScenarioState
 }
 
 interface TooltipState {
@@ -31,7 +35,7 @@ interface TooltipState {
 
 const TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'
 
-export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025 }: USMapProps) {
+export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025, overlays, companyData, scenario }: USMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, data: null,
@@ -85,7 +89,32 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       .attr('fill', d => {
         const fips = String(d.id).padStart(5, '0')
         const county = countyMap.get(fips)
-        return county ? getExposureColor(county.exposure_percentile) : '#1a1a25'
+        if (!county) return '#1a1a25'
+
+        // Check if an overlay layer is selected
+        const layer = scenario?.mapLayer || 'composite'
+        if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
+          const score = (overlays.govt_floor[fips].govt_floor_score as number) || 0
+          return getExposureColor(score * 100)  // 0-1 → 0-100 percentile
+        }
+        if (layer === 'cascade' && overlays?.dynamics?.[fips]) {
+          const score = (overlays.dynamics[fips].cascade_score as number) || 0
+          return getExposureColor(score * 100)
+        }
+        if (scenario?.showTransferDependency && overlays?.govt_floor?.[fips]) {
+          const tp = (overlays.govt_floor[fips].transfer_pct as number) || 0
+          // Transfer: blue scale (high = more dependent)
+          const intensity = Math.min(255, Math.round(tp * 400))
+          return `rgb(${50}, ${100 + 155 - intensity}, ${intensity})`
+        }
+        if (scenario?.showKshapeDivergence && overlays?.kshape?.[fips]) {
+          const ratio = (overlays.kshape[fips].equity_wage_ratio as number) || 0
+          // K-shape: purple scale (high ratio = more divergent)
+          const intensity = Math.min(255, Math.round(ratio * 200))
+          return `rgb(${100 + intensity}, ${50}, ${200})`
+        }
+
+        return getExposureColor(county.exposure_percentile)
       })
       .attr('opacity', uncertainty.opacity)
       .attr('stroke', d => {
@@ -147,6 +176,61 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         .attr('pointer-events', 'none')
     }
 
+    // Company displacement dots
+    if (scenario?.showCompanyDots && companyData && companyData.length > 0) {
+      const dotsGroup = g.append('g').attr('class', 'company-dots')
+      for (const company of companyData) {
+        const offices = (company as Record<string, unknown>).offices as Record<string, unknown>[] || []
+        const events = (company as Record<string, unknown>).displacement_events as Record<string, unknown>[] || []
+        const totalHc = events.reduce((sum: number, e: Record<string, unknown>) =>
+          sum + ((e.headcount_impact as number) || 0), 0)
+        const maxConf = Math.max(...events.map((e: Record<string, unknown>) => (e.confidence_score as number) || 0))
+
+        for (const office of offices) {
+          const lat = office.lat as number
+          const lng = office.lng as number
+          if (!lat || !lng) continue
+          const coords = projection([lng, lat])
+          if (!coords) continue
+
+          const radius = Math.max(3, Math.min(15, Math.sqrt(totalHc / 100)))
+          dotsGroup.append('circle')
+            .attr('cx', coords[0])
+            .attr('cy', coords[1])
+            .attr('r', radius)
+            .attr('fill', maxConf >= 4 ? '#ef4444' : '#f97316')
+            .attr('fill-opacity', 0.7)
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 0.5)
+            .style('pointer-events', 'none')
+        }
+      }
+    }
+
+    // Reshoring paradox indicators
+    if (scenario?.showReshoringParadox && overlays?.dynamics) {
+      const mfgGroup = g.append('g').attr('class', 'reshoring')
+      for (const [fips, data] of Object.entries(overlays.dynamics)) {
+        const mfgPct = (data.manufacturing_emp_pct as number) || 0
+        const paradox = (data.reshoring_paradox_score as number) || 0
+        if (mfgPct < 0.10 || paradox < 0.1) continue
+        // Find county centroid (approximate from the features)
+        const feature = countyFeatures.features.find(f => String(f.id).padStart(5, '0') === fips)
+        if (!feature) continue
+        const centroid = path.centroid(feature)
+        if (!centroid || isNaN(centroid[0])) continue
+        mfgGroup.append('text')
+          .attr('x', centroid[0])
+          .attr('y', centroid[1])
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'central')
+          .attr('font-size', 6)
+          .attr('fill', '#ffa84a')
+          .attr('pointer-events', 'none')
+          .text('R')
+      }
+    }
+
     // Zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 12])
@@ -156,7 +240,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
     svg.call(zoom)
 
-  }, [topoData, counties, selectedCounty, onCountyClick, year])
+  }, [topoData, counties, selectedCounty, onCountyClick, year, overlays, companyData, scenario])
 
   const uncertainty = getUncertaintyState(year)
   const bandInfo = BAND_LABELS[uncertainty.band]

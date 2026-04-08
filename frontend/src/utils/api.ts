@@ -30,6 +30,18 @@ export async function fetchCountries() {
   return res.json()
 }
 
+export async function fetchOverlays() {
+  const res = await fetch(`${API_BASE}/overlays`)
+  if (!res.ok) throw new Error(`Failed to fetch overlays: ${res.statusText}`)
+  return res.json()
+}
+
+export async function fetchCompanyDisplacement() {
+  const res = await fetch(`${API_BASE}/companies`)
+  if (!res.ok) throw new Error(`Failed to fetch companies: ${res.statusText}`)
+  return res.json()
+}
+
 export interface SimulationParams {
   ai_adoption_pace: number
   policy_response: 'none' | 'retraining' | 'ubi'
