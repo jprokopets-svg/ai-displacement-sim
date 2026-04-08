@@ -194,12 +194,23 @@ function ToggleControl({ label, checked, onChange }: {
 }) {
   return (
     <label style={{
-      display: 'flex', alignItems: 'center', gap: 6,
-      marginBottom: 4, cursor: 'pointer', fontSize: 11,
-      color: checked ? 'var(--text-primary)' : 'var(--text-muted)',
+      display: 'flex', alignItems: 'center', gap: 8,
+      marginBottom: 6, cursor: 'pointer', fontSize: 11,
+      color: checked ? '#fff' : 'var(--text-secondary)',
+      padding: '3px 0',
+      userSelect: 'none',
     }}>
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: 16, height: 16, borderRadius: 3, flexShrink: 0,
+        border: checked ? '2px solid var(--accent)' : '2px solid #555',
+        background: checked ? 'var(--accent)' : 'transparent',
+        transition: 'all 0.15s',
+      }}>
+        {checked && <span style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>✓</span>}
+      </span>
       <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)}
-        style={{ accentColor: 'var(--accent)' }} />
+        style={{ display: 'none' }} />
       {label}
     </label>
   )

@@ -103,21 +103,20 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         }
         if (scenario?.showTransferDependency && overlays?.govt_floor?.[fips]) {
           const tp = (overlays.govt_floor[fips].transfer_pct as number) || 0
-          // Transfer: blue scale — low (dark) to high (bright cyan)
-          const t = Math.min(1, tp / 0.70)  // Normalize to 0-1 (70%+ is max)
-          const r = Math.round(20 + t * 30)
-          const gr = Math.round(40 + t * 100)
-          const b = Math.round(80 + t * 175)
+          // Transfer: near-white (0%) to electric cyan (80%+)
+          const t = Math.min(1, tp / 0.65)
+          const r = Math.round(230 - t * 210)   // 230 → 20
+          const gr = Math.round(235 - t * 15)    // 235 → 220
+          const b = Math.round(240 + t * 15)     // 240 → 255
           return `rgb(${r}, ${gr}, ${b})`
         }
         if (scenario?.showKshapeDivergence && overlays?.kshape?.[fips]) {
           const ratio = (overlays.kshape[fips].equity_wage_ratio as number) || 0
-          // K-shape: wide range from lavender (low) to deep magenta (high)
-          // Ratio range: ~0.1 (rural) to ~1.5 (wealthy suburbs)
-          const t = Math.min(1, ratio / 1.2)  // Normalize
-          const r = Math.round(100 + t * 155)   // 100 → 255
-          const gr = Math.round(80 - t * 70)    // 80 → 10
-          const b = Math.round(130 + t * 80)    // 130 → 210
+          // K-shape: near-white (low ratio) to hot magenta (high ratio)
+          const t = Math.min(1, ratio / 1.0)
+          const r = Math.round(235 - t * 10)     // 235 → 225
+          const gr = Math.round(230 - t * 220)   // 230 → 10
+          const b = Math.round(240 - t * 40)     // 240 → 200
           return `rgb(${r}, ${gr}, ${b})`
         }
 

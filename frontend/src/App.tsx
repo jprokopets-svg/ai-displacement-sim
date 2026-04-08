@@ -55,8 +55,17 @@ export default function App() {
     Promise.all([
       fetchCounties().then(data => setBaseCounties(data.counties)),
       fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
-      fetchOverlays().then(setOverlays).catch(() => {}),
-      fetchCompanyDisplacement().then(data => setCompanyData(data.companies || [])).catch(() => {}),
+      fetchOverlays().then(data => {
+        console.log('[Overlays] loaded:', Object.keys(data),
+          'dynamics:', Object.keys(data.dynamics || {}).length,
+          'govt:', Object.keys(data.govt_floor || {}).length,
+          'kshape:', Object.keys(data.kshape || {}).length)
+        setOverlays(data)
+      }).catch(e => console.error('[Overlays] failed:', e)),
+      fetchCompanyDisplacement().then(data => {
+        console.log('[Companies] loaded:', (data.companies || []).length)
+        setCompanyData(data.companies || [])
+      }).catch(e => console.error('[Companies] failed:', e)),
     ])
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
