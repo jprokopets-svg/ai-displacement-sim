@@ -19,6 +19,7 @@ from .database import (
     search_occupation,
     get_occupation_detail,
     get_model_assumptions,
+    get_all_country_scores,
 )
 from .models import SimulationParams, SimulationResult
 from .simulation import run_simulation
@@ -58,6 +59,13 @@ def county_detail(county_fips: str):
     if not detail:
         raise HTTPException(status_code=404, detail=f"County {county_fips} not found")
     return detail
+
+
+@app.get("/api/countries")
+def list_countries():
+    """International country-level AI exposure scores."""
+    scores = get_all_country_scores()
+    return {"countries": scores, "count": len(scores)}
 
 
 @app.get("/api/occupations/search")

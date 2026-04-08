@@ -1,0 +1,216 @@
+import { getUncertaintyState, BAND_LABELS } from '../utils/uncertainty'
+
+export interface ScenarioState {
+  year: number
+  feedbackAggressiveness: number
+  tradePolicy: 'current' | 'free_trade' | 'escalating_tariffs'
+  govtResponse: 'none' | 'retraining' | 'ubi'
+  corporateProfit: 'baseline' | 'surge' | 'decline'
+  equityLoop: 'intact' | 'breaks'
+  fedResponse: 'hold' | 'cut' | 'zero'
+  mapLayer: string
+  showCompanyDots: boolean
+  showReshoringParadox: boolean
+  showTransferDependency: boolean
+  showKshapeDivergence: boolean
+}
+
+interface ControlPanelProps {
+  state: ScenarioState
+  onChange: (updates: Partial<ScenarioState>) => void
+}
+
+export default function ControlPanel({ state, onChange }: ControlPanelProps) {
+  const uncertainty = getUncertaintyState(state.year)
+  const bandInfo = BAND_LABELS[uncertainty.band]
+
+  return (
+    <div style={{
+      position: 'absolute', top: 12, left: 12, zIndex: 50,
+      background: 'var(--bg-panel)', borderRadius: 8,
+      border: '1px solid var(--border)', padding: 12,
+      width: 260, maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
+      fontSize: 12,
+    }}>
+      {/* Section 1: Time and Scenario */}
+      <SectionHeader title="Time & Scenario" />
+
+      <label style={labelStyle}>
+        Year: <strong>{state.year}</strong>
+        <span style={{ color: bandInfo.color, marginLeft: 6, fontSize: 10 }}>
+          {bandInfo.label}
+        </span>
+      </label>
+      <input
+        type="range" min="2025" max="2040" step="1"
+        value={state.year}
+        onChange={e => onChange({ year: +e.target.value })}
+        style={{ width: '100%' }}
+      />
+
+      <label style={labelStyle}>
+        Feedback Loop: {state.feedbackAggressiveness.toFixed(1)}
+        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+          {' '}(Goldman gradual ← → Full cascade)
+        </span>
+      </label>
+      <div style={{ position: 'relative' }}>
+        <input
+          type="range" min="0" max="1" step="0.05"
+          value={state.feedbackAggressiveness}
+          onChange={e => onChange({ feedbackAggressiveness: +e.target.value })}
+          style={{ width: '100%' }}
+        />
+        {/* Author prediction marker at 7.5/10 = 0.75 */}
+        <div style={{
+          position: 'absolute', top: -2, left: '75%', transform: 'translateX(-50%)',
+          width: 2, height: 20, background: 'var(--accent)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', top: 18, left: '75%', transform: 'translateX(-50%)',
+          fontSize: 9, color: 'var(--accent)', whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+        }}>
+          Author prediction
+        </div>
+      </div>
+      <div style={{ height: 16 }} />
+
+      {/* Section 2: Economic Scenario */}
+      <SectionHeader title="Economic Scenario" />
+
+      <SelectControl label="Trade Policy" value={state.tradePolicy}
+        onChange={v => onChange({ tradePolicy: v as ScenarioState['tradePolicy'] })}
+        options={[
+          { value: 'current', label: 'Current tariffs' },
+          { value: 'free_trade', label: 'Free trade' },
+          { value: 'escalating_tariffs', label: 'Escalating tariffs' },
+        ]}
+      />
+      <SelectControl label="Government Response" value={state.govtResponse}
+        onChange={v => onChange({ govtResponse: v as ScenarioState['govtResponse'] })}
+        options={[
+          { value: 'none', label: 'No intervention' },
+          { value: 'retraining', label: 'Retraining programs' },
+          { value: 'ubi', label: 'Universal Basic Income' },
+        ]}
+      />
+      <SelectControl label="Corporate Profits" value={state.corporateProfit}
+        onChange={v => onChange({ corporateProfit: v as ScenarioState['corporateProfit'] })}
+        options={[
+          { value: 'baseline', label: 'Baseline growth' },
+          { value: 'surge', label: 'Profit surge (10x)' },
+          { value: 'decline', label: 'Profit decline' },
+        ]}
+      />
+      <SelectControl label="AI Equity Loop" value={state.equityLoop}
+        onChange={v => onChange({ equityLoop: v as ScenarioState['equityLoop'] })}
+        options={[
+          { value: 'intact', label: 'Loop intact' },
+          { value: 'breaks', label: 'Loop breaks (speculative)' },
+        ]}
+      />
+      <SelectControl label="Fed Response" value={state.fedResponse}
+        onChange={v => onChange({ fedResponse: v as ScenarioState['fedResponse'] })}
+        options={[
+          { value: 'hold', label: 'Hold rates' },
+          { value: 'cut', label: 'Rate cuts' },
+          { value: 'zero', label: 'Zero rate policy' },
+        ]}
+      />
+
+      {/* Section 3: Map Layer */}
+      <SectionHeader title="Map Layer" />
+
+      <SelectControl label="Color by" value={state.mapLayer}
+        onChange={v => onChange({ mapLayer: v })}
+        options={[
+          { value: 'composite', label: 'Composite displacement' },
+          { value: 'cognitive', label: 'Cognitive AI only' },
+          { value: 'robotics', label: 'Robotics only' },
+          { value: 'agentic', label: 'Agentic AI' },
+          { value: 'offshoring', label: 'Offshoring risk' },
+          { value: 'fragility', label: 'Local economy fragility' },
+          { value: 'govt_floor', label: 'Government floor strength' },
+          { value: 'cascade', label: 'Competitive cascade' },
+        ]}
+      />
+
+      {/* Section 4: Overlays */}
+      <SectionHeader title="Overlays" />
+
+      <ToggleControl label="Company displacement dots"
+        checked={state.showCompanyDots}
+        onChange={v => onChange({ showCompanyDots: v })}
+      />
+      <ToggleControl label="Reshoring paradox (mfg counties)"
+        checked={state.showReshoringParadox}
+        onChange={v => onChange({ showReshoringParadox: v })}
+      />
+      <ToggleControl label="Transfer payment dependency"
+        checked={state.showTransferDependency}
+        onChange={v => onChange({ showTransferDependency: v })}
+      />
+      <ToggleControl label="K-shape divergence"
+        checked={state.showKshapeDivergence}
+        onChange={v => onChange({ showKshapeDivergence: v })}
+      />
+    </div>
+  )
+}
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <div style={{
+      fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
+      color: 'var(--text-muted)', letterSpacing: '0.05em',
+      marginTop: 12, marginBottom: 6,
+      paddingBottom: 4, borderBottom: '1px solid var(--border)',
+    }}>
+      {title}
+    </div>
+  )
+}
+
+function SelectControl({ label, value, onChange, options }: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  options: { value: string; label: string }[]
+}) {
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <label style={{ ...labelStyle, marginBottom: 2 }}>{label}</label>
+      <select value={value} onChange={e => onChange(e.target.value)} style={selectStyle}>
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </div>
+  )
+}
+
+function ToggleControl({ label, checked, onChange }: {
+  label: string; checked: boolean; onChange: (v: boolean) => void
+}) {
+  return (
+    <label style={{
+      display: 'flex', alignItems: 'center', gap: 6,
+      marginBottom: 4, cursor: 'pointer', fontSize: 11,
+      color: checked ? 'var(--text-primary)' : 'var(--text-muted)',
+    }}>
+      <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)}
+        style={{ accentColor: 'var(--accent)' }} />
+      {label}
+    </label>
+  )
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 2,
+}
+
+const selectStyle: React.CSSProperties = {
+  width: '100%', padding: '3px 6px', borderRadius: 4, fontSize: 11,
+  background: 'var(--bg-secondary)', color: 'var(--text-primary)',
+  border: '1px solid var(--border)',
+}

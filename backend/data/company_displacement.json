@@ -1,0 +1,1069 @@
+{
+  "companies": [
+    {
+      "name": "Accenture",
+      "ticker": "ACN",
+      "sector": "Consulting",
+      "headquarters": {
+        "lat": 53.3498,
+        "lng": -6.2603
+      },
+      "offices": [
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7566,
+          "lng": -73.9863,
+          "employee_count": 8000
+        },
+        {
+          "city": "Chicago",
+          "state": "IL",
+          "country": "US",
+          "lat": 41.8832,
+          "lng": -87.6364,
+          "employee_count": 3000
+        },
+        {
+          "city": "San Francisco",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.7905,
+          "lng": -122.4011,
+          "employee_count": 2000
+        },
+        {
+          "city": "Atlanta",
+          "state": "GA",
+          "country": "US",
+          "lat": 33.7537,
+          "lng": -84.3863,
+          "employee_count": 2000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-03-21",
+          "description": "Accenture cut 19,000 jobs while investing $3B in AI. CEO Julie Sweet stated AI tools are automating routine consulting deliverables and back-office operations.",
+          "headcount_impact": 19000,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/business/accenture-cuts-19000-jobs-lowers-revenue-outlook-2024-03-21/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 19000,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Amazon",
+      "ticker": "AMZN",
+      "sector": "Technology / Retail",
+      "headquarters": {
+        "lat": 47.6062,
+        "lng": -122.3321
+      },
+      "offices": [
+        {
+          "city": "Seattle",
+          "state": "WA",
+          "country": "US",
+          "lat": 47.6062,
+          "lng": -122.3321,
+          "employee_count": 75000
+        },
+        {
+          "city": "Arlington",
+          "state": "VA",
+          "country": "US",
+          "lat": 38.8816,
+          "lng": -77.091,
+          "employee_count": 25000
+        },
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7413,
+          "lng": -74.003,
+          "employee_count": 3000
+        },
+        {
+          "city": "San Francisco",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.7894,
+          "lng": -122.3892,
+          "employee_count": 5000
+        },
+        {
+          "city": "Nashville",
+          "state": "TN",
+          "country": "US",
+          "lat": 36.1627,
+          "lng": -86.7816,
+          "employee_count": 5000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-10-01",
+          "description": "Amazon deployed AI agents replacing human customer service roles in multiple categories. Internal documents showed AI handling 80%+ of customer inquiries previously routed to agents.",
+          "headcount_impact": 100,
+          "confidence_score": 4,
+          "source_url": "https://www.businessinsider.com/amazon-ai-customer-service-agents-replacing-humans-2024-10",
+          "source_type": "Business Insider",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 100,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Aurora Innovation",
+      "ticker": "AUR",
+      "sector": "Autonomous Vehicles",
+      "headquarters": {
+        "lat": 40.4333,
+        "lng": -79.9226
+      },
+      "offices": [
+        {
+          "city": "Pittsburgh",
+          "state": "PA",
+          "country": "US",
+          "lat": 40.4333,
+          "lng": -79.9226,
+          "employee_count": 800
+        },
+        {
+          "city": "Mountain View",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.4055,
+          "lng": -122.0788,
+          "employee_count": 400
+        },
+        {
+          "city": "Dallas",
+          "state": "TX",
+          "country": "US",
+          "lat": 32.8002,
+          "lng": -96.7989,
+          "employee_count": 200
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-04-04",
+          "description": "Aurora launched commercial autonomous trucking on I-45 (Dallas-Houston). Each autonomous truck directly displaces long-haul trucking jobs on that route.",
+          "headcount_impact": null,
+          "confidence_score": 4,
+          "source_url": "https://aurora.tech/blog/aurora-driver-launches-commercially",
+          "source_type": "Company Press Release",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Block",
+      "ticker": "SQ",
+      "sector": "Fintech",
+      "headquarters": {
+        "lat": 37.7833,
+        "lng": -122.3928
+      },
+      "offices": [
+        {
+          "city": "San Francisco",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.7833,
+          "lng": -122.3928,
+          "employee_count": 3000
+        },
+        {
+          "city": "Oakland",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.8044,
+          "lng": -122.2712,
+          "employee_count": 1000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-01-11",
+          "description": "Block CEO Jack Dorsey cut ~1000 employees in 2024, stating AI enables smaller teams. Internal memos showed AI replacing customer support and compliance review functions.",
+          "headcount_impact": 1000,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/2024-01-11/block-cuts-about-1000-employees",
+          "source_type": "Bloomberg",
+          "evidence_type": "earnings_call"
+        }
+      ],
+      "total_headcount_impacted": 1000,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Chegg",
+      "ticker": "CHGG",
+      "sector": "Education Technology",
+      "headquarters": {
+        "lat": 37.5585,
+        "lng": -122.2711
+      },
+      "offices": [
+        {
+          "city": "Santa Clara",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.3541,
+          "lng": -121.9552,
+          "employee_count": 800
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-06-17",
+          "description": "Chegg laid off 23% of workforce (319 employees), CEO Dan Rosensweig citing ChatGPT's impact on student demand for Chegg's homework help service.",
+          "headcount_impact": 319,
+          "confidence_score": 4,
+          "source_url": "https://www.cnbc.com/2024/06/17/chegg-cutting-23percent-of-workforce-as-ai-hits-online-education.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 319,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "CrowdStrike",
+      "ticker": "CRWD",
+      "sector": "Cybersecurity",
+      "headquarters": {
+        "lat": 30.2672,
+        "lng": -97.7431
+      },
+      "offices": [
+        {
+          "city": "Austin",
+          "state": "TX",
+          "country": "US",
+          "lat": 30.2672,
+          "lng": -97.7431,
+          "employee_count": 2000
+        },
+        {
+          "city": "Sunnyvale",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.3688,
+          "lng": -122.0363,
+          "employee_count": 1500
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-06-04",
+          "description": "CrowdStrike CEO George Kurtz stated Charlotte AI copilot enables each security analyst to do 10x more work. Restructuring shifted headcount from manual operations to AI development.",
+          "headcount_impact": 500,
+          "confidence_score": 3,
+          "source_url": "https://www.crn.com/news/security/crowdstrike-layoffs-2024",
+          "source_type": "CRN",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 500,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Dropbox",
+      "ticker": "DBX",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": 37.7749,
+        "lng": -122.4194
+      },
+      "offices": [
+        {
+          "city": "San Francisco",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.7749,
+          "lng": -122.4194,
+          "employee_count": 1500
+        },
+        {
+          "city": "Seattle",
+          "state": "WA",
+          "country": "US",
+          "lat": 47.6062,
+          "lng": -122.3321,
+          "employee_count": 400
+        },
+        {
+          "city": "Austin",
+          "state": "TX",
+          "country": "US",
+          "lat": 30.2672,
+          "lng": -97.7431,
+          "employee_count": 300
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-04-25",
+          "description": "Dropbox CEO Drew Houston laid off 16% of workforce, stating need to shift investment toward AI and that the company was building AI-powered products to replace manual workflows.",
+          "headcount_impact": 528,
+          "confidence_score": 4,
+          "source_url": "https://www.theverge.com/2024/4/25/24140517/dropbox-layoffs-528-employees",
+          "source_type": "The Verge",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 528,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Duolingo",
+      "ticker": "DUOL",
+      "sector": "Education Technology",
+      "headquarters": {
+        "lat": 40.4406,
+        "lng": -79.9959
+      },
+      "offices": [
+        {
+          "city": "Pittsburgh",
+          "state": "PA",
+          "country": "US",
+          "lat": 40.4406,
+          "lng": -79.9959,
+          "employee_count": 500
+        },
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7128,
+          "lng": -74.006,
+          "employee_count": 100
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-01-08",
+          "description": "Duolingo cut ~10% of contractors who translated content, replacing them with AI-generated translations reviewed by remaining staff.",
+          "headcount_impact": 70,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/2024-01-08/duolingo-cuts-10-of-contractors-as-it-relies-more-on-ai",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 70,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Ford",
+      "ticker": "F",
+      "sector": "Automotive",
+      "headquarters": {
+        "lat": 42.3122,
+        "lng": -83.2146
+      },
+      "offices": [
+        {
+          "city": "Dearborn",
+          "state": "MI",
+          "country": "US",
+          "lat": 42.3122,
+          "lng": -83.2146,
+          "employee_count": 30000
+        },
+        {
+          "city": "Palo Alto",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.4445,
+          "lng": -122.162,
+          "employee_count": 500
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2023-11-20",
+          "description": "Ford announced layoffs across engineering and back-office as part of EV transition. AI and automation cited in manufacturing optimization and administrative consolidation.",
+          "headcount_impact": 3000,
+          "confidence_score": 3,
+          "source_url": "https://www.cnbc.com/2023/11/20/ford-layoffs-ev-transition.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 3000,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Goldman Sachs",
+      "ticker": "GS",
+      "sector": "Financial Services",
+      "headquarters": {
+        "lat": 40.7146,
+        "lng": -74.0071
+      },
+      "offices": [
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7146,
+          "lng": -74.0071,
+          "employee_count": 12000
+        },
+        {
+          "city": "Salt Lake City",
+          "state": "UT",
+          "country": "US",
+          "lat": 40.7608,
+          "lng": -111.891,
+          "employee_count": 3000
+        },
+        {
+          "city": "Dallas",
+          "state": "TX",
+          "country": "US",
+          "lat": 32.7767,
+          "lng": -96.797,
+          "employee_count": 2500
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-03-27",
+          "description": "Goldman Sachs report estimated AI could automate 300M full-time jobs globally. Internal deployment of AI coding assistants and document analysis tools reducing junior analyst workload.",
+          "headcount_impact": null,
+          "confidence_score": 3,
+          "source_url": "https://www.goldmansachs.com/insights/articles/generative-ai-could-raise-global-gdp-by-7-percent",
+          "source_type": "Goldman Sachs Research",
+          "evidence_type": "earnings_call"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Google",
+      "ticker": "GOOGL",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": 37.422,
+        "lng": -122.0841
+      },
+      "offices": [
+        {
+          "city": "Mountain View",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.422,
+          "lng": -122.0841,
+          "employee_count": 30000
+        },
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7415,
+          "lng": -74.0034,
+          "employee_count": 12000
+        },
+        {
+          "city": "Seattle",
+          "state": "WA",
+          "country": "US",
+          "lat": 47.6498,
+          "lng": -122.3501,
+          "employee_count": 8000
+        },
+        {
+          "city": "Austin",
+          "state": "TX",
+          "country": "US",
+          "lat": 30.265,
+          "lng": -97.7466,
+          "employee_count": 3000
+        },
+        {
+          "city": "Chicago",
+          "state": "IL",
+          "country": "US",
+          "lat": 41.887,
+          "lng": -87.6388,
+          "employee_count": 2000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-01-11",
+          "description": "Google laid off hundreds across ad sales division, with executives stating AI tools now handle tasks previously done by these employees. Part of broader restructuring toward AI-first operations.",
+          "headcount_impact": 1000,
+          "confidence_score": 4,
+          "source_url": "https://www.nytimes.com/2024/01/11/technology/google-layoffs.html",
+          "source_type": "New York Times",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 1000,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "HP",
+      "ticker": "HPQ",
+      "sector": "Technology / Hardware",
+      "headquarters": {
+        "lat": 37.4087,
+        "lng": -122.1457
+      },
+      "offices": [
+        {
+          "city": "Palo Alto",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.4087,
+          "lng": -122.1457,
+          "employee_count": 5000
+        },
+        {
+          "city": "Houston",
+          "state": "TX",
+          "country": "US",
+          "lat": 29.7604,
+          "lng": -95.3698,
+          "employee_count": 3000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2023-11-21",
+          "description": "HP announced additional restructuring to cut up to 6,000 jobs by end of FY2025, with AI-driven automation cited as enabling leaner operations across supply chain and corporate functions.",
+          "headcount_impact": 6000,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/hp-reports-fall-fourth-quarter-revenue-2023-11-21/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 6000,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "IBM",
+      "ticker": "IBM",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": 41.1078,
+        "lng": -73.7206
+      },
+      "offices": [
+        {
+          "city": "Armonk",
+          "state": "NY",
+          "country": "US",
+          "lat": 41.1078,
+          "lng": -73.7206,
+          "employee_count": 5000
+        },
+        {
+          "city": "Austin",
+          "state": "TX",
+          "country": "US",
+          "lat": 30.2672,
+          "lng": -97.7431,
+          "employee_count": 6000
+        },
+        {
+          "city": "Raleigh",
+          "state": "NC",
+          "country": "US",
+          "lat": 35.7796,
+          "lng": -78.6382,
+          "employee_count": 10000
+        },
+        {
+          "city": "San Jose",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.3382,
+          "lng": -121.8863,
+          "employee_count": 4000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2023-05-01",
+          "description": "CEO Arvind Krishna announced plan to pause hiring for ~7,800 back-office roles that could be replaced by AI over 5 years, specifically HR functions.",
+          "headcount_impact": 7800,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/2023-05-01/ibm-to-pause-hiring-for-jobs-that-ai-could-do",
+          "source_type": "Bloomberg",
+          "evidence_type": "earnings_call"
+        }
+      ],
+      "total_headcount_impacted": 7800,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "JPMorgan Chase",
+      "ticker": "JPM",
+      "sector": "Financial Services",
+      "headquarters": {
+        "lat": 40.7558,
+        "lng": -73.9748
+      },
+      "offices": [
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7558,
+          "lng": -73.9748,
+          "employee_count": 30000
+        },
+        {
+          "city": "Columbus",
+          "state": "OH",
+          "country": "US",
+          "lat": 39.9612,
+          "lng": -82.9988,
+          "employee_count": 20000
+        },
+        {
+          "city": "Wilmington",
+          "state": "DE",
+          "country": "US",
+          "lat": 39.7391,
+          "lng": -75.5398,
+          "employee_count": 10000
+        },
+        {
+          "city": "Chicago",
+          "state": "IL",
+          "country": "US",
+          "lat": 41.8819,
+          "lng": -87.6278,
+          "employee_count": 8000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-05-20",
+          "description": "CEO Jamie Dimon stated AI is being deployed across fraud detection, risk assessment, and trading operations. LLM Suite used by 60,000+ employees. COO Daniel Pinto indicated AI could replace 'certain types of jobs.'",
+          "headcount_impact": null,
+          "confidence_score": 4,
+          "source_url": "https://www.reuters.com/business/finance/jpmorgan-rolls-out-ai-assistant-employees-2024-05-20/",
+          "source_type": "Reuters",
+          "evidence_type": "earnings_call"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Klarna",
+      "ticker": "KLAR",
+      "sector": "Fintech",
+      "headquarters": {
+        "lat": 59.3293,
+        "lng": 18.0686
+      },
+      "offices": [
+        {
+          "city": "Stockholm",
+          "state": null,
+          "country": "SE",
+          "lat": 59.3293,
+          "lng": 18.0686,
+          "employee_count": 2000
+        },
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7128,
+          "lng": -74.006,
+          "employee_count": 500
+        },
+        {
+          "city": "Columbus",
+          "state": "OH",
+          "country": "US",
+          "lat": 39.9612,
+          "lng": -82.9988,
+          "employee_count": 300
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-02-27",
+          "description": "CEO Sebastian Siemiatkowski stated AI chatbot does the work of 700 customer service agents. Company shrank from 5000 to 3800 employees, explicitly citing AI as replacement.",
+          "headcount_impact": 700,
+          "confidence_score": 5,
+          "source_url": "https://www.bbc.com/news/business-68393861",
+          "source_type": "BBC News",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 700,
+      "highest_confidence_score": 5,
+      "verified": true
+    },
+    {
+      "name": "Kodiak Robotics",
+      "ticker": null,
+      "sector": "Autonomous Vehicles",
+      "headquarters": {
+        "lat": 37.4069,
+        "lng": -122.078
+      },
+      "offices": [
+        {
+          "city": "Mountain View",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.4069,
+          "lng": -122.078,
+          "employee_count": 150
+        },
+        {
+          "city": "Dallas",
+          "state": "TX",
+          "country": "US",
+          "lat": 32.7767,
+          "lng": -96.797,
+          "employee_count": 50
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-06-19",
+          "description": "Kodiak expanded driverless trucking operations on Texas highways, partnering with freight carriers to replace human drivers on specific routes.",
+          "headcount_impact": null,
+          "confidence_score": 3,
+          "source_url": "https://kodiak.ai/news/kodiak-expands-autonomous-trucking",
+          "source_type": "Company Press Release",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Meta",
+      "ticker": "META",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": 37.4849,
+        "lng": -122.1483
+      },
+      "offices": [
+        {
+          "city": "Menlo Park",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.4849,
+          "lng": -122.1483,
+          "employee_count": 15000
+        },
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7505,
+          "lng": -73.9935,
+          "employee_count": 5000
+        },
+        {
+          "city": "Seattle",
+          "state": "WA",
+          "country": "US",
+          "lat": 47.6199,
+          "lng": -122.3376,
+          "employee_count": 5000
+        },
+        {
+          "city": "Austin",
+          "state": "TX",
+          "country": "US",
+          "lat": 30.2672,
+          "lng": -97.7431,
+          "employee_count": 2000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-04-18",
+          "description": "Zuckerberg stated AI-generated content and AI coding assistants are increasing engineering productivity, contributing to continued hiring restraint. Part of 'Year of Efficiency' that cut 21,000 jobs in 2023.",
+          "headcount_impact": null,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/meta-announces-new-round-layoffs-2024-04-18/",
+          "source_type": "Reuters",
+          "evidence_type": "earnings_call"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Microsoft",
+      "ticker": "MSFT",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": 47.6396,
+        "lng": -122.1283
+      },
+      "offices": [
+        {
+          "city": "Redmond",
+          "state": "WA",
+          "country": "US",
+          "lat": 47.6396,
+          "lng": -122.1283,
+          "employee_count": 60000
+        },
+        {
+          "city": "New York",
+          "state": "NY",
+          "country": "US",
+          "lat": 40.7615,
+          "lng": -73.9776,
+          "employee_count": 5000
+        },
+        {
+          "city": "San Francisco",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.7856,
+          "lng": -122.4014,
+          "employee_count": 4000
+        },
+        {
+          "city": "Atlanta",
+          "state": "GA",
+          "country": "US",
+          "lat": 33.7614,
+          "lng": -84.3817,
+          "employee_count": 3000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2025-01-15",
+          "description": "Microsoft laid off ~1,900 employees in gaming division. While not explicitly AI-linked, the company simultaneously expanded AI investments and Copilot deployment across all products.",
+          "headcount_impact": 1900,
+          "confidence_score": 3,
+          "source_url": "https://www.theverge.com/2025/1/15/microsoft-layoffs-gaming",
+          "source_type": "The Verge",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 1900,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Salesforce",
+      "ticker": "CRM",
+      "sector": "Enterprise Software",
+      "headquarters": {
+        "lat": 37.7897,
+        "lng": -122.3972
+      },
+      "offices": [
+        {
+          "city": "San Francisco",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.7897,
+          "lng": -122.3972,
+          "employee_count": 10000
+        },
+        {
+          "city": "Indianapolis",
+          "state": "IN",
+          "country": "US",
+          "lat": 39.7684,
+          "lng": -86.1581,
+          "employee_count": 3000
+        },
+        {
+          "city": "Atlanta",
+          "state": "GA",
+          "country": "US",
+          "lat": 33.749,
+          "lng": -84.388,
+          "employee_count": 2000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-01-26",
+          "description": "Salesforce laid off 700 employees while aggressively hiring for AI roles. CEO Marc Benioff promoted Einstein Copilot and Agentforce as replacing manual customer service workflows.",
+          "headcount_impact": 700,
+          "confidence_score": 4,
+          "source_url": "https://www.cnbc.com/2024/01/26/salesforce-is-cutting-about-700-workers-or-1percent-of-its-workforce.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 700,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "UPS",
+      "ticker": "UPS",
+      "sector": "Logistics",
+      "headquarters": {
+        "lat": 33.6486,
+        "lng": -84.424
+      },
+      "offices": [
+        {
+          "city": "Atlanta",
+          "state": "GA",
+          "country": "US",
+          "lat": 33.6486,
+          "lng": -84.424,
+          "employee_count": 8000
+        },
+        {
+          "city": "Louisville",
+          "state": "KY",
+          "country": "US",
+          "lat": 38.1741,
+          "lng": -85.7149,
+          "employee_count": 20000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-01-30",
+          "description": "UPS announced 12,000 job cuts as part of transformation plan. CEO Carol Tom\u00e9 cited AI and machine learning in package routing and customer service as enabling smaller workforce.",
+          "headcount_impact": 12000,
+          "confidence_score": 3,
+          "source_url": "https://www.wsj.com/business/ups-to-cut-12-000-jobs-lower-revenue-outlook-d8e2f17f",
+          "source_type": "Wall Street Journal",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 12000,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Walmart",
+      "ticker": "WMT",
+      "sector": "Retail",
+      "headquarters": {
+        "lat": 36.3729,
+        "lng": -94.2088
+      },
+      "offices": [
+        {
+          "city": "Bentonville",
+          "state": "AR",
+          "country": "US",
+          "lat": 36.3729,
+          "lng": -94.2088,
+          "employee_count": 15000
+        },
+        {
+          "city": "San Bruno",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.6305,
+          "lng": -122.4111,
+          "employee_count": 1000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-01-23",
+          "description": "Walmart deploying 65% of stores with AI-enabled automation by FY2026. Automated checkout, AI inventory management, and robotic warehouse systems reducing need for floor staff.",
+          "headcount_impact": null,
+          "confidence_score": 3,
+          "source_url": "https://corporate.walmart.com/news/2024/01/23/walmart-highlights-ai-and-technology-innovations",
+          "source_type": "Company Press Release",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Workday",
+      "ticker": "WDAY",
+      "sector": "Enterprise Software",
+      "headquarters": {
+        "lat": 37.5338,
+        "lng": -122.2473
+      },
+      "offices": [
+        {
+          "city": "Pleasanton",
+          "state": "CA",
+          "country": "US",
+          "lat": 37.5338,
+          "lng": -122.2473,
+          "employee_count": 5000
+        },
+        {
+          "city": "Atlanta",
+          "state": "GA",
+          "country": "US",
+          "lat": 33.757,
+          "lng": -84.39,
+          "employee_count": 1000
+        }
+      ],
+      "displacement_events": [
+        {
+          "date": "2024-02-08",
+          "description": "Workday laid off 3% of employees (~540) while pivoting toward AI-first product strategy. CEO Carl Eschenbach stated AI was being embedded in all Workday products.",
+          "headcount_impact": 540,
+          "confidence_score": 3,
+          "source_url": "https://www.cnbc.com/2024/02/08/workday-to-cut-about-3percent-of-its-workforce.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 540,
+      "highest_confidence_score": 3,
+      "verified": true
+    }
+  ],
+  "last_updated": "2026-04-07T19:19:06.774030",
+  "total_companies": 22,
+  "total_jobs_impacted": 55157
+}

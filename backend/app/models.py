@@ -75,6 +75,22 @@ class SimulationParams(BaseModel):
         default=None,
         description="Optional: focus simulation on a specific county"
     )
+    trade_policy: str = Field(
+        default="current",
+        description="Trade policy: 'current', 'free_trade', 'escalating_tariffs'"
+    )
+    corporate_profit: str = Field(
+        default="baseline",
+        description="Corporate profit scenario: 'baseline', 'surge', 'decline'"
+    )
+    equity_loop: str = Field(
+        default="intact",
+        description="AI equity loop: 'intact', 'breaks'"
+    )
+    feedback_aggressiveness: float = Field(
+        default=0.5, ge=0.0, le=1.0,
+        description="Feedback loop aggressiveness: 0=Goldman gradual, 1=full cascade"
+    )
 
 
 class SimulationResult(BaseModel):

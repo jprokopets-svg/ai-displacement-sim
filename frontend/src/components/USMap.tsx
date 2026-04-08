@@ -3,6 +3,7 @@ import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
 import { getExposureColor, formatExposure, formatNumber } from '../utils/colors'
+import { getUncertaintyState, getHatchPatternDef, BAND_LABELS } from '../utils/uncertainty'
 
 interface CountyScore {
   county_fips: string
@@ -11,12 +12,14 @@ interface CountyScore {
   total_employment: number
   exposed_employment: number
   exposure_percentile: number
+  is_estimated?: boolean
 }
 
 interface USMapProps {
   counties: CountyScore[]
   onCountyClick: (fips: string) => void
   selectedCounty: string | null
+  year?: number
 }
 
 interface TooltipState {
@@ -28,7 +31,7 @@ interface TooltipState {
 
 const TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'
 
-export default function USMap({ counties, onCountyClick, selectedCounty }: USMapProps) {
+export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025 }: USMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, data: null,
@@ -52,12 +55,20 @@ export default function USMap({ counties, onCountyClick, selectedCounty }: USMap
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
 
+    const uncertainty = getUncertaintyState(year)
+
     const width = 960
     const height = 600
     const projection = d3.geoAlbersUsa().fitSize([width, height],
       topojson.feature(topoData, topoData.objects.nation) as unknown as d3.GeoPermissibleObjects
     )
     const path = d3.geoPath().projection(projection)
+
+    // Add hatch pattern definition if needed
+    const defs = svg.append('defs')
+    if (uncertainty.hatchDensity > 0) {
+      defs.html(getHatchPatternDef(uncertainty.hatchDensity))
+    }
 
     // County shapes
     const countyFeatures = topojson.feature(
@@ -76,6 +87,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty }: USMap
         const county = countyMap.get(fips)
         return county ? getExposureColor(county.exposure_percentile) : '#1a1a25'
       })
+      .attr('opacity', uncertainty.opacity)
       .attr('stroke', d => {
         const fips = String(d.id).padStart(5, '0')
         return fips === selectedCounty ? '#fff' : '#2a2a3a'
@@ -122,6 +134,19 @@ export default function USMap({ counties, onCountyClick, selectedCounty }: USMap
       .attr('stroke', '#4a4a5a')
       .attr('stroke-width', 0.8)
 
+    // Hatch pattern overlay (uncertainty visualization)
+    if (uncertainty.hatchDensity > 0) {
+      const nationFeature = topojson.feature(
+        topoData,
+        topoData.objects.nation,
+      ) as unknown as GeoJSON.FeatureCollection
+      g.append('path')
+        .datum(nationFeature.features[0])
+        .attr('d', d => path(d) || '')
+        .attr('fill', 'url(#hatch)')
+        .attr('pointer-events', 'none')
+    }
+
     // Zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 12])
@@ -131,10 +156,45 @@ export default function USMap({ counties, onCountyClick, selectedCounty }: USMap
 
     svg.call(zoom)
 
-  }, [topoData, counties, selectedCounty, onCountyClick])
+  }, [topoData, counties, selectedCounty, onCountyClick, year])
+
+  const uncertainty = getUncertaintyState(year)
+  const bandInfo = BAND_LABELS[uncertainty.band]
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
+      {/* Uncertainty banner */}
+      {uncertainty.bannerText && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 60,
+          background: uncertainty.bannerColor,
+          padding: '6px 16px',
+          textAlign: 'center',
+          fontSize: 12,
+          color: '#e8e8ed',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          {uncertainty.bannerText}
+        </div>
+      )}
+
+      {/* Confidence indicator (top right) */}
+      <div style={{
+        position: 'absolute', top: uncertainty.bannerText ? 36 : 12, right: 12,
+        zIndex: 55, background: 'var(--bg-panel)', padding: '6px 10px',
+        borderRadius: 6, border: '1px solid var(--border)',
+        fontSize: 11, textAlign: 'center', minWidth: 80,
+      }}>
+        <div style={{ color: 'var(--text-muted)' }}>Confidence</div>
+        <div style={{
+          fontSize: 18, fontWeight: 700,
+          color: bandInfo.color,
+        }}>
+          {uncertainty.confidencePct}%
+        </div>
+        <div style={{ color: bandInfo.color, fontSize: 10 }}>{bandInfo.label}</div>
+      </div>
+
       <svg
         ref={svgRef}
         viewBox="0 0 960 600"
@@ -174,7 +234,14 @@ export default function USMap({ counties, onCountyClick, selectedCounty }: USMap
           zIndex: 1000,
           minWidth: 180,
         }}>
-          <div style={{ fontWeight: 600 }}>{tooltip.data.county_name}</div>
+          <div style={{ fontWeight: 600 }}>
+            {tooltip.data.county_name}
+            {tooltip.data.is_estimated && (
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 6, fontWeight: 400 }}>
+                ESTIMATED
+              </span>
+            )}
+          </div>
           <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
             Exposure: <span style={{ color: getExposureColor(tooltip.data.exposure_percentile) }}>
               {formatExposure(tooltip.data.ai_exposure_score)}
@@ -186,6 +253,11 @@ export default function USMap({ counties, onCountyClick, selectedCounty }: USMap
           <div style={{ color: 'var(--text-secondary)' }}>
             Employment: {formatNumber(tooltip.data.total_employment)}
           </div>
+          {tooltip.data.is_estimated && (
+            <div style={{ color: 'var(--warning)', fontSize: 10, marginTop: 4 }}>
+              Based on industry mix (no occupation-level data)
+            </div>
+          )}
           <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
             Click for details
           </div>

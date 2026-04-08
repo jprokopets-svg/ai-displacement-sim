@@ -1,11 +1,15 @@
 import { useEffect, useState, useCallback } from 'react'
 import USMap from './components/USMap'
-import CountyPanel from './components/CountyPanel'
+import WorldMap from './components/WorldMap'
+import CountyDetailPanel from './components/CountyDetailPanel'
 import SimulationPanel from './components/SimulationPanel'
 import JobSearch from './components/JobSearch'
-import { fetchCounties } from './utils/api'
+import ControlPanel from './components/ControlPanel'
+import type { ScenarioState } from './components/ControlPanel'
+import { fetchCounties, fetchCountries } from './utils/api'
 
 type Tab = 'map' | 'simulate' | 'job'
+type MapView = 'us' | 'world'
 
 interface CountyScore {
   county_fips: string
@@ -14,18 +18,40 @@ interface CountyScore {
   total_employment: number
   exposed_employment: number
   exposure_percentile: number
+  is_estimated?: boolean
 }
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('map')
+  const [mapView, setMapView] = useState<MapView>('us')
+  const [scenario, setScenario] = useState<ScenarioState>({
+    year: 2025,
+    feedbackAggressiveness: 0.5,
+    tradePolicy: 'current',
+    govtResponse: 'none',
+    corporateProfit: 'baseline',
+    equityLoop: 'intact',
+    fedResponse: 'hold',
+    mapLayer: 'composite',
+    showCompanyDots: false,
+    showReshoringParadox: false,
+    showTransferDependency: false,
+    showKshapeDivergence: false,
+  })
+  const updateScenario = useCallback((updates: Partial<ScenarioState>) => {
+    setScenario(prev => ({ ...prev, ...updates }))
+  }, [])
   const [counties, setCounties] = useState<CountyScore[]>([])
+  const [countries, setCountries] = useState<Record<string, unknown>[]>([])
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchCounties()
-      .then(data => setCounties(data.counties))
+    Promise.all([
+      fetchCounties().then(data => setCounties(data.counties)),
+      fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
+    ])
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
@@ -47,7 +73,7 @@ export default function App() {
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 700 }}>AI Workforce Displacement Simulator</h1>
           <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            County-level AI exposure with Monte Carlo scenario modeling
+            {mapView === 'us' ? 'US county-level' : 'International'} AI exposure with Monte Carlo scenario modeling
           </p>
         </div>
         <nav style={{ display: 'flex', gap: 4 }}>
@@ -64,7 +90,6 @@ export default function App() {
                 cursor: 'pointer',
                 fontSize: 13,
                 fontWeight: 500,
-                textTransform: 'capitalize',
               }}
             >
               {t === 'job' ? 'Check My Job' : t === 'simulate' ? 'Simulate' : 'Map'}
@@ -77,7 +102,7 @@ export default function App() {
       <main style={{ flex: 1, position: 'relative' }}>
         {loading && (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Loading county data...
+            Loading data...
           </div>
         )}
 
@@ -85,24 +110,57 @@ export default function App() {
           <div style={{ padding: 40, textAlign: 'center' }}>
             <div style={{ color: 'var(--danger)', marginBottom: 8 }}>Failed to load data</div>
             <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>
-              {error}. Make sure the backend is running (uvicorn backend.app.main:app)
-              and the data pipeline has been executed.
+              {error}. Make sure the backend is running and the data pipeline has been executed.
             </div>
           </div>
         )}
 
         {!loading && !error && tab === 'map' && (
           <div style={{ position: 'relative', height: 'calc(100vh - 70px)' }}>
-            <USMap
-              counties={counties}
-              onCountyClick={handleCountyClick}
-              selectedCounty={selectedCounty}
-            />
-            {selectedCounty && (
-              <CountyPanel
-                countyFips={selectedCounty}
-                onClose={() => setSelectedCounty(null)}
-              />
+            {/* Control Panel */}
+            <ControlPanel state={scenario} onChange={updateScenario} />
+
+            {/* US / World toggle (top center) */}
+            <div style={{
+              position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
+              zIndex: 50, display: 'flex', gap: 2,
+              background: 'var(--bg-panel)', borderRadius: 6,
+              border: '1px solid var(--border)', padding: 2,
+            }}>
+              {(['us', 'world'] as MapView[]).map(v => (
+                <button
+                  key={v}
+                  onClick={() => { setMapView(v); setSelectedCounty(null) }}
+                  style={{
+                    padding: '4px 12px', borderRadius: 4, border: 'none',
+                    background: mapView === v ? 'var(--accent)' : 'transparent',
+                    color: mapView === v ? '#fff' : 'var(--text-secondary)',
+                    cursor: 'pointer', fontSize: 12, fontWeight: 500,
+                  }}
+                >
+                  {v === 'us' ? 'US Counties' : 'World'}
+                </button>
+              ))}
+            </div>
+
+            {mapView === 'us' ? (
+              <>
+                <USMap
+                  counties={counties}
+                  onCountyClick={handleCountyClick}
+                  year={scenario.year}
+                  selectedCounty={selectedCounty}
+                />
+                {selectedCounty && (
+                  <CountyDetailPanel
+                    countyFips={selectedCounty}
+                    year={scenario.year}
+                    onClose={() => setSelectedCounty(null)}
+                  />
+                )}
+              </>
+            ) : (
+              <WorldMap countries={countries as never[]} />
             )}
           </div>
         )}
@@ -121,7 +179,7 @@ export default function App() {
         justifyContent: 'space-between',
       }}>
         <span>
-          Data: O*NET 29.1, Felten-Raj-Rock 2021, BLS OEWS/QCEW 2023
+          Data: O*NET 29.1, BLS OEWS/QCEW 2024, OECD/ILO occupation statistics
         </span>
         <span>
           All outputs are probability distributions. See methodology for assumptions.

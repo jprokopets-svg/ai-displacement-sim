@@ -24,6 +24,12 @@ export async function fetchOccupationDetail(soc: string) {
   return res.json()
 }
 
+export async function fetchCountries() {
+  const res = await fetch(`${API_BASE}/countries`)
+  if (!res.ok) throw new Error(`Failed to fetch countries: ${res.statusText}`)
+  return res.json()
+}
+
 export interface SimulationParams {
   ai_adoption_pace: number
   policy_response: 'none' | 'retraining' | 'ubi'

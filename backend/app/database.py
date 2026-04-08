@@ -25,12 +25,18 @@ def get_all_county_scores() -> List[Dict]:
             """
             SELECT county_fips, county_name, ai_exposure_score,
                    total_employment, exposed_employment,
-                   mean_wage_weighted, exposure_percentile, n_occupations
+                   mean_wage_weighted, exposure_percentile, n_occupations,
+                   CASE WHEN is_estimated = 1 THEN 1 ELSE 0 END as is_estimated
             FROM county_scores
             ORDER BY ai_exposure_score DESC
             """
         ).fetchall()
-    return [dict(r) for r in rows]
+    results = []
+    for r in rows:
+        d = dict(r)
+        d["is_estimated"] = bool(d.get("is_estimated", 0))
+        results.append(d)
+    return results
 
 
 def get_county_detail(county_fips: str) -> Optional[Dict]:
@@ -119,6 +125,21 @@ def get_occupation_detail(soc_code: str) -> Optional[Dict]:
         "occupation": dict(occ),
         "top_counties": [dict(r) for r in top_counties],
     }
+
+
+def get_all_country_scores() -> List[Dict]:
+    """Get all international country exposure scores."""
+    import json as _json
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM country_scores ORDER BY ai_exposure_score DESC NULLS LAST"
+        ).fetchall()
+    results = []
+    for r in rows:
+        d = dict(r)
+        d["top_occupations"] = _json.loads(d.pop("top_occupations_json", "[]"))
+        results.append(d)
+    return results
 
 
 def get_model_assumptions() -> List[Dict]:

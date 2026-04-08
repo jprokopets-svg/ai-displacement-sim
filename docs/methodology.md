@@ -1,155 +1,246 @@
 # Methodology
 
-## Data Sources
+## Overview
 
-### O*NET (Version 29.1)
-- **Source**: [O*NET Resource Center](https://www.onetcenter.org/database.html)
-- **Contents**: Task-level descriptions and ratings for 1,000+ occupations
-- **Usage**: Provides the task composition that Felten-Raj-Rock scores are computed against
-
-### AI Occupational Exposure Index (AIOE) — Computed from O*NET
-- **Based on**: Felten, E., Raj, M., & Seamans, R. (2021). "Occupational, Industry, and Geographic Exposure to Artificial Intelligence: A Novel Indicators, Revisited."
-- **Implementation**: We compute the AIOE directly from O*NET 29.1 Abilities data rather than using a pre-computed download. No reliable authoritative download of the pre-computed scores exists; implementing the methodology directly is both more transparent and more reproducible.
-- **Range**: Normalized to [0, 1] across all occupations
-- **Important**: Measures task-AI *overlap*, not displacement probability. A score of 0.8 means 80% of the occupation's tasks overlap with current AI capabilities, not that 80% of workers will be displaced.
-
-#### AIOE Computation Method
-
-The AIOE for each occupation is a weighted average of AI capability scores across the 52 O*NET abilities:
-
-```
-AIOE(occupation) = Σ_a [ importance(occupation, a) × ai_score(a) ]
-                   ─────────────────────────────────────────────────
-                        Σ_a [ importance(occupation, a) ]
-```
-
-**O*NET data used**: `Abilities.txt`, filtered to Scale ID = "IM" (Importance, 1–5 scale). Each row rates how important a specific ability is for a specific occupation. Element IDs (e.g., `1.A.1.a.1` = Oral Comprehension) identify the 52 abilities.
-
-**AI capability scores**: From the Felten-Raj-Seamans paper's Table 1, stored in `config.py` as `FELTEN_AI_ABILITY_SCORES`. These map each O*NET ability to a 0–1 score reflecting how prevalent AI applications are that utilize that ability. Examples:
-
-| Ability | Element ID | AI Score | Rationale |
-|---------|-----------|----------|-----------|
-| Written Comprehension | 1.A.1.a.2 | 0.80 | NLP, document analysis |
-| Mathematical Reasoning | 1.A.1.c.1 | 0.75 | Symbolic math, theorem provers |
-| Inductive Reasoning | 1.A.1.b.5 | 0.70 | Pattern recognition, ML |
-| Manual Dexterity | 1.A.2.a.2 | 0.18 | Limited robotic manipulation |
-| Static Strength | 1.A.3.a.1 | 0.03 | Minimal AI overlap |
-
-Abilities not in the paper's table are assigned 0 (no known AI application overlap).
-
-**Aggregation to 6-digit SOC**: O*NET uses detailed SOC codes (e.g., `15-1252.00`, `15-1252.01`). Multiple O*NET codes may map to a single 6-digit BLS SOC. We average AIOE across detailed codes to produce one score per 6-digit SOC for BLS matching.
-
-**Validation expectation**: High-AIOE occupations should be cognitive/analytical (financial analysts, actuaries, translators). Low-AIOE occupations should be physical (roofers, athletes, firefighters). If this pattern doesn't hold, the computation has a bug.
-
-### BLS Occupational Employment and Wage Statistics (OEWS)
-- **Source**: [BLS OES](https://www.bls.gov/oes/)
-- **Version**: May 2023 estimates
-- **Level**: Metropolitan Statistical Area (MSA) by SOC occupation code
-- **Contents**: Employment counts and wage data per MSA-occupation pair
-- **Access**: Requires manual browser download (BLS blocks programmatic access). File: `oesm23ma.zip` from the [special requests page](https://www.bls.gov/oes/tables.htm)
-
-### BLS Quarterly Census of Employment and Wages (QCEW)
-- **Source**: [BLS CEW](https://www.bls.gov/cew/)
-- **Version**: 2023 Annual Averages
-- **Level**: County-level total employment by industry
-- **Usage**: Provides county employment shares for the MSA-to-county crosswalk
-
-### Census Bureau MSA Delineation (via NBER mirror)
-- **Source**: [NBER CBSA-FIPS Crosswalk](https://www.nber.org/research/data/census-core-based-statistical-area-cbsa-federal-information-processing-series-fips-county-crosswalk) (mirrors Census Bureau delineation files; original Census URL is no longer accessible)
-- **Version**: July 2023
-- **Usage**: Maps CBSA (MSA) codes to their constituent FIPS county codes
+This model estimates AI-driven workforce displacement across US counties and internationally through four displacement tracks, six economic dynamics, and a Monte Carlo simulation engine. Every score is designed to be defensible. Every assumption is documented. Uncertainty is visible and increases with time horizon.
 
 ---
 
-## Key Methodological Choices
+## The Four Displacement Tracks
 
-### County-Level Estimation (MSA-to-County Crosswalk)
+### Track 1 — Cognitive AI (weight: 35% of composite)
 
-**The problem**: BLS OEWS reports occupation-level employment at the MSA level, not the county level. To build a county-level map, we need to estimate how MSA employment distributes across counties.
+Measures digital/intellectual automation risk. Built from seven sub-components:
 
-**Our approach**: We use QCEW total private employment to compute each county's share of its MSA's employment, then distribute MSA-level occupation counts proportionally.
+| Sub-component | Weight | Source |
+|---|---|---|
+| Felten-Raj-Rock AIOE | 20% | Computed from O*NET 29.1 Abilities × AI capability scores |
+| Frey-Osborne automation probability | 15% | "The Future of Employment" (2013/2017) |
+| Deployment evidence | 25% | Manually curated from corporate announcements |
+| Economic incentive (labor cost %) | 15% | BLS Employer Costs for Employee Compensation |
+| Task pipeline (flowchart-ability) | 10% | Derived from O*NET Work Activities |
+| Output verifiability | 10% | Derived from O*NET Work Context |
+| Regulatory friction | 5% | BLS union membership + licensing (inverted) |
 
-**Assumption**: The occupation mix within an MSA is roughly uniform across its constituent counties.
+Deployment evidence has the highest sub-weight because revealed corporate action is more predictive than theoretical capability.
 
-**Limitation**: This understates occupational specialization. A county dominated by a university will have more education workers than our model suggests; a county with a military base will have more government workers. This is the standard academic approximation (used by Autor, Dorn, and others) and is acceptable for the broad exposure patterns we're visualizing, but should not be used for individual county-level policy decisions without local validation.
+### Track 2 — Industrial Robotics (weight: 20% of composite)
 
-### AI Exposure vs. Displacement
+Physical automation risk from manufacturing robots, warehouse automation, autonomous vehicles, and agricultural robotics.
 
-The Felten-Raj-Rock score measures **task exposure** — the overlap between what AI can do and what an occupation requires. This is not the same as displacement.
+**Data**: IFR World Robotics Report robot density by industry, MIT/Oxford Economics displacement estimates.
 
-Reasons a high-exposure occupation may not see proportional job losses:
-1. **Complementarity**: AI may augment rather than replace workers (radiologists + AI read more scans, not fewer radiologists)
-2. **Implementation friction**: Regulatory, organizational, and cost barriers slow adoption
-3. **New task creation**: Historically, automation creates new tasks within occupations even as it eliminates old ones (Acemoglu & Restrepo, 2019)
-4. **Labor market institutions**: Unions, licensing, and contracts slow workforce adjustment
+**Time scaling** (deployment curve):
+- 2025: 40% of full score — current deployment (Aurora highway, Amazon warehouses)
+- 2027: 60% — regulatory frameworks clarifying
+- 2030: 85% — full commercial deployment on major corridors
+- 2035: 100% — near-complete for robotics-amenable occupations
 
-Our Monte Carlo simulation uses exposure as an *input* to a displacement model with stochastic factors that account for these moderating effects.
+**Time-varying regulatory friction** for autonomous vehicles:
+- Heavy truck drivers: 0.35 (2025) → 0.25 (2028) → 0.15 (2032) → 0.10 (2035)
+- Based on: Aurora/Kodiak commercially operating driverless routes in TX/AZ today; federal framework expected late 2020s.
+
+**Trade policy sensitivity**: Robotics weight increases +50% under escalating tariffs (reshoring paradox — manufacturing returns but automated).
+
+### Track 3 — Agentic AI (weight: 20% of composite)
+
+Forward-looking: multi-step autonomous AI workflows that replace entire job functions, not just individual tasks.
+
+**No published dataset** — scores built from O*NET task complexity analysis + current agentic deployment evidence (Salesforce Agentforce, Harvey AI, CoCounsel, Microsoft Copilot agents).
+
+**Critical time gate**: This track contributes **zero before 2026**, then scales linearly to full weight by 2030. Always labeled "Forward-looking — higher uncertainty" in the UI.
+
+**Highest agentic occupations**: Paralegals (0.90), tax preparers (0.88), customer service (0.85), accountants (0.82), HR specialists (0.80).
+
+### Track 4 — Offshoring Acceleration (weight: 15% of composite)
+
+AI removes coordination friction (translation, formatting, quality verification) that previously limited offshoring.
+
+**Data**: Blinder-Krueger (2013) occupational tradability + World Bank labor cost differentials.
+
+**Key mechanism**: A paralegal job doesn't need AI replacement — it just needs AI to make offshoring viable by handling communication barriers.
+
+**Compounds with Track 1**: High cognitive exposure + high tradability = maximum offshoring risk. The compound bonus adds up to 10% to the composite.
+
+**Trade policy sensitivity**: Offshoring weight increases +30% under free trade, decreases -30% under escalating tariffs.
+
+### Composite Formula
+
+```
+raw = T1 × W1 + T2 × W2 + T3 × W3 + T4 × W4
+friction_dampener = 1.0 - (regulatory_friction × 0.40)
+compound = T1 × T4 × 0.10
+composite = raw × friction_dampener + compound
+```
+
+Normalized to [0, 1] across all occupations for each year.
 
 ---
 
-## Monte Carlo Simulation Model
+## The Six Economic Dynamics
 
-### Layer 1: Displacement Model
+### Dynamic 1 — Competitive Cascade
 
-Displacement_rate = AI_exposure × adoption_curve(pace, year) × stochastic_factor
+Large company automates → reduces prices → small competitor loses share → small company closes → workers displaced without direct automation.
 
-- **Adoption curve**: Logistic S-curve. At pace=0, 50% adoption at year 15. At pace=1, 50% adoption at year 3.
-- **Stochastic factor**: Drawn from Beta(2, 5) distribution — right-skewed, reflecting that most occupations see less displacement than raw exposure would suggest.
-- **Cumulative displacement**: New displacement applies only to not-yet-displaced workers, with a 95% cap.
+**Data**: QCEW average employees per establishment (small business proxy) + sector AI competitive pressure index.
 
-### Layer 2: Economic Response Model
+**Time lag**: 3-7 years from initial automation to small business closure cascade. The lagged score ramps linearly from year 3 to year 7.
 
-Uses empirically-sourced elasticities:
+### Dynamic 2 — Trade Policy and Capital Allocation
 
-| Parameter | Value | Source |
+Three user-selectable scenarios:
+
+| Scenario | Robotics modifier | Offshoring modifier |
 |---|---|---|
-| Spending-unemployment elasticity | -0.5 | Petev, Pistaferri, Saporta-Eksten (2011) |
-| Property-unemployment elasticity | -1.8 | Harding, Rosenblatt, Yao (2009) |
-| Tax-GDP elasticity | 1.4 | Dye and McGuire (2001) |
-| Okun's coefficient | -2.0 | Ball, Leigh, Loungani (2017) |
+| Current tariffs | +0% | Baseline |
+| Free trade | -15% | +30% |
+| Escalating tariffs | +50% | -30% |
 
-**Assumption**: These elasticities, estimated from historical recessions, apply to AI-driven structural change. This is uncertain — AI displacement may be more permanent than cyclical unemployment, potentially amplifying these effects.
+**Reshoring paradox**: Under escalating tariffs, manufacturing establishments may increase while manufacturing employment stays flat — jobs return to America but not to Americans. Measured by establishment density vs employment share divergence.
 
-### Layer 3: Government Response Model
+### Dynamic 3 — K-Shape Wealth Effect
 
-| Policy | Effect | Source/Basis |
+Top economy (equity holders) vs bottom economy (wage workers) divergence.
+
+**Data**: Census ACS 2022 — per capita income, median household income, Gini coefficient.
+
+**Equity insulation**: Wealthy counties are buffered short-term by non-wage spending.
+
+**Equity fragility**: Same wealthy counties are vulnerable if the AI equity narrative breaks (Dynamic 4).
+
+### Dynamic 4 — AI Equity Reflexive Loop
+
+**Loop intact**: AI capex → tech earnings → equity prices → wealthy spending → GDP → supports AI narrative.
+
+**Loop breaks**: AI disappoints → earnings miss → equity fall → spending contracts → GDP drops → less AI investment → loop reverses.
+
+This is a **speculative scenario toggle**. Always labeled with: "This is a tail risk scenario, not a base case."
+
+The GDP gap between loop-intact and loop-breaks widens from 0.4% in 2027 to 1.8% in 2037.
+
+### Dynamic 5 — Government Demand Floor
+
+Government spending (17% of GDP + transfer payments) creates a demand floor that doesn't automate at market speed.
+
+**Data**: QCEW own_code 1/2/3 (federal/state/local government employment) + Census ACS B19055/B19056/B19057 (households receiving Social Security, SSI, public assistance).
+
+**Government floor score** = 0.45 × govt employment concentration + 0.25 × federal employment share + 0.30 × transfer payment dependency.
+
+Counties with military bases, federal agencies, and high retiree populations are significantly more insulated. Example: Cumberland County, NC (Fort Liberty) has a floor score of 0.643 vs Macomb County, MI at 0.238.
+
+### Dynamic 6 — Deficit Spiral and Corporate Profit Scenario
+
+**Sub-scenario A — Corporate profit surge**: AI productivity → profit boom → tax revenue surge → government can fund displaced workers → floor holds.
+
+**Sub-scenario B — Deficit spiral**: Displacement outpaces profit growth → deficits rise → Treasury yields rise → crowds out investment → weaker growth → more displacement.
+
+**Probability weighting**: At default settings (feedback aggressiveness 0.5), the model assigns 40% to profit surge, 60% to deficit spiral. This is a calibrated assumption based on historical precedent that profit growth lags displacement by 5-15 years in major technological transitions.
+
+**This is not a prediction.** Both paths are plausible. The feedback aggressiveness slider adjusts this split.
+
+The government floor breaks in the deficit spiral around 2033 (deficit exceeds 10% of GDP). Under profit surge, the floor holds through 2037+.
+
+---
+
+## Year Slider and Visual Uncertainty
+
+| Period | Band | Map Opacity | Hatch | Confidence | CI Multiplier |
+|---|---|---|---|---|---|
+| 2025-2027 | Near-term (evidence-based) | 100% | None | 90% | 1.0x |
+| 2027-2030 | Medium-term | 85% | Subtle | 70% | 1.8x |
+| 2030-2035 | Long-term (directional) | 70% | Visible | 50% | 3.0x |
+| 2035-2040 | Speculative | 50% | Heavy | 30% | 5.0x |
+
+Confidence intervals widen linearly within each band. The CI multiplier applies to the base ±5% interval.
+
+**Track 3 (Agentic AI)** contributes zero before 2026, scales linearly to 2030.
+
+**Track 2 (Robotics)** follows a separate deployment S-curve: 40% → 60% → 85% → 100%.
+
+---
+
+## Feedback Loop Aggressiveness
+
+The slider controls self-reinforcing displacement dynamics:
+
+- **Left (0.0)** — Goldman Sachs baseline: gradual 10-year transition, effects fade
+- **Right (1.0)** — Full cascade: displacement → reduced consumer base → more automation → accelerating cycle
+- **Author prediction marker at 0.75** — the author's personal assessment
+
+The slider affects medium and long-term projections only. Near-term is evidence-based regardless.
+
+---
+
+## World Map: Offshoring Destination Scoring
+
+Countries scored 0-1 on attractiveness as offshoring destinations:
+
+| Factor | Weight | Source |
 |---|---|---|
-| Retraining | 20-40% displacement reduction, 2-year lag | Heckman, LaLonde, Smith (1999) |
-| UBI | 30-50% spending preservation, 1-year lag | Marinescu (2018), various pilots |
-| Fed cuts | 0.3-0.7% GDP per 100bp | Romer and Romer (2004) |
+| Labor cost advantage | 30% | World Bank labor statistics |
+| AI communication tool adoption | 25% | ITU ICT Development Index |
+| English proficiency | 20% | EF English Proficiency Index |
+| Tech infrastructure | 15% | ITU broadband penetration |
+| Timezone overlap with US | 10% | Geographic |
 
-All ranges are drawn uniformly per simulation, producing a distribution of policy effectiveness.
+Top destinations: India (0.92), Philippines (0.85), Poland (0.72), Vietnam (0.70), Mexico (0.68).
 
-### Layer 4: Feedback Loops
+---
 
-Policy effects feed back into Layers 1-2:
-- Retraining reduces subsequent displacement rates
-- UBI preserves consumer spending, moderating the economic cascade
-- Fed cuts boost GDP, partially offsetting Okun's Law effects
+## Monte Carlo Engine
 
-### Output Interpretation
+50,000 simulations per parameter set. All new dynamics feed into the engine:
 
-**Every output is a probability distribution**, not a point prediction. The simulation produces:
-- Percentiles (p5, p25, p50, p75, p95) for displacement, unemployment, and GDP impact
-- Scenario probabilities (% of simulations in each outcome category)
-- Explicit confidence intervals on all displayed metrics
-- Full list of assumptions used in each simulation run
+- Trade policy modifies displacement rate (+15% for escalating tariffs, +5% for free trade)
+- Corporate profit scenario modifies GDP growth (±0.5%)
+- Equity loop break adds GDP drag (up to -0.8% at full feedback aggressiveness)
+- Feedback aggressiveness amplifies displacement in medium/long term
+- Government floor strength dampens cascade propagation
+
+Outputs are always probability distributions with explicit confidence intervals.
+
+---
+
+## The Two Main Scenarios
+
+**Bull case (Corporate profit surge)**: AI drives unprecedented productivity growth. Corporate profits surge 3-10x. Tax revenue rises enough to fund displaced workers through retraining and transfers. The transition is painful but manageable — similar to computerization in the 1980s-2000s but faster. Tech hubs thrive, manufacturing adapts through robotics, services sector restructures.
+
+**Bear case (Deficit spiral with cascading feedback)**: Displacement outpaces new job creation. Government attempts to hold the floor through deficit spending. Deficits spiral. The AI equity narrative eventually breaks, removing the wealth effect that was propping up GDP. The K-shaped divergence becomes permanent. Government floor collapses around 2033 when deficits become politically unsustainable.
+
+Both scenarios are plausible. The model shows both with honest uncertainty bands.
+
+---
+
+## Data Sources Summary
+
+| Source | Data | Usage |
+|---|---|---|
+| O*NET 29.1 | Abilities, Work Activities, Work Context | AIOE, task pipeline, output verifiability |
+| BLS OEWS May 2024 | MSA employment by occupation | County occupation employment |
+| BLS QCEW 2023 | County employment by industry + ownership | MSA crosswalk, small business concentration, government employment |
+| Census ACS 2022 | Income, Gini, transfer payments | K-shape, government floor, transfer dependency |
+| NBER CBSA Crosswalk 2023 | MSA-to-county mapping | Geographic distribution |
+| World Bank API | Employment by sector, labor force, population | International country scores |
+| Frey & Osborne (2017) | Automation probabilities | Track 1 physical automation component |
+| Felten, Raj, Seamans (2021) | AI capability × O*NET ability mapping | Track 1 core AIOE |
+| IFR World Robotics | Robot density by industry | Track 2 calibration |
+| Blinder-Krueger (2013) | Occupational tradability | Track 4 offshoring |
+| Company displacement scraper | Documented corporate AI actions | Deployment evidence scores |
 
 ---
 
 ## Known Limitations
 
-1. **Temporal mismatch**: Employment data (2023), O*NET tasks (29.1), and AI capability scores (2021) are not perfectly synchronized. AI capability has advanced significantly since the Felten-Raj-Rock 2021 benchmarks.
-
-2. **Geographic granularity**: The MSA-to-county crosswalk is an approximation. Rural counties not in any MSA are excluded from the current model.
-
-3. **Sector interactions**: The model treats each occupation independently. In reality, displacement in one sector cascades through supply chains.
-
-4. **Behavioral responses**: Worker migration, retraining choices, and entrepreneurship are not modeled at the individual level.
-
-5. **AI capability trajectory**: The model uses a fixed AI capability profile. In reality, AI capabilities are expanding into new task domains over time.
-
-6. **Historical elasticities in novel conditions**: All economic elasticities are estimated from historical data. An unprecedented AI-driven structural shift may produce different magnitudes.
+1. **Temporal mismatch**: Employment data (2024), O*NET (29.1), AI capability scores (2021). AI has advanced significantly since 2021 benchmarks.
+2. **MSA-to-county crosswalk**: Assumes uniform occupation mix within MSAs. Understates local specialization.
+3. **Rural county estimation**: ~2,000 non-MSA counties use industry-composition proxy. Less precise than occupation-level data.
+4. **Agentic AI scores**: Forward-looking with no empirical validation yet. Treat as directional.
+5. **Offshoring scores**: Based on theoretical tradability. Actual offshoring depends on corporate decisions, not just capability.
+6. **Feedback loop calibration**: Self-reinforcing dynamics are difficult to parameterize from historical data because this transition is unprecedented in speed.
+7. **Government response timing**: The model assumes government responds to thresholds, not proactively. Actual policy may lead or lag the model.
+8. **K-shape wealth data**: Census income data is a proxy for equity ownership. Actual equity concentration is higher in some counties than income data suggests.
+9. **Company displacement data**: Biased toward large, publicly traded, US-listed companies. Private companies and non-US companies are underrepresented.
 
 ---
 
@@ -157,6 +248,6 @@ Policy effects feed back into Layers 1-2:
 
 - Random seed is fixed (42) for given parameter sets — same inputs produce same outputs
 - All source data versions are pinned in `backend/data/scripts/config.py`
-- AIOE computed from source data, not from an external pre-computed file — fully reproducible
-- AI capability scores for each O*NET ability are stored in `config.py` as `FELTEN_AI_ABILITY_SCORES`
+- AIOE computed from source data, not from an external pre-computed file
 - Every simulation result includes the full list of assumptions and parameter values used
+- Company displacement data curated with documented confidence scoring (1-5 scale)

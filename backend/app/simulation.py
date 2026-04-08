@@ -148,6 +148,29 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
     t = params.time_horizon_years
     rng = np.random.default_rng(42)  # Reproducible for same params
 
+    # New dynamics parameters
+    feedback_agg = getattr(params, 'feedback_aggressiveness', 0.5)
+    trade_policy = getattr(params, 'trade_policy', 'current')
+    corp_profit = getattr(params, 'corporate_profit', 'baseline')
+    equity_loop = getattr(params, 'equity_loop', 'intact')
+
+    # Trade policy modifiers on displacement
+    trade_displacement_mod = 1.0
+    if trade_policy == "escalating_tariffs":
+        trade_displacement_mod = 1.15  # Robotics acceleration
+    elif trade_policy == "free_trade":
+        trade_displacement_mod = 1.05  # Offshoring acceleration
+
+    # Corporate profit scenario affects government revenue
+    corp_gdp_mod = 0.0
+    if corp_profit == "surge":
+        corp_gdp_mod = 0.005  # +0.5% GDP from productivity
+    elif corp_profit == "decline":
+        corp_gdp_mod = -0.005
+
+    # Equity loop modifier (medium/long term)
+    equity_mod = 1.0  # GDP multiplier from equity loop status
+
     # Output arrays: [simulation, year]
     displacement_pct = np.zeros((n, t))
     unemployment_rate = np.zeros((n, t))
@@ -169,11 +192,17 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
         prev_unemployment = BASELINE_UNEMPLOYMENT
 
         for year in range(t):
-            # Layer 1: Displacement
+            # Layer 1: Displacement (with trade policy and feedback modifiers)
             adoption = _adoption_curve(params.ai_adoption_pace, year, t)
+
+            # Feedback loop: in medium/long term, displacement accelerates
+            feedback_mult = 1.0
+            if year >= 3 and feedback_agg > 0.3:
+                feedback_mult = 1.0 + (feedback_agg - 0.3) * 0.5 * min(1, year / 5)
+
             annual_displacement_rate = (
                 adoption * stochastic_factor * 0.3  # Max 30% of exposed jobs
-                * macro_noise
+                * macro_noise * trade_displacement_mod * feedback_mult
             )
 
             # Apply policy displacement reduction (Layer 3 feedback → Layer 1)
@@ -206,12 +235,20 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
             # Fed response (Layer 3)
             fed_boost = _fed_modifier(params.fed_response, current_unemployment, rng)
 
+            # Equity loop effect (intensifies over time)
+            equity_effect = 0.0
+            if equity_loop == "breaks" and year >= 2:
+                time_int = min(1.0, year / 8)
+                equity_effect = -0.008 * feedback_agg * time_int  # GDP drag
+
             # Net GDP impact
             gdp_change = (
                 BASELINE_GDP_GROWTH
                 + okun_gdp_loss
                 + spending_decline / 100
                 + fed_boost
+                + corp_gdp_mod
+                + equity_effect
             ) * macro_noise
 
             gdp_impact_pct[sim, year] = gdp_change
@@ -269,6 +306,10 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
         f"Spending-unemployment elasticity: {SPENDING_UNEMPLOYMENT_ELASTICITY}",
         f"Baseline unemployment: {BASELINE_UNEMPLOYMENT:.1%}, GDP growth: {BASELINE_GDP_GROWTH:.1%}",
         f"Global macro: {params.global_macro}",
+        f"Trade policy: {trade_policy} (displacement modifier: {trade_displacement_mod:.2f}x)",
+        f"Corporate profit scenario: {corp_profit} (GDP modifier: {corp_gdp_mod:+.3f})",
+        f"AI equity loop: {equity_loop}",
+        f"Feedback aggressiveness: {feedback_agg:.1f}/1.0",
         "Not all displaced workers become unemployed (40% conversion rate)",
         "Cumulative displacement capped at 95% per occupation group",
     ]
