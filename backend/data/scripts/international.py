@@ -155,6 +155,43 @@ def _load_numeric_to_iso3():
 # Scale 0-1. Higher = more attractive offshoring destination.
 # Source: World Bank labor costs, EF English Proficiency Index, ITU ICT index.
 
+# ============================================================================
+# Country-specific AI exposure overrides
+# ============================================================================
+# For countries where the generic sector-based estimate is known to be
+# inaccurate due to country-specific AI deployment patterns.
+# Score replaces the Tier 2 sector-based calculation.
+COUNTRY_EXPOSURE_OVERRIDES = {
+    "CHN": {
+        "score": 0.48,
+        "reason": (
+            "China's sector-based estimate understates actual AI deployment. "
+            "Massive government-directed AI investment, extensive surveillance "
+            "infrastructure (facial recognition, social credit), advanced "
+            "manufacturing automation (world's largest robot installer per IFR), "
+            "dominant fintech/e-commerce AI deployment (Alibaba, Tencent, ByteDance). "
+            "Services sector at 55% is heavily AI-augmented. Manufacturing sector "
+            "has higher automation than global average."
+        ),
+    },
+    "KOR": {
+        "score": 0.51,
+        "reason": (
+            "South Korea has the highest robot density in the world (IFR 2023). "
+            "Samsung, LG, Hyundai heavily deploying AI across manufacturing and services. "
+            "Sector-based estimate misses the intensity of Korean AI adoption."
+        ),
+    },
+    "ISR": {
+        "score": 0.52,
+        "reason": (
+            "Israel's tech sector is disproportionately large relative to employment "
+            "categories. Massive AI startup ecosystem, military AI applications, "
+            "and high-tech services concentration."
+        ),
+    },
+}
+
 OFFSHORING_DESTINATION_SCORES = {
     "IND": 0.92,  # India — dominant: low cost, English, massive tech workforce, AI adoption
     "PHL": 0.85,  # Philippines — strong English, BPO industry, AI customer service
@@ -276,6 +313,10 @@ def compute_all_country_scores():
                 industry * SECTOR_EXPOSURE["industry"] +
                 services * SECTOR_EXPOSURE["services"]
             )
+
+            # Apply country-specific override if available
+            if iso3 in COUNTRY_EXPOSURE_OVERRIDES:
+                score = COUNTRY_EXPOSURE_OVERRIDES[iso3]["score"]
 
             labor_force = wb.get("labor_force", wb.get("population", 0))
             if labor_force and labor_force > 0:

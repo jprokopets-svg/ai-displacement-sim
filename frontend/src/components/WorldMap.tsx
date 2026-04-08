@@ -73,9 +73,8 @@ export default function WorldMap({ countries }: WorldMapProps) {
     const width = 960
     const height = 500
     const projection = d3.geoNaturalEarth1()
-      .fitSize([width, height],
-        topojson.feature(topoData, topoData.objects.countries) as unknown as d3.GeoPermissibleObjects
-      )
+      .scale(155)
+      .translate([width / 2, height / 2])
     const path = d3.geoPath().projection(projection)
 
     const countryFeatures = topojson.feature(
@@ -168,7 +167,7 @@ export default function WorldMap({ countries }: WorldMapProps) {
           <span style={{ color: 'var(--text-muted)' }}>Low</span>
           <div style={{
             width: 120, height: 10, borderRadius: 2,
-            background: 'linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444, #991b1b)',
+            background: 'linear-gradient(to right, #15803d, #22c55e, #84cc16, #eab308, #f97316, #ef4444, #991b1b)',
           }} />
           <span style={{ color: 'var(--text-muted)' }}>High</span>
         </div>
