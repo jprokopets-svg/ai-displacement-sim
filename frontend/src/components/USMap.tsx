@@ -103,21 +103,25 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         }
         if (scenario?.showTransferDependency && overlays?.govt_floor?.[fips]) {
           const tp = (overlays.govt_floor[fips].transfer_pct as number) || 0
-          // Transfer: near-white (0%) to electric cyan (80%+)
-          const t = Math.min(1, tp / 0.65)
-          const r = Math.round(230 - t * 210)   // 230 → 20
-          const gr = Math.round(235 - t * 15)    // 235 → 220
-          const b = Math.round(240 + t * 15)     // 240 → 255
-          return `rgb(${r}, ${gr}, ${b})`
+          // Opacity-based cornflower blue: barely visible at 0%, solid at 80%+
+          let alpha: number
+          if (tp < 0.20) alpha = 0.10
+          else if (tp < 0.40) alpha = 0.30
+          else if (tp < 0.60) alpha = 0.55
+          else if (tp < 0.80) alpha = 0.75
+          else alpha = 0.95
+          return `rgba(100, 149, 237, ${alpha})`
         }
         if (scenario?.showKshapeDivergence && overlays?.kshape?.[fips]) {
           const ratio = (overlays.kshape[fips].equity_wage_ratio as number) || 0
-          // K-shape: near-white (low ratio) to hot magenta (high ratio)
-          const t = Math.min(1, ratio / 1.0)
-          const r = Math.round(235 - t * 10)     // 235 → 225
-          const gr = Math.round(230 - t * 220)   // 230 → 10
-          const b = Math.round(240 - t * 40)     // 240 → 200
-          return `rgb(${r}, ${gr}, ${b})`
+          // Opacity-based hot pink: barely visible at low ratio, solid at 1.2+
+          let alpha: number
+          if (ratio < 0.20) alpha = 0.10
+          else if (ratio < 0.50) alpha = 0.30
+          else if (ratio < 0.80) alpha = 0.55
+          else if (ratio < 1.20) alpha = 0.75
+          else alpha = 0.95
+          return `rgba(255, 0, 128, ${alpha})`
         }
 
         return getExposureColor(county.exposure_percentile)
