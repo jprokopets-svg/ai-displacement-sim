@@ -103,15 +103,22 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         }
         if (scenario?.showTransferDependency && overlays?.govt_floor?.[fips]) {
           const tp = (overlays.govt_floor[fips].transfer_pct as number) || 0
-          // Transfer: blue scale (high = more dependent)
-          const intensity = Math.min(255, Math.round(tp * 400))
-          return `rgb(${50}, ${100 + 155 - intensity}, ${intensity})`
+          // Transfer: blue scale — low (dark) to high (bright cyan)
+          const t = Math.min(1, tp / 0.70)  // Normalize to 0-1 (70%+ is max)
+          const r = Math.round(20 + t * 30)
+          const gr = Math.round(40 + t * 100)
+          const b = Math.round(80 + t * 175)
+          return `rgb(${r}, ${gr}, ${b})`
         }
         if (scenario?.showKshapeDivergence && overlays?.kshape?.[fips]) {
           const ratio = (overlays.kshape[fips].equity_wage_ratio as number) || 0
-          // K-shape: purple scale (high ratio = more divergent)
-          const intensity = Math.min(255, Math.round(ratio * 200))
-          return `rgb(${100 + intensity}, ${50}, ${200})`
+          // K-shape: wide range from lavender (low) to deep magenta (high)
+          // Ratio range: ~0.1 (rural) to ~1.5 (wealthy suburbs)
+          const t = Math.min(1, ratio / 1.2)  // Normalize
+          const r = Math.round(100 + t * 155)   // 100 → 255
+          const gr = Math.round(80 - t * 70)    // 80 → 10
+          const b = Math.round(130 + t * 80)    // 130 → 210
+          return `rgb(${r}, ${gr}, ${b})`
         }
 
         return getExposureColor(county.exposure_percentile)
@@ -179,53 +186,81 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     // Company displacement dots
     if (scenario?.showCompanyDots && companyData && companyData.length > 0) {
       const dotsGroup = g.append('g').attr('class', 'company-dots')
+      let dotCount = 0
       for (const company of companyData) {
-        const offices = (company as Record<string, unknown>).offices as Record<string, unknown>[] || []
-        const events = (company as Record<string, unknown>).displacement_events as Record<string, unknown>[] || []
+        const c = company as Record<string, unknown>
+        const offices = (c.offices as Record<string, unknown>[]) || []
+        const events = (c.displacement_events as Record<string, unknown>[]) || []
         const totalHc = events.reduce((sum: number, e: Record<string, unknown>) =>
           sum + ((e.headcount_impact as number) || 0), 0)
-        const maxConf = Math.max(...events.map((e: Record<string, unknown>) => (e.confidence_score as number) || 0))
+        const maxConf = Math.max(0, ...events.map((e: Record<string, unknown>) => (e.confidence_score as number) || 0))
+        const companyName = (c.name as string) || ''
 
         for (const office of offices) {
+          const country = (office.country as string) || 'US'
+          // geoAlbersUsa only projects US coordinates — skip non-US offices
+          if (country !== 'US') continue
           const lat = office.lat as number
           const lng = office.lng as number
           if (!lat || !lng) continue
           const coords = projection([lng, lat])
           if (!coords) continue
 
-          const radius = Math.max(3, Math.min(15, Math.sqrt(totalHc / 100)))
+          const radius = Math.max(4, Math.min(18, Math.sqrt(Math.max(totalHc, 100) / 50)))
           dotsGroup.append('circle')
             .attr('cx', coords[0])
             .attr('cy', coords[1])
             .attr('r', radius)
             .attr('fill', maxConf >= 4 ? '#ef4444' : '#f97316')
-            .attr('fill-opacity', 0.7)
+            .attr('fill-opacity', 0.8)
             .attr('stroke', '#fff')
-            .attr('stroke-width', 0.5)
-            .style('pointer-events', 'none')
+            .attr('stroke-width', 1)
+          // Company label for larger dots
+          if (radius >= 6) {
+            dotsGroup.append('text')
+              .attr('x', coords[0])
+              .attr('y', coords[1] - radius - 3)
+              .attr('text-anchor', 'middle')
+              .attr('font-size', 5)
+              .attr('fill', '#fff')
+              .attr('pointer-events', 'none')
+              .text(companyName.split(' ')[0])  // First word of company name
+          }
+          dotCount++
         }
       }
+      console.log(`[Company dots] Rendered ${dotCount} dots from ${companyData.length} companies`)
     }
 
-    // Reshoring paradox indicators
+    // Reshoring paradox indicators — large visible markers
     if (scenario?.showReshoringParadox && overlays?.dynamics) {
       const mfgGroup = g.append('g').attr('class', 'reshoring')
       for (const [fips, data] of Object.entries(overlays.dynamics)) {
         const mfgPct = (data.manufacturing_emp_pct as number) || 0
         const paradox = (data.reshoring_paradox_score as number) || 0
         if (mfgPct < 0.10 || paradox < 0.1) continue
-        // Find county centroid (approximate from the features)
         const feature = countyFeatures.features.find(f => String(f.id).padStart(5, '0') === fips)
         if (!feature) continue
         const centroid = path.centroid(feature)
         if (!centroid || isNaN(centroid[0])) continue
+        // Bright orange circle with R label — visible at default zoom
+        mfgGroup.append('circle')
+          .attr('cx', centroid[0])
+          .attr('cy', centroid[1])
+          .attr('r', 5)
+          .attr('fill', '#f97316')
+          .attr('fill-opacity', 0.9)
+          .attr('stroke', '#fff')
+          .attr('stroke-width', 0.8)
+          .attr('pointer-events', 'none')
         mfgGroup.append('text')
           .attr('x', centroid[0])
           .attr('y', centroid[1])
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'central')
-          .attr('font-size', 6)
-          .attr('fill', '#ffa84a')
+          .attr('font-size', 7)
+          .attr('font-weight', 'bold')
+          .attr('fill', '#fff')
           .attr('pointer-events', 'none')
           .text('R')
       }
