@@ -202,10 +202,15 @@ function SelectControl({ label, value, onChange, options, info }: {
 
 function InfoTip({ text }: { text: string }) {
   const [show, setShow] = useState(false)
+  const [pos, setPos] = useState({ x: 0, y: 0 })
   return (
-    <span style={{ position: 'relative', display: 'inline-block' }}>
+    <span style={{ display: 'inline-block' }}>
       <button
-        onClick={() => setShow(!show)}
+        onClick={(e) => {
+          const rect = (e.target as HTMLElement).getBoundingClientRect()
+          setPos({ x: rect.right + 8, y: rect.top })
+          setShow(!show)
+        }}
         style={{
           background: 'none', border: '1px solid #555', borderRadius: '50%',
           width: 14, height: 14, fontSize: 9, color: '#888', cursor: 'pointer',
@@ -215,18 +220,18 @@ function InfoTip({ text }: { text: string }) {
       >i</button>
       {show && (
         <div style={{
-          position: 'absolute', left: 18, top: -4, zIndex: 200,
-          background: '#1a1a25', border: '1px solid #444', borderRadius: 4,
-          padding: '6px 8px', fontSize: 10, color: '#ccc',
-          width: 200, lineHeight: 1.4,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+          position: 'fixed', left: pos.x, top: pos.y, zIndex: 9999,
+          background: '#0a0a12', border: '1px solid #555', borderRadius: 4,
+          padding: '8px 10px', fontSize: 10, color: '#ddd',
+          width: 220, lineHeight: 1.5,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.7)',
         }}>
           {text}
           <div
             onClick={() => setShow(false)}
-            style={{ color: '#666', cursor: 'pointer', marginTop: 4, fontSize: 9 }}
+            style={{ color: '#888', cursor: 'pointer', marginTop: 4, fontSize: 9, textAlign: 'right' }}
           >
-            close
+            dismiss
           </div>
         </div>
       )}
