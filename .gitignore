@@ -13,9 +13,12 @@ build/
 .env.local
 .env.production
 
-# Data files — raw downloads are large, DBs contain scraped data
+# Data files — raw downloads are large
 backend/data/raw/
+
+# SQLite databases (built by pipeline, committed as .gz for deployment)
 backend/data/processed/*.db
+!backend/data/processed/*.db.gz
 *.csv
 *.xlsx
 *.zip
