@@ -8,6 +8,7 @@ import ControlPanel from './components/ControlPanel'
 import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
+import DebugPanel from './components/DebugPanel'
 
 type Tab = 'map' | 'simulate' | 'job'
 type MapView = 'us' | 'world'
@@ -192,6 +193,13 @@ export default function App() {
           All outputs are probability distributions. See methodology for assumptions.
         </span>
       </footer>
+
+      {/* Debug panel — shows scenario modifier deltas */}
+      <DebugPanel
+        scenario={scenario}
+        baseCounties={baseCounties as never[]}
+        adjustedCounties={counties as never[]}
+      />
     </>
   )
 }
