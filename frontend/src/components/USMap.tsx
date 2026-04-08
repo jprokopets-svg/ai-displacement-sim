@@ -91,39 +91,18 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         const county = countyMap.get(fips)
         if (!county) return '#1a1a25'
 
-        // Check if an overlay layer is selected
+        // Map layer dropdown: recolor by selected metric
         const layer = scenario?.mapLayer || 'composite'
         if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
           const score = (overlays.govt_floor[fips].govt_floor_score as number) || 0
-          return getExposureColor(score * 100)  // 0-1 → 0-100 percentile
+          return getExposureColor(score * 100)
         }
         if (layer === 'cascade' && overlays?.dynamics?.[fips]) {
           const score = (overlays.dynamics[fips].cascade_score as number) || 0
           return getExposureColor(score * 100)
         }
-        if (scenario?.showTransferDependency && overlays?.govt_floor?.[fips]) {
-          const tp = (overlays.govt_floor[fips].transfer_pct as number) || 0
-          // Opacity-based cornflower blue: barely visible at 0%, solid at 80%+
-          let alpha: number
-          if (tp < 0.20) alpha = 0.10
-          else if (tp < 0.40) alpha = 0.30
-          else if (tp < 0.60) alpha = 0.55
-          else if (tp < 0.80) alpha = 0.75
-          else alpha = 0.95
-          return `rgba(100, 149, 237, ${alpha})`
-        }
-        if (scenario?.showKshapeDivergence && overlays?.kshape?.[fips]) {
-          const ratio = (overlays.kshape[fips].equity_wage_ratio as number) || 0
-          // Opacity-based hot pink: barely visible at low ratio, solid at 1.2+
-          let alpha: number
-          if (ratio < 0.20) alpha = 0.10
-          else if (ratio < 0.50) alpha = 0.30
-          else if (ratio < 0.80) alpha = 0.55
-          else if (ratio < 1.20) alpha = 0.75
-          else alpha = 0.95
-          return `rgba(255, 0, 128, ${alpha})`
-        }
 
+        // Default: displacement percentile
         return getExposureColor(county.exposure_percentile)
       })
       .attr('opacity', uncertainty.opacity)
@@ -172,6 +151,52 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       .attr('fill', 'none')
       .attr('stroke', '#4a4a5a')
       .attr('stroke-width', 0.8)
+
+    // Transfer payment tint layer (separate SVG group on top of base colors)
+    if (scenario?.showTransferDependency && overlays?.govt_floor) {
+      const tintGroup = g.append('g').attr('class', 'transfer-tint').attr('pointer-events', 'none')
+      tintGroup.selectAll('path')
+        .data(countyFeatures.features)
+        .join('path')
+        .attr('d', d => path(d) || '')
+        .attr('fill', '#4169E1')  // Royal blue
+        .attr('fill-opacity', d => {
+          const fips = String(d.id).padStart(5, '0')
+          const data = overlays.govt_floor[fips]
+          if (!data) return 0
+          const tp = (data.transfer_pct as number) || 0
+          // 0.05 to 0.35 opacity range
+          if (tp < 0.15) return 0.05
+          if (tp < 0.30) return 0.12
+          if (tp < 0.45) return 0.18
+          if (tp < 0.60) return 0.25
+          return 0.35
+        })
+        .attr('stroke', 'none')
+    }
+
+    // K-shape tint layer
+    if (scenario?.showKshapeDivergence && overlays?.kshape) {
+      const tintGroup = g.append('g').attr('class', 'kshape-tint').attr('pointer-events', 'none')
+      tintGroup.selectAll('path')
+        .data(countyFeatures.features)
+        .join('path')
+        .attr('d', d => path(d) || '')
+        .attr('fill', '#FF1493')  // Deep pink
+        .attr('fill-opacity', d => {
+          const fips = String(d.id).padStart(5, '0')
+          const data = overlays.kshape[fips]
+          if (!data) return 0
+          const ratio = (data.equity_wage_ratio as number) || 0
+          // 0.05 to 0.35 opacity range
+          if (ratio < 0.15) return 0.05
+          if (ratio < 0.35) return 0.12
+          if (ratio < 0.60) return 0.18
+          if (ratio < 0.90) return 0.25
+          return 0.35
+        })
+        .attr('stroke', 'none')
+    }
 
     // Hatch pattern overlay (uncertainty visualization)
     if (uncertainty.hatchDensity > 0) {
