@@ -91,6 +91,30 @@ class SimulationParams(BaseModel):
         default=0.5, ge=0.0, le=1.0,
         description="Feedback loop aggressiveness: 0=Goldman gradual, 1=full cascade"
     )
+    business_pressure: float = Field(
+        default=0.5, ge=0.0, le=1.0,
+        description="Economic pressure on businesses to automate: 0=low, 1=extreme"
+    )
+    wealth_concentration: float = Field(
+        default=0.3, ge=0.0, le=1.0,
+        description="How much wealthy spending supports GDP: 0=none, 1=full support"
+    )
+    ubi_timeline_years: int = Field(
+        default=5, ge=1, le=15,
+        description="Years until government intervention kicks in"
+    )
+    price_deflation_rate: float = Field(
+        default=0.02, ge=0.0, le=0.15,
+        description="Annual price deflation rate as demand falls"
+    )
+    expert_wage_premium: float = Field(
+        default=0.3, ge=0.0, le=1.0,
+        description="Wage differential for AI-skilled workers: 0=none, 1=extreme"
+    )
+    base_worker_wage_trajectory: float = Field(
+        default=-0.02, ge=-0.10, le=0.05,
+        description="Annual base worker wage growth rate (-10% to +5%)"
+    )
 
 
 class SimulationResult(BaseModel):

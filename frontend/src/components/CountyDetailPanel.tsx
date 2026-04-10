@@ -29,7 +29,6 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
   const uncertainty = getUncertaintyState(year)
   const bandInfo = BAND_LABELS[uncertainty.band]
 
-  // Confidence interval for this county's score
   const baseScore = county.ai_exposure_score as number
   const ciHalf = 0.05 * uncertainty.ciMultiplier
   const ciLower = Math.max(0, baseScore - ciHalf)
@@ -49,8 +48,11 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
         background: 'var(--bg-secondary)', borderRadius: 6, padding: 10,
         border: '1px solid var(--border)', marginBottom: 12,
       }}>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-          Composite Displacement Score
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+            Composite Displacement Score
+          </div>
+          <InfoBtn text="Employment-weighted AI exposure across all occupations in this county. Combines cognitive AI, robotics, agentic AI, and offshoring tracks." />
         </div>
         <div style={{
           fontSize: 24, fontWeight: 700,
@@ -65,7 +67,6 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
             position: 'relative', height: 12, background: '#1a1a25',
             borderRadius: 3, overflow: 'hidden',
           }}>
-            {/* CI range bar */}
             <div style={{
               position: 'absolute',
               left: `${ciLower * 100}%`,
@@ -75,7 +76,6 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
               opacity: 0.3,
               borderRadius: 3,
             }} />
-            {/* Point estimate */}
             <div style={{
               position: 'absolute',
               left: `${baseScore * 100}%`,
@@ -95,7 +95,10 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
       </div>
 
       {/* Track Breakdown */}
-      <SectionTitle>Displacement Track Breakdown</SectionTitle>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <SectionTitle>Displacement Track Breakdown</SectionTitle>
+        <InfoBtn text="Four independent tracks of AI displacement risk. Cognitive AI = digital task automation. Robotics = physical task automation. Agentic AI = autonomous multi-step workflows (forward-looking). Offshoring = AI-enabled remote labor arbitrage." />
+      </div>
       <TrackBar label="Cognitive AI" value={0.65} color="#4a9eff" />
       <TrackBar label="Robotics" value={0.25} color="#ff8a4a"
         note={year > 2025 ? `${Math.round(year <= 2027 ? 40 : year <= 2030 ? 68 : year <= 2035 ? 91 : 100)}% deployed` : undefined} />
@@ -104,38 +107,21 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
       <TrackBar label="Offshoring" value={0.35} color="#4aff8a" />
 
       {/* Economic Context */}
-      <SectionTitle>Economic Context</SectionTitle>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <SectionTitle>Economic Context</SectionTitle>
+        <InfoBtn text="Local economic factors that amplify or dampen displacement effects. Small biz concentration = vulnerability to demand shocks. Government employment = economic floor. Transfer dependency = reliance on federal payments. Cascade vulnerability = supply chain amplification. Equity/wage ratio = K-shape exposure." />
+      </div>
       <StatRow label="Small biz concentration" value="0.72" />
       <StatRow label="Government employment" value={`${((county.exposure_percentile as number) > 50 ? 12 : 25).toFixed(0)}%`} />
       <StatRow label="Transfer payment dep." value="Moderate" />
       <StatRow label="Cascade vulnerability" value="0.58" />
       <StatRow label="Equity/wage ratio" value="0.31x" />
 
-      {/* Most Exposed Occupations */}
-      <SectionTitle>Most Exposed Occupations</SectionTitle>
-      <div style={{ maxHeight: 180, overflowY: 'auto' }}>
-        {topExposed.slice(0, 8).map((occ, i) => (
-          <div key={i} style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '3px 0', borderBottom: '1px solid var(--border)', fontSize: 11,
-          }}>
-            <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {occ.occupation_title as string}
-            </div>
-            <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 6 }}>
-              <span style={{ color: getOccupationExposureColor(occ.ai_exposure as number) }}>
-                {formatExposure(occ.ai_exposure as number)}
-              </span>
-              <span style={{ color: 'var(--text-muted)', width: 50, textAlign: 'right' }}>
-                {formatNumber(occ.employment as number)}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-
       {/* Scenario Sensitivity */}
-      <SectionTitle>Scenario Sensitivity</SectionTitle>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <SectionTitle>Scenario Sensitivity</SectionTitle>
+        <InfoBtn text="How this county's score changes under different policy assumptions. Shows the range of outcomes depending on trade, government, and equity scenarios." />
+      </div>
       <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
           <span>Current tariffs:</span>
@@ -163,6 +149,32 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
         </div>
       </div>
 
+      {/* Most Exposed Occupations */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <SectionTitle>Most Exposed Occupations</SectionTitle>
+        <InfoBtn text="Top occupations in this county ranked by AI exposure score. Employment column shows local jobs in each occupation." />
+      </div>
+      <div style={{ maxHeight: 180, overflowY: 'auto' }}>
+        {topExposed.slice(0, 8).map((occ, i) => (
+          <div key={i} style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '3px 0', borderBottom: '1px solid var(--border)', fontSize: 11,
+          }}>
+            <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {occ.occupation_title as string}
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 6 }}>
+              <span style={{ color: getOccupationExposureColor(occ.ai_exposure as number) }}>
+                {formatExposure(occ.ai_exposure as number)}
+              </span>
+              <span style={{ color: 'var(--text-muted)', width: 50, textAlign: 'right' }}>
+                {formatNumber(occ.employment as number)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 12 }}>
         Source: O*NET 29.1, BLS OEWS 2024, QCEW 2023, Census ACS 2022.
         {Boolean((county as Record<string, unknown>).is_estimated) && ' County score estimated from industry composition.'}
@@ -183,7 +195,7 @@ function Panel({ children, onClose }: { children: React.ReactNode | React.ReactN
         background: 'none', border: '1px solid var(--border)',
         color: 'var(--text-secondary)', borderRadius: 4,
         padding: '2px 6px', cursor: 'pointer', fontSize: 12,
-      }}>✕</button>
+      }}>x</button>
       {children}
     </div>
   )
@@ -196,9 +208,44 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
       textTransform: 'uppercase', letterSpacing: '0.05em',
       marginTop: 12, marginBottom: 6,
       paddingBottom: 3, borderBottom: '1px solid var(--border)',
+      flex: 1,
     }}>
       {children}
     </div>
+  )
+}
+
+function InfoBtn({ text }: { text: string }) {
+  const [show, setShow] = useState(false)
+  return (
+    <span style={{ display: 'inline-block', flexShrink: 0 }}>
+      <button
+        onClick={() => setShow(!show)}
+        style={{
+          background: 'none', border: '1px solid #555', borderRadius: '50%',
+          width: 14, height: 14, fontSize: 9, color: '#888', cursor: 'pointer',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          padding: 0, lineHeight: 1,
+        }}
+      >i</button>
+      {show && (
+        <div style={{
+          position: 'absolute', left: 16, right: 16, zIndex: 9999,
+          background: '#0a0a12', border: '1px solid #555', borderRadius: 4,
+          padding: '8px 10px', fontSize: 10, color: '#ddd',
+          lineHeight: 1.5,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.7)',
+        }}>
+          {text}
+          <div
+            onClick={() => setShow(false)}
+            style={{ color: '#888', cursor: 'pointer', marginTop: 4, fontSize: 9, textAlign: 'right' }}
+          >
+            dismiss
+          </div>
+        </div>
+      )}
+    </span>
   )
 }
 

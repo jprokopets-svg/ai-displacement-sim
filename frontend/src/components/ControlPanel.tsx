@@ -147,21 +147,25 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
       {/* Section 4: Overlays */}
       <SectionHeader title="Overlays" />
 
-      <ToggleControl label="Company displacement dots"
+      <OverlayToggle label="Company displacement dots"
         checked={state.showCompanyDots}
         onChange={v => onChange({ showCompanyDots: v })}
+        info="Shows verified AI-driven layoff events from 22 companies. Dot size = headcount impact. Red = high confidence, orange = moderate."
       />
-      <ToggleControl label="Reshoring paradox (mfg counties)"
+      <OverlayToggle label="Reshoring paradox (mfg counties)"
         checked={state.showReshoringParadox}
         onChange={v => onChange({ showReshoringParadox: v })}
+        info="Manufacturing counties that benefit from reshoring but face accelerated robotics automation. Tariffs boost factory returns but also fund robot deployment."
       />
-      <ToggleControl label="Transfer payment dependency"
+      <OverlayToggle label="Transfer payment dependency"
         checked={state.showTransferDependency}
         onChange={v => onChange({ showTransferDependency: v })}
+        info="Blue tint intensity shows government transfer payments as % of personal income (Social Security, Medicare, unemployment). Higher = more dependent on federal spending floor."
       />
-      <ToggleControl label="K-shape divergence"
+      <OverlayToggle label="K-shape divergence"
         checked={state.showKshapeDivergence}
         onChange={v => onChange({ showKshapeDivergence: v })}
+        info="Pink tint intensity shows equity-to-wage ratio — how much local wealth depends on asset prices vs. wages. Higher = more vulnerable to K-shaped recovery dynamics."
       />
     </div>
   )
@@ -236,6 +240,17 @@ function InfoTip({ text }: { text: string }) {
         </div>
       )}
     </span>
+  )
+}
+
+function OverlayToggle({ label, checked, onChange, info }: {
+  label: string; checked: boolean; onChange: (v: boolean) => void; info: string
+}) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+      <ToggleControl label={label} checked={checked} onChange={onChange} />
+      <InfoTip text={info} />
+    </div>
   )
 }
 

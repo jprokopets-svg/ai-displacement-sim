@@ -51,6 +51,16 @@ export interface SimulationParams {
   n_simulations: number
   time_horizon_years: number
   county_fips?: string
+  trade_policy?: string
+  corporate_profit?: string
+  equity_loop?: string
+  feedback_aggressiveness?: number
+  business_pressure?: number
+  wealth_concentration?: number
+  ubi_timeline_years?: number
+  price_deflation_rate?: number
+  expert_wage_premium?: number
+  base_worker_wage_trajectory?: number
 }
 
 export async function runSimulation(params: SimulationParams) {

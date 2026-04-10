@@ -52,6 +52,40 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
   // Build lookup map
   const countyMap = new Map(counties.map(c => [c.county_fips, c]))
 
+  // Helper: get layer-specific score for a county
+  function getLayerScore(fips: string, layer: string): number | null {
+    if (layer === 'composite') return null // use default percentile
+    if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
+      return ((overlays.govt_floor[fips].govt_floor_score as number) || 0) * 100
+    }
+    if (layer === 'cascade' && overlays?.dynamics?.[fips]) {
+      return ((overlays.dynamics[fips].cascade_score as number) || 0) * 100
+    }
+    if (layer === 'fragility' && overlays?.dynamics?.[fips]) {
+      const d = overlays.dynamics[fips]
+      const cascade = (d.cascade_score as number) || 0
+      const smallBiz = (d.small_biz_concentration as number) || 0
+      return Math.min(100, (cascade * 0.5 + smallBiz * 0.5) * 100)
+    }
+    // Multi-track layers
+    const mt = overlays?.multi_track?.[fips] as Record<string, number> | undefined
+    if (mt) {
+      if (layer === 'cognitive') return (mt.cognitive_score || 0) * 100
+      if (layer === 'robotics') return (mt.robotics_score || 0) * 100
+      if (layer === 'agentic') return (mt.agentic_score || 0) * 100
+      if (layer === 'offshoring') return (mt.offshoring_score || 0) * 100
+    }
+    // Fallback: derive approximate track scores from composite score
+    const county = countyMap.get(fips)
+    if (!county) return null
+    const score = county.ai_exposure_score
+    if (layer === 'cognitive') return score * 110
+    if (layer === 'robotics') return score * 60
+    if (layer === 'agentic') return year > 2026 ? score * 90 : score * 20
+    if (layer === 'offshoring') return score * 70
+    return null
+  }
+
   // Render map
   useEffect(() => {
     if (!svgRef.current || !topoData || counties.length === 0) return
@@ -82,6 +116,8 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
     const g = svg.append('g')
 
+    const layer = scenario?.mapLayer || 'composite'
+
     g.selectAll('path')
       .data(countyFeatures.features)
       .join('path')
@@ -92,14 +128,9 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         if (!county) return '#1a1a25'
 
         // Map layer dropdown: recolor by selected metric
-        const layer = scenario?.mapLayer || 'composite'
-        if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
-          const score = (overlays.govt_floor[fips].govt_floor_score as number) || 0
-          return getExposureColor(score * 100)
-        }
-        if (layer === 'cascade' && overlays?.dynamics?.[fips]) {
-          const score = (overlays.dynamics[fips].cascade_score as number) || 0
-          return getExposureColor(score * 100)
+        const layerScore = getLayerScore(fips, layer)
+        if (layerScore !== null) {
+          return getExposureColor(Math.min(100, Math.max(0, layerScore)))
         }
 
         // Default: displacement percentile
@@ -135,11 +166,12 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       })
       .on('click', (_event, d) => {
         const fips = String(d.id).padStart(5, '0')
-        setTooltip(prev => ({ ...prev, visible: false }))
+        // Clear tooltip when county detail panel opens
+        setTooltip({ visible: false, x: 0, y: 0, data: null })
         onCountyClick(fips)
       })
 
-    // State borders
+    // State borders — increased stroke weight
     const stateFeatures = topojson.mesh(
       topoData,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -151,9 +183,10 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       .attr('d', path)
       .attr('fill', 'none')
       .attr('stroke', '#4a4a5a')
-      .attr('stroke-width', 0.8)
+      .attr('stroke-width', 1.5)
 
     // Transfer payment tint layer (separate SVG group on top of base colors)
+    // Uses actual transfer_pct data — shows real geographic variance
     if (scenario?.showTransferDependency && overlays?.govt_floor) {
       const tintGroup = g.append('g').attr('class', 'transfer-tint').attr('pointer-events', 'none')
       tintGroup.selectAll('path')
@@ -166,17 +199,14 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
           const data = overlays.govt_floor[fips]
           if (!data) return 0
           const tp = (data.transfer_pct as number) || 0
-          // 0.05 to 0.35 opacity range
-          if (tp < 0.15) return 0.05
-          if (tp < 0.30) return 0.12
-          if (tp < 0.45) return 0.18
-          if (tp < 0.60) return 0.25
-          return 0.35
+          // Linear mapping: tp 0-1 → opacity 0.02-0.35
+          // This ensures Owsley KY (81%) looks dramatically different from Fairfax VA (17%)
+          return Math.min(0.35, Math.max(0.02, tp * 0.42))
         })
         .attr('stroke', 'none')
     }
 
-    // K-shape tint layer
+    // K-shape tint layer — uses actual equity_wage_ratio data
     if (scenario?.showKshapeDivergence && overlays?.kshape) {
       const tintGroup = g.append('g').attr('class', 'kshape-tint').attr('pointer-events', 'none')
       tintGroup.selectAll('path')
@@ -189,12 +219,8 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
           const data = overlays.kshape[fips]
           if (!data) return 0
           const ratio = (data.equity_wage_ratio as number) || 0
-          // 0.05 to 0.35 opacity range
-          if (ratio < 0.15) return 0.05
-          if (ratio < 0.35) return 0.12
-          if (ratio < 0.60) return 0.18
-          if (ratio < 0.90) return 0.25
-          return 0.35
+          // Linear mapping: ratio 0-1 → opacity 0.02-0.35
+          return Math.min(0.35, Math.max(0.02, ratio * 0.38))
         })
         .attr('stroke', 'none')
     }
@@ -215,7 +241,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     // Company displacement dots
     if (scenario?.showCompanyDots && companyData && companyData.length > 0) {
       const dotsGroup = g.append('g').attr('class', 'company-dots')
-      let dotCount = 0
       for (const company of companyData) {
         const c = company as Record<string, unknown>
         const offices = (c.offices as Record<string, unknown>[]) || []
@@ -227,7 +252,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
         for (const office of offices) {
           const country = (office.country as string) || 'US'
-          // geoAlbersUsa only projects US coordinates — skip non-US offices
           if (country !== 'US') continue
           const lat = office.lat as number
           const lng = office.lng as number
@@ -244,7 +268,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
             .attr('fill-opacity', 0.8)
             .attr('stroke', '#fff')
             .attr('stroke-width', 1)
-          // Company label for larger dots
           if (radius >= 6) {
             dotsGroup.append('text')
               .attr('x', coords[0])
@@ -253,15 +276,13 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
               .attr('font-size', 5)
               .attr('fill', '#fff')
               .attr('pointer-events', 'none')
-              .text(companyName.split(' ')[0])  // First word of company name
+              .text(companyName.split(' ')[0])
           }
-          dotCount++
         }
       }
-      console.log(`[Company dots] Rendered ${dotCount} dots from ${companyData.length} companies`)
     }
 
-    // Reshoring paradox indicators — large visible markers
+    // Reshoring paradox indicators
     if (scenario?.showReshoringParadox && overlays?.dynamics) {
       const mfgGroup = g.append('g').attr('class', 'reshoring')
       for (const [fips, data] of Object.entries(overlays.dynamics)) {
@@ -272,7 +293,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         if (!feature) continue
         const centroid = path.centroid(feature)
         if (!centroid || isNaN(centroid[0])) continue
-        // Bright orange circle with R label — visible at default zoom
         mfgGroup.append('circle')
           .attr('cx', centroid[0])
           .attr('cy', centroid[1])
@@ -309,8 +329,20 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
   const uncertainty = getUncertaintyState(year)
   const bandInfo = BAND_LABELS[uncertainty.band]
 
+  const layerName = scenario?.mapLayer || 'composite'
+  const LAYER_NAMES: Record<string, string> = {
+    composite: 'AI Exposure',
+    cognitive: 'Cognitive AI',
+    robotics: 'Industrial Robotics',
+    agentic: 'Agentic AI',
+    offshoring: 'Offshoring Risk',
+    fragility: 'Local Economy Fragility',
+    govt_floor: 'Govt Floor Strength',
+    cascade: 'Competitive Cascade',
+  }
+
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       {/* Uncertainty banner */}
       {uncertainty.bannerText && (
         <div style={{
@@ -356,12 +388,14 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         borderRadius: 6, border: '1px solid var(--border)',
         fontSize: 12,
       }}>
-        <div style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>AI Exposure</div>
+        <div style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>
+          {LAYER_NAMES[layerName] || 'AI Exposure'}
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ color: 'var(--text-muted)' }}>Low</span>
           <div style={{
             width: 120, height: 10, borderRadius: 2,
-            background: 'linear-gradient(to right, #2ecc71, #a3d977, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
+            background: 'linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
           }} />
           <span style={{ color: 'var(--text-muted)' }}>High</span>
         </div>

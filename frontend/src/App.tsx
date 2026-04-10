@@ -5,12 +5,12 @@ import CountyDetailPanel from './components/CountyDetailPanel'
 import SimulationPanel from './components/SimulationPanel'
 import JobSearch from './components/JobSearch'
 import ControlPanel from './components/ControlPanel'
+import MarketImplications from './components/MarketImplications'
 import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
-// Debug panel removed from production
 
-type Tab = 'map' | 'simulate' | 'job'
+type Tab = 'map' | 'simulate' | 'job' | 'market'
 type MapView = 'us' | 'world'
 
 interface CountyScore {
@@ -98,7 +98,7 @@ export default function App() {
           </p>
         </div>
         <nav style={{ display: 'flex', gap: 4 }}>
-          {(['map', 'simulate', 'job'] as Tab[]).map(t => (
+          {(['map', 'simulate', 'job', 'market'] as Tab[]).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -113,14 +113,14 @@ export default function App() {
                 fontWeight: 500,
               }}
             >
-              {t === 'job' ? 'Check My Job' : t === 'simulate' ? 'Simulate' : 'Map'}
+              {t === 'job' ? 'Check My Job' : t === 'simulate' ? 'Simulate' : t === 'market' ? 'Market Implications' : 'Map'}
             </button>
           ))}
         </nav>
       </header>
 
       {/* Main content */}
-      <main style={{ flex: 1, position: 'relative' }}>
+      <main style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {loading && (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
             Loading data...
@@ -137,7 +137,7 @@ export default function App() {
         )}
 
         {!loading && !error && tab === 'map' && (
-          <div style={{ position: 'relative', height: 'calc(100vh - 70px)' }}>
+          <div style={{ position: 'relative', height: 'calc(100vh - 70px)', overflow: 'hidden' }}>
             {/* Control Panel */}
             <ControlPanel state={scenario} onChange={updateScenario} />
 
@@ -189,8 +189,9 @@ export default function App() {
           </div>
         )}
 
-        {tab === 'simulate' && <SimulationPanel />}
-        {tab === 'job' && <JobSearch />}
+        {tab === 'simulate' && <div style={{ overflow: 'auto', height: 'calc(100vh - 70px)' }}><SimulationPanel /></div>}
+        {tab === 'job' && <div style={{ overflow: 'auto', height: 'calc(100vh - 70px)' }}><JobSearch /></div>}
+        {tab === 'market' && <div style={{ overflow: 'auto', height: 'calc(100vh - 70px)' }}><MarketImplications /></div>}
       </main>
 
       {/* Footer */}

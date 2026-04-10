@@ -83,26 +83,60 @@ def get_county_detail(county_fips: str) -> Optional[Dict]:
 
 
 def search_occupation(query: str) -> List[Dict]:
-    """Search occupations by title. Supports comma-separated multi-term search."""
+    """Search occupations by title. Supports comma-separated multi-term search.
+
+    Uses word-boundary-aware matching: each search term must match as a whole
+    word (or the start of a word) in the occupation title, not just appear as a
+    substring.  This prevents e.g. "consultant" from matching "conductors".
+    Results are ranked so that exact/start-of-word matches sort above partial
+    matches.
+    """
     terms = [t.strip() for t in query.split(",") if t.strip()]
     if not terms:
         return []
 
     with get_db() as conn:
-        # Build OR query for each term
-        clauses = " OR ".join(["occupation_title LIKE ?" for _ in terms])
-        params = [f"%{t}%" for t in terms]
-        rows = conn.execute(
-            f"""
-            SELECT soc_code, occupation_title, ai_exposure
-            FROM occupation_exposure
-            WHERE {clauses}
-            ORDER BY ai_exposure DESC
-            LIMIT 50
-            """,
-            params,
+        # Fetch all occupations and do smarter matching in Python so we can
+        # apply word-boundary logic that SQLite LIKE cannot express.
+        all_rows = conn.execute(
+            "SELECT soc_code, occupation_title, ai_exposure FROM occupation_exposure"
         ).fetchall()
-    return [dict(r) for r in rows]
+
+    terms_lower = [t.lower() for t in terms]
+    results: List[Dict] = []
+
+    for r in all_rows:
+        title_lower = (r["occupation_title"] or "").lower()
+        words = title_lower.replace(",", " ").replace("-", " ").replace("/", " ").split()
+
+        matched = False
+        score = 0  # higher = better match quality
+        for term in terms_lower:
+            # Check if any word in the title starts with the search term
+            for w in words:
+                if w == term:
+                    matched = True
+                    score += 3  # exact word match
+                    break
+                if w.startswith(term):
+                    matched = True
+                    score += 2  # prefix match
+                    break
+            else:
+                # Fallback: check if the full term appears in the title
+                # (handles multi-word terms like "food service")
+                if term in title_lower:
+                    matched = True
+                    score += 1
+
+        if matched:
+            d = dict(r)
+            d["_match_score"] = score
+            results.append(d)
+
+    # Sort by match quality descending, then by ai_exposure descending
+    results.sort(key=lambda x: (-x.pop("_match_score", 0), -(x.get("ai_exposure") or 0)))
+    return results[:50]
 
 
 def get_occupation_detail(soc_code: str) -> Optional[Dict]:
@@ -191,10 +225,24 @@ def get_county_overlays() -> Dict:
         except Exception:
             pass
 
+        # Multi-track scores (cognitive, robotics, agentic, offshoring per county)
+        multi_track = {}
+        try:
+            for r in conn.execute(
+                """SELECT county_fips, cognitive_score, robotics_score,
+                          agentic_score, offshoring_score, regulatory_friction,
+                          fragility_score
+                   FROM multi_track_scores"""
+            ):
+                multi_track[r["county_fips"]] = dict(r)
+        except Exception:
+            pass
+
     return {
         "dynamics": dynamics,
         "govt_floor": govt,
         "kshape": kshape,
+        "multi_track": multi_track,
     }
 
 

@@ -72,6 +72,7 @@ def _policy_modifier(
     policy: str,
     year: int,
     rng: np.random.Generator,
+    **kwargs,
 ) -> dict:
     """
     Compute policy-driven modifiers for a given year.
@@ -93,10 +94,11 @@ def _policy_modifier(
             mods["displacement_reduction"] = effectiveness * ramp
 
     elif policy == "ubi":
-        # UBI takes 1 year to implement
-        if year >= 1:
+        # UBI timeline is configurable (default ~1 year lag kept for backward compat)
+        ubi_lag = kwargs.get("ubi_timeline", 1)
+        if year >= ubi_lag:
             preservation = rng.uniform(*UBI_SPENDING_PRESERVATION_RANGE)
-            ramp = min(1.0, (year - 1) / 2)
+            ramp = min(1.0, (year - ubi_lag) / 2)
             mods["spending_preservation"] = preservation * ramp
             # UBI also slightly reduces displacement pressure (people can retrain)
             mods["displacement_reduction"] = 0.05 * ramp
@@ -154,6 +156,14 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
     corp_profit = getattr(params, 'corporate_profit', 'baseline')
     equity_loop = getattr(params, 'equity_loop', 'intact')
 
+    # Extended parameters
+    business_pressure = getattr(params, 'business_pressure', 0.5)
+    wealth_concentration = getattr(params, 'wealth_concentration', 0.3)
+    ubi_timeline = getattr(params, 'ubi_timeline_years', 5)
+    price_deflation = getattr(params, 'price_deflation_rate', 0.02)
+    expert_wage_premium = getattr(params, 'expert_wage_premium', 0.3)
+    base_wage_trajectory = getattr(params, 'base_worker_wage_trajectory', -0.02)
+
     # Trade policy modifiers on displacement
     trade_displacement_mod = 1.0
     if trade_policy == "escalating_tariffs":
@@ -200,13 +210,18 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
             if year >= 3 and feedback_agg > 0.3:
                 feedback_mult = 1.0 + (feedback_agg - 0.3) * 0.5 * min(1, year / 5)
 
+            # Business pressure amplifies displacement (labor cost pressure)
+            biz_pressure_mult = 1.0 + (business_pressure - 0.5) * 0.4  # 0.8x to 1.2x
+
             annual_displacement_rate = (
                 adoption * stochastic_factor * 0.3  # Max 30% of exposed jobs
                 * macro_noise * trade_displacement_mod * feedback_mult
+                * biz_pressure_mult
             )
 
             # Apply policy displacement reduction (Layer 3 feedback → Layer 1)
-            policy_mods = _policy_modifier(params.policy_response, year, rng)
+            policy_mods = _policy_modifier(params.policy_response, year, rng,
+                                           ubi_timeline=ubi_timeline)
             annual_displacement_rate *= (1 - policy_mods["displacement_reduction"])
 
             # Cumulative displacement (with diminishing returns — can't displace already-displaced)
@@ -241,6 +256,12 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
                 time_int = min(1.0, year / 8)
                 equity_effect = -0.008 * feedback_agg * time_int  # GDP drag
 
+            # Price deflation effect: reduces GDP as demand falls
+            deflation_effect = -price_deflation * cumulative_displacement
+
+            # Wealth concentration: wealthy spending partially offsets demand loss
+            wealth_offset = wealth_concentration * 0.01 * cumulative_displacement
+
             # Net GDP impact
             gdp_change = (
                 BASELINE_GDP_GROWTH
@@ -249,6 +270,8 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
                 + fed_boost
                 + corp_gdp_mod
                 + equity_effect
+                + deflation_effect
+                + wealth_offset
             ) * macro_noise
 
             gdp_impact_pct[sim, year] = gdp_change
@@ -310,6 +333,13 @@ def run_simulation(params: SimulationParams) -> SimulationResult:
         f"Corporate profit scenario: {corp_profit} (GDP modifier: {corp_gdp_mod:+.3f})",
         f"AI equity loop: {equity_loop}",
         f"Feedback aggressiveness: {feedback_agg:.1f}/1.0",
+        f"Business pressure: {business_pressure:.1f}/1.0 (labor cost automation incentive)",
+        f"Wealth concentration offset: {wealth_concentration:.1f}/1.0",
+        f"UBI/subsidy timeline: {ubi_timeline} years until intervention",
+        f"Price deflation rate: {price_deflation:.1%}/year",
+        f"Expert wage premium: {expert_wage_premium:.1f}/1.0",
+        f"Base worker wage trajectory: {base_wage_trajectory:+.1%}/year",
+        "Fed response reflects initial policy stance. Long-term projections assume policy normalization after year 3.",
         "Not all displaced workers become unemployed (40% conversion rate)",
         "Cumulative displacement capped at 95% per occupation group",
     ]

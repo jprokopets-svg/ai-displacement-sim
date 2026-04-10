@@ -49,7 +49,7 @@ interface TooltipState {
 
 const TIER_LABELS = {
   tier1: 'OECD occupation data',
-  tier2: 'Estimated — based on labor sector composition',
+  tier2: 'Estimated -- based on labor sector composition',
   tier3: 'Insufficient data',
 }
 
@@ -59,6 +59,8 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
   const feedbackAgg = scenario?.feedbackAggressiveness ?? 0.5
   const corporateProfit = scenario?.corporateProfit ?? 'baseline'
   const equityLoop = scenario?.equityLoop ?? 'intact'
+  const govtResponse = scenario?.govtResponse ?? 'none'
+  const fedResponse = scenario?.fedResponse ?? 'hold'
   const svgRef = useRef<SVGSVGElement>(null)
   const [topoData, setTopoData] = useState<Topology | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
@@ -98,6 +100,24 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
       mod *= 1.0 + 0.22 * Math.min(1, (year - 2027) / 6)
     }
 
+    // Government response — reduces exposure over time
+    if (govtResponse !== 'none' && year >= 2027) {
+      const ramp = Math.min(1, (year - 2025) / 3)
+      if (govtResponse === 'retraining') mod *= 1.0 - 0.12 * ramp
+      else if (govtResponse === 'ubi') mod *= 1.0 - 0.20 * ramp
+    }
+
+    // Fed response — short-term stabilizer that fades
+    if (fedResponse !== 'hold') {
+      const yearsOut = year - 2025
+      let policyStrength: number
+      if (yearsOut <= 2) policyStrength = 1.0
+      else if (yearsOut <= 5) policyStrength = 1.0 - (yearsOut - 2) / 3 * 0.7
+      else policyStrength = 0.15
+      if (fedResponse === 'cut') mod *= 1.0 - 0.05 * policyStrength
+      else if (fedResponse === 'zero') mod *= 1.0 + 0.15 * policyStrength
+    }
+
     // Feedback aggressiveness (medium/long term only)
     if (year > 2026) {
       const timeRamp = Math.min(1, (year - 2026) / 6)
@@ -127,6 +147,16 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
       .translate([width / 2, height / 2])
     const path = d3.geoPath().projection(projection)
 
+    // Add defs for tier 3 hatch pattern
+    const defs = svg.append('defs')
+    defs.html(`
+      <pattern id="nodata-hatch" patternUnits="userSpaceOnUse" width="6" height="6"
+               patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="6"
+              stroke="rgba(90,90,110,0.4)" stroke-width="1" />
+      </pattern>
+    `)
+
     const countryFeatures = topojson.feature(
       topoData,
       topoData.objects.countries
@@ -142,7 +172,10 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
         const numericId = String(d.id).padStart(3, '0')
         const country = countryByNumeric.get(numericId)
         if (!country || country.ai_exposure_score === null) {
-          return '#1a1a25'  // Tier 3 / no data: neutral dark
+          return '#1a1a25'
+        }
+        if (country.data_tier === 'tier3') {
+          return '#1e1e2a'  // Slightly different for tier 3 with data
         }
         return getExposureColor(country.exposure_percentile ?? 50)
       })
@@ -170,6 +203,19 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
         }
       })
 
+    // Tier 3 countries: overlay hatch pattern to visually distinguish "estimated/no-data"
+    g.selectAll('.tier3-hatch')
+      .data(countryFeatures.features.filter(d => {
+        const numericId = String(d.id).padStart(3, '0')
+        const country = countryByNumeric.get(numericId)
+        return country && (country.data_tier === 'tier3' || country.ai_exposure_score === null)
+      }))
+      .join('path')
+      .attr('class', 'tier3-hatch')
+      .attr('d', d => path(d) || '')
+      .attr('fill', 'url(#nodata-hatch)')
+      .attr('pointer-events', 'none')
+
     // Country borders (mesh)
     const borders = topojson.mesh(
       topoData,
@@ -192,7 +238,7 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
       })
     svg.call(zoom)
 
-  }, [topoData, countries, year, tradePolicy, feedbackAgg, corporateProfit, equityLoop])
+  }, [topoData, countries, year, tradePolicy, feedbackAgg, corporateProfit, equityLoop, govtResponse, fedResponse])
 
   const scoredCount = countries.filter(c => c.ai_exposure_score !== null).length
 
@@ -217,13 +263,20 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
           <span style={{ color: 'var(--text-muted)' }}>Low</span>
           <div style={{
             width: 120, height: 10, borderRadius: 2,
-            background: 'linear-gradient(to right, #2ecc71, #a3d977, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
+            background: 'linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
           }} />
           <span style={{ color: 'var(--text-muted)' }}>High</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
           <div style={{ width: 10, height: 10, background: '#1a1a25', borderRadius: 2, border: '1px solid #3a3a4a' }} />
           <span style={{ color: 'var(--text-muted)' }}>No data</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+          <div style={{
+            width: 10, height: 10, borderRadius: 2, border: '1px solid #3a3a4a',
+            background: 'repeating-linear-gradient(45deg, #1e1e2a, #1e1e2a 2px, #2a2a3a 2px, #2a2a3a 4px)',
+          }} />
+          <span style={{ color: 'var(--text-muted)' }}>Estimated (low confidence)</span>
         </div>
       </div>
 
@@ -302,7 +355,7 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
                 padding: '4px 8px', cursor: 'pointer', fontSize: 14,
               }}
             >
-              ✕
+              x
             </button>
           </div>
 
