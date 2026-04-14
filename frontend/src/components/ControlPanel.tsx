@@ -168,13 +168,14 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
 function SectionHeader({ title }: { title: string }) {
   return (
     <div style={{
-      fontSize: 11, fontWeight: 600, textTransform: 'uppercase',
-      color: 'var(--text-muted)', letterSpacing: '0.08em',
-      padding: '14px 16px 8px',
-      background: 'var(--bg-inset)',
-      borderTop: '1px solid var(--border)',
+      fontSize: 10,
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      color: '#6b7794',
+      letterSpacing: '0.12em',
+      padding: '0 16px 6px',
       borderBottom: '1px solid var(--border)',
-      margin: '14px -16px 12px',
+      margin: '18px -16px 10px',
     }}>
       {title}
     </div>
@@ -284,14 +285,22 @@ const labelStyle: React.CSSProperties = {
 }
 
 const selectStyle: React.CSSProperties = {
-  width: '100%', padding: '7px 28px 7px 10px', borderRadius: 4, fontSize: 12,
-  background: 'var(--bg-inset)', color: 'var(--text-primary)',
-  border: '1px solid var(--border)',
+  width: '100%',
+  padding: '8px 30px 8px 10px',
+  borderRadius: 4,
+  fontSize: 12,
   fontFamily: 'var(--font-sans)',
+  fontWeight: 500,
+  color: 'var(--text-primary)',
+  backgroundColor: '#0c1120',
+  border: '1px solid var(--border-strong)',
   appearance: 'none',
   WebkitAppearance: 'none',
-  backgroundImage: 'linear-gradient(45deg, transparent 50%, var(--text-muted) 50%), linear-gradient(135deg, var(--text-muted) 50%, transparent 50%)',
+  MozAppearance: 'none',
+  backgroundImage:
+    'linear-gradient(45deg, transparent 50%, #9aa6be 50%), linear-gradient(135deg, #9aa6be 50%, transparent 50%)',
   backgroundPosition: 'calc(100% - 14px) 50%, calc(100% - 9px) 50%',
-  backgroundSize: '5px 5px',
+  backgroundSize: '5px 5px, 5px 5px',
   backgroundRepeat: 'no-repeat',
+  cursor: 'pointer',
 }

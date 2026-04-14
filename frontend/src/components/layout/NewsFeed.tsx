@@ -48,12 +48,12 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
     const q = search.trim().toLowerCase()
     const filtered = q
       ? all.filter(it =>
-          it.company.toLowerCase().includes(q) ||
-          it.sector.toLowerCase().includes(q) ||
+          (it.company || '').toLowerCase().includes(q) ||
+          (it.sector || '').toLowerCase().includes(q) ||
           (it.description || '').toLowerCase().includes(q),
         )
       : all
-    filtered.sort((a, b) => (a.date < b.date ? 1 : -1))
+    filtered.sort((a, b) => ((a.date || '') < (b.date || '') ? 1 : -1))
     return filtered
   }, [companies, filterCompany, search])
 
@@ -139,7 +139,7 @@ function Card({ item }: { item: FeedItem }) {
       <div style={headcountRowStyle}>
         <div>
           <div className="data-value" style={headcountStyle}>
-            {item.headcount_impact.toLocaleString()}
+            {(item.headcount_impact || 0).toLocaleString()}
           </div>
           <div style={headcountLabelStyle}>roles impacted</div>
         </div>
@@ -183,9 +183,14 @@ function Card({ item }: { item: FeedItem }) {
 }
 
 const containerStyle: React.CSSProperties = {
-  padding: '24px 28px',
+  flex: 1,
+  minHeight: 0,
+  minWidth: 0,
+  width: '100%',
   height: '100%',
   overflow: 'auto',
+  padding: '24px 28px',
+  background: 'var(--bg-primary)',
 }
 
 const topBarStyle: React.CSSProperties = {

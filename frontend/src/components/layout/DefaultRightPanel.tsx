@@ -3,7 +3,7 @@ import Section from './Section'
 import type { ScenarioState } from '../ControlPanel'
 import { countyLabel } from '../../utils/countyLabel'
 
-const MIN_EMPLOYMENT_FOR_RANKING = 10_000
+const MIN_EMPLOYMENT_FOR_RANKING = 50_000
 
 type CountyScore = {
   county_fips: string
