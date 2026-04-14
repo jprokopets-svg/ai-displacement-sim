@@ -17,6 +17,7 @@ import RightPanel from './components/layout/RightPanel'
 import Footer from './components/layout/Footer'
 import Ticker from './components/layout/Ticker'
 import DefaultRightPanel from './components/layout/DefaultRightPanel'
+import NewsFeed from './components/layout/NewsFeed'
 
 type MapView = 'us' | 'world'
 
@@ -33,6 +34,8 @@ interface CountyScore {
 export default function App() {
   const [tab, setTab] = useState<Tab>('map')
   const [mapView, setMapView] = useState<MapView>('us')
+  const [newsFilter, setNewsFilter] = useState<string | null>(null)
+
   const [scenario, setScenario] = useState<ScenarioState>({
     year: 2025,
     feedbackAggressiveness: 0.5,
@@ -71,7 +74,6 @@ export default function App() {
       .finally(() => setLoading(false))
   }, [])
 
-  // Apply scenario modifiers to base county scores (client-side, instant)
   const counties = useMemo(
     () => applyScenarioModifiers(baseCounties, scenario),
     [baseCounties, scenario],
@@ -81,7 +83,11 @@ export default function App() {
     setSelectedCounty(prev => prev === fips ? null : fips)
   }, [])
 
-  // ---- Layout chrome ----
+  const handleTickerCompanyClick = useCallback((companyName: string) => {
+    setNewsFilter(companyName)
+    setTab('news')
+  }, [])
+
   const tickerCompanies = companyData as unknown as Parameters<typeof Ticker>[0]['companies']
 
   return (
@@ -89,7 +95,7 @@ export default function App() {
       <Header
         tab={tab}
         onTabChange={setTab}
-        ticker={<Ticker companies={tickerCompanies} />}
+        ticker={<Ticker companies={tickerCompanies} onCompanyClick={handleTickerCompanyClick} />}
       />
 
       <main style={mainStyle}>
@@ -109,40 +115,44 @@ export default function App() {
           )}
 
           {!loading && !error && tab === 'map' && (
-            <div style={mapWrapperStyle}>
-              <div style={mapToggleStyle}>
-                {(['us', 'world'] as MapView[]).map(v => (
-                  <button
-                    key={v}
-                    onClick={() => { setMapView(v); setSelectedCounty(null) }}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: 4,
-                      background: mapView === v ? 'var(--bg-panel-hover)' : 'transparent',
-                      color: mapView === v ? 'var(--text-primary)' : 'var(--text-secondary)',
-                      fontSize: 12,
-                      fontWeight: 500,
-                      transition: 'background var(--motion-fast)',
-                    }}
-                  >
-                    {v === 'us' ? 'US Counties' : 'World'}
-                  </button>
-                ))}
+            <div style={mapColumnStyle}>
+              <div style={toggleRowStyle}>
+                <div style={viewToggleStyle}>
+                  {(['us', 'world'] as MapView[]).map(v => (
+                    <button
+                      key={v}
+                      onClick={() => { setMapView(v); setSelectedCounty(null) }}
+                      style={{
+                        padding: '7px 16px',
+                        borderRadius: 4,
+                        background: mapView === v ? 'var(--accent)' : 'transparent',
+                        color: mapView === v ? '#fff' : 'var(--text-secondary)',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        letterSpacing: '0.02em',
+                        transition: 'background var(--motion-fast), color var(--motion-fast)',
+                      }}
+                    >
+                      {v === 'us' ? 'US Counties' : 'World'}
+                    </button>
+                  ))}
+                </div>
               </div>
-
-              {mapView === 'us' ? (
-                <USMap
-                  counties={counties}
-                  onCountyClick={handleCountyClick}
-                  year={scenario.year}
-                  selectedCounty={selectedCounty}
-                  overlays={overlays}
-                  companyData={companyData}
-                  scenario={scenario}
-                />
-              ) : (
-                <WorldMap countries={countries as never[]} scenario={scenario} />
-              )}
+              <div style={mapAreaStyle}>
+                {mapView === 'us' ? (
+                  <USMap
+                    counties={counties}
+                    onCountyClick={handleCountyClick}
+                    year={scenario.year}
+                    selectedCounty={selectedCounty}
+                    overlays={overlays}
+                    companyData={companyData}
+                    scenario={scenario}
+                  />
+                ) : (
+                  <WorldMap countries={countries as never[]} scenario={scenario} />
+                )}
+              </div>
             </div>
           )}
 
@@ -154,6 +164,13 @@ export default function App() {
           )}
           {!loading && !error && tab === 'market' && (
             <div style={scrollTabStyle}><MarketImplications /></div>
+          )}
+          {!loading && !error && tab === 'news' && (
+            <NewsFeed
+              companies={companyData as Parameters<typeof NewsFeed>[0]['companies']}
+              filterCompany={newsFilter}
+              onClearFilter={() => setNewsFilter(null)}
+            />
           )}
         </section>
 
@@ -212,27 +229,41 @@ const centerStyle: React.CSSProperties = {
   background: 'var(--bg-primary)',
   overflow: 'hidden',
   height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
 }
 
-const mapWrapperStyle: React.CSSProperties = {
-  position: 'relative',
-  width: '100%',
-  height: '100%',
-  overflow: 'hidden',
+const mapColumnStyle: React.CSSProperties = {
+  flex: 1,
+  minHeight: 0,
+  display: 'flex',
+  flexDirection: 'column',
 }
 
-const mapToggleStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 16,
-  left: '50%',
-  transform: 'translateX(-50%)',
-  zIndex: 50,
+const toggleRowStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  padding: '12px 16px 0',
+  flexShrink: 0,
+  zIndex: 40,
+  background: 'var(--bg-primary)',
+}
+
+const viewToggleStyle: React.CSSProperties = {
   display: 'flex',
   gap: 2,
   background: 'var(--bg-inset)',
-  border: '1px solid var(--border)',
+  border: '1px solid var(--border-strong)',
   borderRadius: 6,
   padding: 2,
+  boxShadow: '0 1px 2px rgba(0,0,0,0.4)',
+}
+
+const mapAreaStyle: React.CSSProperties = {
+  flex: 1,
+  minHeight: 0,
+  position: 'relative',
+  overflow: 'hidden',
 }
 
 const scrollTabStyle: React.CSSProperties = {

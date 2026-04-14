@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchCountyDetail } from '../utils/api'
 import { getExposureColor, getOccupationExposureColor, formatExposure, formatNumber } from '../utils/colors'
 import { getUncertaintyState, BAND_LABELS } from '../utils/uncertainty'
+import { countyLabel } from '../utils/countyLabel'
 
 interface CountyDetailPanelProps {
   countyFips: string
@@ -37,7 +38,10 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
   return (
     <Panel onClose={onClose}>
       <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 2 }}>
-        {county.county_name as string}
+        {countyLabel({
+          county_name: county.county_name as string,
+          county_fips: countyFips,
+        })}
       </h2>
       <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12 }}>
         FIPS: {countyFips} | Year: {year} | {bandInfo.label}

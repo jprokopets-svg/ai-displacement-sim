@@ -1,6 +1,9 @@
 import { useMemo } from 'react'
 import Section from './Section'
 import type { ScenarioState } from '../ControlPanel'
+import { countyLabel } from '../../utils/countyLabel'
+
+const MIN_EMPLOYMENT_FOR_RANKING = 10_000
 
 type CountyScore = {
   county_fips: string
@@ -32,7 +35,10 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
     if (counties.length === 0) return null
     const totalExposed = counties.reduce((s, c) => s + (c.exposed_employment || 0), 0)
     const totalEmp = counties.reduce((s, c) => s + (c.total_employment || 0), 0)
-    const sorted = [...counties].sort((a, b) => b.ai_exposure_score - a.ai_exposure_score)
+    // Filter out tiny counties before ranking — a 46-worker county topping the
+    // list is statistical noise, not a meaningful signal.
+    const rankable = counties.filter(c => (c.total_employment || 0) >= MIN_EMPLOYMENT_FOR_RANKING)
+    const sorted = [...rankable].sort((a, b) => b.ai_exposure_score - a.ai_exposure_score)
     const top5 = sorted.slice(0, 5)
     return {
       totalExposed,
@@ -89,7 +95,7 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               <div key={c.county_fips} style={rowStyle}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
                   <span style={rankStyle}>{i + 1}</span>
-                  <span style={countyNameStyle}>{c.county_name}</span>
+                  <span style={countyNameStyle}>{countyLabel(c)}</span>
                 </div>
                 <span className="data-value" style={scoreStyle}>
                   {(c.ai_exposure_score * 100).toFixed(0)}

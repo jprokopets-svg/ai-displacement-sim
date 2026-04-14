@@ -26,7 +26,7 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
   const bandInfo = BAND_LABELS[uncertainty.band]
 
   return (
-    <div style={{ padding: 12, fontSize: 12 }}>
+    <div style={{ padding: '0 16px 16px', fontSize: 12 }}>
       {/* Section 1: Time and Scenario */}
       <SectionHeader title="Time & Scenario" />
 
@@ -168,10 +168,13 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
 function SectionHeader({ title }: { title: string }) {
   return (
     <div style={{
-      fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
-      color: 'var(--text-muted)', letterSpacing: '0.05em',
-      marginTop: 12, marginBottom: 6,
-      paddingBottom: 4, borderBottom: '1px solid var(--border)',
+      fontSize: 11, fontWeight: 600, textTransform: 'uppercase',
+      color: 'var(--text-muted)', letterSpacing: '0.08em',
+      padding: '14px 16px 8px',
+      background: 'var(--bg-inset)',
+      borderTop: '1px solid var(--border)',
+      borderBottom: '1px solid var(--border)',
+      margin: '14px -16px 12px',
     }}>
       {title}
     </div>
@@ -276,11 +279,19 @@ function ToggleControl({ label, checked, onChange }: {
 }
 
 const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 2,
+  display: 'block', fontSize: 12, fontWeight: 500,
+  color: 'var(--text-secondary)', marginBottom: 4,
 }
 
 const selectStyle: React.CSSProperties = {
-  width: '100%', padding: '3px 6px', borderRadius: 4, fontSize: 11,
-  background: 'var(--bg-secondary)', color: 'var(--text-primary)',
+  width: '100%', padding: '7px 28px 7px 10px', borderRadius: 4, fontSize: 12,
+  background: 'var(--bg-inset)', color: 'var(--text-primary)',
   border: '1px solid var(--border)',
+  fontFamily: 'var(--font-sans)',
+  appearance: 'none',
+  WebkitAppearance: 'none',
+  backgroundImage: 'linear-gradient(45deg, transparent 50%, var(--text-muted) 50%), linear-gradient(135deg, var(--text-muted) 50%, transparent 50%)',
+  backgroundPosition: 'calc(100% - 14px) 50%, calc(100% - 9px) 50%',
+  backgroundSize: '5px 5px',
+  backgroundRepeat: 'no-repeat',
 }

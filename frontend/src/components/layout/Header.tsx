@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
 
-export type Tab = 'map' | 'simulate' | 'job' | 'market'
+export type Tab = 'map' | 'simulate' | 'job' | 'market' | 'news'
 
 const TAB_LABELS: Record<Tab, string> = {
   map: 'Map',
   simulate: 'Simulate',
   job: 'Check My Job',
-  market: 'Market Implications',
+  market: 'Market',
+  news: 'News',
 }
 
 interface Props {

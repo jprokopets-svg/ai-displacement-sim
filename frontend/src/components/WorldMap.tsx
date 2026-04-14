@@ -70,7 +70,10 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
 
   // Build lookup by numeric ID (what TopoJSON uses)
   // Apply full scenario modifiers to country scores (same logic as US counties)
+  // then recompute percentiles from modified scores so color ramps shift with sliders.
   const countryByNumeric = new Map<string, CountryScore>()
+  const scored: { key: string; score: number }[] = []
+
   for (const c of countries) {
     if (!c.numeric_id) continue
     if (c.ai_exposure_score === null) {
@@ -81,33 +84,27 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
     const base = c.ai_exposure_score
     let mod = 1.0
 
-    // Year modifier
     if (year > 2025) {
       const agenticRamp = year > 2026 ? Math.min(1, (year - 2026) / 4) : 0
       mod *= 1.0 + (year - 2025) * 0.008 + (base > 0.45 ? agenticRamp * 0.20 : 0)
     }
 
-    // Trade policy
     if (tradePolicy === 'escalating_tariffs') mod *= base < 0.45 ? 1.20 : 1.05
     else if (tradePolicy === 'free_trade') mod *= base > 0.45 ? 1.15 : 0.92
 
-    // Corporate profit
     if (corporateProfit === 'surge') mod *= 0.88
     else if (corporateProfit === 'decline') mod *= 1.18
 
-    // Equity loop
     if (equityLoop === 'breaks' && year > 2027) {
       mod *= 1.0 + 0.22 * Math.min(1, (year - 2027) / 6)
     }
 
-    // Government response — reduces exposure over time
     if (govtResponse !== 'none' && year >= 2027) {
       const ramp = Math.min(1, (year - 2025) / 3)
       if (govtResponse === 'retraining') mod *= 1.0 - 0.12 * ramp
       else if (govtResponse === 'ubi') mod *= 1.0 - 0.20 * ramp
     }
 
-    // Fed response — short-term stabilizer that fades
     if (fedResponse !== 'hold') {
       const yearsOut = year - 2025
       let policyStrength: number
@@ -118,7 +115,6 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
       else if (fedResponse === 'zero') mod *= 1.0 + 0.15 * policyStrength
     }
 
-    // Feedback aggressiveness (medium/long term only)
     if (year > 2026) {
       const timeRamp = Math.min(1, (year - 2026) / 6)
       mod *= 1.0 + feedbackAgg * 0.28 * timeRamp
@@ -126,6 +122,20 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
 
     const adjusted = Math.min(1, Math.max(0, base * mod))
     countryByNumeric.set(c.numeric_id, { ...c, ai_exposure_score: adjusted })
+    scored.push({ key: c.numeric_id, score: adjusted })
+  }
+
+  // Rank-based percentile recomputation — drives the choropleth color ramp.
+  scored.sort((a, b) => a.score - b.score)
+  const n = scored.length
+  if (n > 0) {
+    scored.forEach((entry, i) => {
+      const pct = (i / Math.max(1, n - 1)) * 100
+      const existing = countryByNumeric.get(entry.key)
+      if (existing) {
+        countryByNumeric.set(entry.key, { ...existing, exposure_percentile: pct })
+      }
+    })
   }
 
   useEffect(() => {
@@ -243,11 +253,17 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
   const scoredCount = countries.filter(c => c.ai_exposure_score !== null).length
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       <svg
         ref={svgRef}
         viewBox="0 0 960 500"
-        style={{ width: '100%', height: 'auto', background: 'var(--bg-secondary)' }}
+        preserveAspectRatio="xMidYMid meet"
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          background: 'var(--bg-primary)',
+        }}
       />
 
       {/* Legend */}

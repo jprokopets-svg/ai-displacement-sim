@@ -4,6 +4,7 @@ import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
 import { getExposureColor, formatExposure, formatNumber } from '../utils/colors'
 import { getUncertaintyState, getHatchPatternDef, BAND_LABELS } from '../utils/uncertainty'
+import { countyLabel } from '../utils/countyLabel'
 import type { ScenarioState } from './ControlPanel'
 
 interface CountyScore {
@@ -378,7 +379,13 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       <svg
         ref={svgRef}
         viewBox="0 0 960 600"
-        style={{ width: '100%', height: 'auto', background: 'var(--bg-secondary)' }}
+        preserveAspectRatio="xMidYMid meet"
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          background: 'var(--bg-primary)',
+        }}
       />
 
       {/* Color legend */}
@@ -417,7 +424,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
           minWidth: 180,
         }}>
           <div style={{ fontWeight: 600 }}>
-            {tooltip.data.county_name}
+            {countyLabel(tooltip.data)}
             {tooltip.data.is_estimated && (
               <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 6, fontWeight: 400 }}>
                 ESTIMATED
