@@ -5,6 +5,7 @@ type Company = {
   name: string
   sector: string
   ticker?: string
+  downstream_impact?: string
   displacement_events?: DisplacementEvent[]
 }
 
@@ -21,6 +22,7 @@ type FeedItem = DisplacementEvent & {
   company: string
   sector: string
   ticker?: string
+  downstream_impact?: string
 }
 
 interface Props {
@@ -42,6 +44,7 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
           company: c.name,
           sector: c.sector,
           ticker: c.ticker,
+          downstream_impact: c.downstream_impact,
         })
       }
     }
@@ -167,6 +170,13 @@ function Card({ item }: { item: FeedItem }) {
 
       {item.description && (
         <p style={descriptionStyle}>{item.description}</p>
+      )}
+
+      {item.downstream_impact && (
+        <div style={downstreamWrapStyle}>
+          <div style={downstreamLabelStyle}>Downstream Impact</div>
+          <p style={downstreamTextStyle}>{item.downstream_impact}</p>
+        </div>
       )}
 
       <footer style={cardFooterStyle}>
@@ -326,6 +336,27 @@ const descriptionStyle: React.CSSProperties = {
   fontSize: 13,
   color: 'var(--text-secondary)',
   lineHeight: 1.5,
+}
+
+const downstreamWrapStyle: React.CSSProperties = {
+  paddingTop: 10,
+  borderTop: '1px solid var(--border)',
+}
+
+const downstreamLabelStyle: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 600,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: 'var(--amber)',
+  marginBottom: 4,
+}
+
+const downstreamTextStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: 'var(--text-muted)',
+  lineHeight: 1.5,
+  fontStyle: 'italic',
 }
 
 const cardFooterStyle: React.CSSProperties = {

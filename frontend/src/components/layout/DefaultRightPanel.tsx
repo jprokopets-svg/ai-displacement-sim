@@ -35,6 +35,12 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
     if (counties.length === 0) return null
     const totalExposed = counties.reduce((s, c) => s + (c.exposed_employment || 0), 0)
     const totalEmp = counties.reduce((s, c) => s + (c.total_employment || 0), 0)
+    // Jobs in counties where composite score exceeds the elevated-risk threshold.
+    // Drives the Projected Impact card — shifts live as scenario modifiers move scores.
+    const elevatedRiskJobs = counties.reduce(
+      (s, c) => s + (c.ai_exposure_score > 0.6 ? (c.total_employment || 0) : 0),
+      0,
+    )
     // Filter out tiny counties before ranking — a 46-worker county topping the
     // list is statistical noise, not a meaningful signal.
     const rankable = counties.filter(c => (c.total_employment || 0) >= MIN_EMPLOYMENT_FOR_RANKING)
@@ -44,6 +50,7 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
       totalExposed,
       totalEmp,
       exposedShare: totalEmp > 0 ? totalExposed / totalEmp : 0,
+      elevatedRiskJobs,
       top5,
     }
   }, [counties])
@@ -83,6 +90,29 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               sub={feedbackLabel(scenario.feedbackAggressiveness)}
             />
           </>
+        ) : (
+          <span style={mutedStyle}>Loading…</span>
+        )}
+      </Section>
+
+      <Section title="Projected Impact">
+        {stats ? (
+          <div>
+            <div className="data-value" style={{
+              fontSize: 28,
+              fontWeight: 500,
+              color: 'var(--text-primary)',
+              lineHeight: 1.1,
+            }}>
+              {fmtNum(stats.elevatedRiskJobs)}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+              jobs at elevated risk by {scenario.year}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
+              Composite score above 0.6 threshold
+            </div>
+          </div>
         ) : (
           <span style={mutedStyle}>Loading…</span>
         )}

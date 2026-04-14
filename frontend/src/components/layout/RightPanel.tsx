@@ -2,21 +2,20 @@ import type { ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
+  width?: number
 }
 
-export default function RightPanel({ children }: Props) {
+export default function RightPanel({ children, width }: Props) {
   return (
-    <aside style={style}>
+    <aside style={{ ...style, width: width ?? 'var(--right-panel-width)' }}>
       {children}
     </aside>
   )
 }
 
 const style: React.CSSProperties = {
-  width: 'var(--right-panel-width)',
   flexShrink: 0,
   background: 'var(--bg-elevated)',
-  borderLeft: '1px solid var(--border)',
   overflowY: 'auto',
   overflowX: 'hidden',
   height: '100%',

@@ -55,7 +55,8 @@
       ],
       "total_headcount_impacted": 19000,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Normalizes AI-driven headcount cuts across Big 4 / consulting. Junior-analyst and back-office roles face compression as firms redeploy talent to AI-advisory work."
     },
     {
       "name": "Amazon",
@@ -120,7 +121,8 @@
       ],
       "total_headcount_impacted": 100,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Sets industry benchmark competitors will follow. Retail and logistics customer-service roles face compression across all major players within 18-24 months."
     },
     {
       "name": "Aurora Innovation",
@@ -169,7 +171,8 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Validates driverless freight as commercially viable. Long-haul trucking employment across the US Sun Belt faces structural decline independent of local adoption pace."
     },
     {
       "name": "Block",
@@ -210,7 +213,8 @@
       ],
       "total_headcount_impacted": 1000,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Signals fintech operations consolidation. Payment ops, compliance review, and tier-1 support roles face displacement across the broader payments sector."
     },
     {
       "name": "Chegg",
@@ -243,7 +247,8 @@
       ],
       "total_headcount_impacted": 319,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Signals broader EdTech disruption. Tutoring, test prep, and academic support services face existential competitive pressure from AI alternatives."
     },
     {
       "name": "CrowdStrike",
@@ -284,7 +289,8 @@
       ],
       "total_headcount_impacted": 500,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Legitimizes AI-first security-operations staffing. SOC tier-1 analyst roles face compression as detection and triage shift to autonomous agents."
     },
     {
       "name": "Dropbox",
@@ -333,7 +339,8 @@
       ],
       "total_headcount_impacted": 528,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Reinforces the pattern of mid-cap SaaS trimming to fund AI rebuilds. Product, marketing, and CX roles at subscale software companies face elevated displacement risk."
     },
     {
       "name": "Duolingo",
@@ -374,7 +381,8 @@
       ],
       "total_headcount_impacted": 70,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Accelerates contractor-to-AI substitution across content ops. Freelance translators, voice actors, and curriculum contributors lose a major employer category."
     },
     {
       "name": "Ford",
@@ -415,7 +423,8 @@
       ],
       "total_headcount_impacted": 3000,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Pressures other OEMs to match software-defined-vehicle headcount ratios. Traditional body/chassis engineering roles decline as software engineering share rises."
     },
     {
       "name": "Goldman Sachs",
@@ -464,7 +473,8 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Recalibrates what banking analyst headcount looks like industry-wide. Junior IB and research roles face structural reduction across bulge-bracket peers."
     },
     {
       "name": "Google",
@@ -529,7 +539,8 @@
       ],
       "total_headcount_impacted": 1000,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Sets cost-discipline expectations the rest of FAANG will adopt. Middle-management and recruiter roles across big tech face continued compression through 2026."
     },
     {
       "name": "HP",
@@ -570,7 +581,8 @@
       ],
       "total_headcount_impacted": 6000,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Signals hardware-sector retrenchment around AI-optimized product lines. Sales-ops, support, and legacy-product engineering roles face displacement."
     },
     {
       "name": "IBM",
@@ -627,7 +639,8 @@
       ],
       "total_headcount_impacted": 7800,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Validates pausing hiring in roles AI will absorb. HR, finance, and procurement ops roles face broad displacement as enterprise software vendors embed agentic workflows."
     },
     {
       "name": "JPMorgan Chase",
@@ -684,7 +697,8 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Normalizes AI deployment inside systemically-important banks. Operations, fraud review, and wealth-management support roles face compression across financial services."
     },
     {
       "name": "Klarna",
@@ -733,7 +747,8 @@
       ],
       "total_headcount_impacted": 700,
       "highest_confidence_score": 5,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Becomes the canonical case study for AI-driven CX replacement. BPO vendors serving consumer fintech lose a structural share of their addressable market."
     },
     {
       "name": "Kodiak Robotics",
@@ -774,7 +789,8 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Triggers regulatory precedent spreading nationally from Texas and Arizona. Long-haul trucking employment faces structural decline regardless of adoption pace elsewhere."
     },
     {
       "name": "Meta",
@@ -831,7 +847,8 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Cements AI-infra spend as the permanent offset against headcount growth. Middle-management layers across big tech face continued reduction."
     },
     {
       "name": "Microsoft",
@@ -888,7 +905,8 @@
       ],
       "total_headcount_impacted": 1900,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Accelerates cognitive-AI displacement across entertainment and media. Adjacent roles in content creation, QA testing, and customer support face elevated secondary risk."
     },
     {
       "name": "Salesforce",
@@ -937,7 +955,8 @@
       ],
       "total_headcount_impacted": 700,
       "highest_confidence_score": 4,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Signals the shift from seat-based SaaS to agent-based SaaS. Sales development and tier-1 support roles face displacement across the broader CRM ecosystem."
     },
     {
       "name": "UPS",
@@ -978,7 +997,8 @@
       ],
       "total_headcount_impacted": 12000,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Sets industry benchmark for logistics automation. Sorting, hub ops, and delivery-planning roles face displacement across FedEx, DHL, and regional carriers."
     },
     {
       "name": "Walmart",
@@ -1019,7 +1039,8 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Reshapes retail workforce expectations at national scale. Cashier, inventory-management, and corporate-support roles face displacement across mid-market grocery and mass retail."
     },
     {
       "name": "Workday",
@@ -1060,7 +1081,8 @@
       ],
       "total_headcount_impacted": 540,
       "highest_confidence_score": 3,
-      "verified": true
+      "verified": true,
+      "downstream_impact": "Validates the agentic-HCM thesis. HR operations, benefits admin, and payroll-processing roles face displacement across enterprise back-office functions."
     }
   ],
   "last_updated": "2026-04-07T19:19:06.774030",

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { SITE_CONFIG } from '../../config/site'
 
 export type Tab = 'map' | 'simulate' | 'job' | 'market' | 'news'
 
@@ -23,8 +24,8 @@ export default function Header({ tab, onTabChange, ticker }: Props) {
         <div style={logoStyle}>
           <div style={logoMarkStyle} />
           <div>
-            <div style={titleStyle}>AI Displacement Simulator</div>
-            <div style={subtitleStyle}>County-level exposure · Monte Carlo scenarios</div>
+            <div style={titleStyle}>{SITE_CONFIG.name}</div>
+            <div style={subtitleStyle}>{SITE_CONFIG.tagline}</div>
           </div>
         </div>
       </div>

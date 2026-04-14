@@ -53,6 +53,34 @@ const TIER_LABELS = {
   tier3: 'Insufficient data',
 }
 
+// Cached baseline score distribution. Computed once from the untouched
+// country list so percentile bins don't drift when modifiers re-render.
+let baselineCacheKey: CountryScore[] | null = null
+let baselineCacheSorted: number[] = []
+
+function getBaselineSorted(countries: CountryScore[]): number[] {
+  if (countries === baselineCacheKey) return baselineCacheSorted
+  const scores: number[] = []
+  for (const c of countries) {
+    if (c.ai_exposure_score !== null) scores.push(c.ai_exposure_score)
+  }
+  scores.sort((a, b) => a - b)
+  baselineCacheKey = countries
+  baselineCacheSorted = scores
+  return scores
+}
+
+function scoreToBaselinePercentile(score: number, sorted: number[]): number {
+  if (sorted.length === 0) return 50
+  let lo = 0, hi = sorted.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    if (sorted[mid] <= score) lo = mid + 1
+    else hi = mid
+  }
+  return (lo / sorted.length) * 100
+}
+
 export default function WorldMap({ countries, scenario }: WorldMapProps) {
   const year = scenario?.year ?? 2025
   const tradePolicy = scenario?.tradePolicy ?? 'current'
@@ -68,11 +96,12 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
   })
   const [selectedCountry, setSelectedCountry] = useState<CountryScore | null>(null)
 
-  // Build lookup by numeric ID (what TopoJSON uses)
-  // Apply full scenario modifiers to country scores (same logic as US counties)
-  // then recompute percentiles from modified scores so color ramps shift with sliders.
+  // Build lookup by numeric ID (what TopoJSON uses).
+  // Apply scenario modifiers then map adjusted scores into the BASELINE
+  // percentile distribution so a +25% modifier actually pushes a country
+  // into a higher color band (same pattern as US counties in utils/scenarios.ts).
   const countryByNumeric = new Map<string, CountryScore>()
-  const scored: { key: string; score: number }[] = []
+  const baselineSorted = getBaselineSorted(countries)
 
   for (const c of countries) {
     if (!c.numeric_id) continue
@@ -121,20 +150,11 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
     }
 
     const adjusted = Math.min(1, Math.max(0, base * mod))
-    countryByNumeric.set(c.numeric_id, { ...c, ai_exposure_score: adjusted })
-    scored.push({ key: c.numeric_id, score: adjusted })
-  }
-
-  // Rank-based percentile recomputation — drives the choropleth color ramp.
-  scored.sort((a, b) => a.score - b.score)
-  const n = scored.length
-  if (n > 0) {
-    scored.forEach((entry, i) => {
-      const pct = (i / Math.max(1, n - 1)) * 100
-      const existing = countryByNumeric.get(entry.key)
-      if (existing) {
-        countryByNumeric.set(entry.key, { ...existing, exposure_percentile: pct })
-      }
+    const pct = scoreToBaselinePercentile(adjusted, baselineSorted)
+    countryByNumeric.set(c.numeric_id, {
+      ...c,
+      ai_exposure_score: adjusted,
+      exposure_percentile: pct,
     })
   }
 

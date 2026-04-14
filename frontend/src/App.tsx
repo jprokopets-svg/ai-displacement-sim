@@ -18,6 +18,7 @@ import Footer from './components/layout/Footer'
 import Ticker from './components/layout/Ticker'
 import DefaultRightPanel from './components/layout/DefaultRightPanel'
 import NewsFeed from './components/layout/NewsFeed'
+import ResizeHandle from './components/layout/ResizeHandle'
 
 type MapView = 'us' | 'world'
 
@@ -53,6 +54,9 @@ export default function App() {
   const updateScenario = useCallback((updates: Partial<ScenarioState>) => {
     setScenario(prev => ({ ...prev, ...updates }))
   }, [])
+
+  const [sidebarWidth, setSidebarWidth] = useState(280)
+  const [rightPanelWidth, setRightPanelWidth] = useState(320)
 
   const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
   const [countries, setCountries] = useState<Record<string, unknown>[]>([])
@@ -99,9 +103,10 @@ export default function App() {
       />
 
       <main style={mainStyle}>
-        <Sidebar>
+        <Sidebar width={sidebarWidth}>
           <ControlPanel state={scenario} onChange={updateScenario} />
         </Sidebar>
+        <ResizeHandle width={sidebarWidth} side="left" onResize={setSidebarWidth} />
 
         <section style={centerStyle}>
           {loading && <CenterMessage>Loading data…</CenterMessage>}
@@ -174,7 +179,8 @@ export default function App() {
           )}
         </section>
 
-        <RightPanel>
+        <ResizeHandle width={rightPanelWidth} side="right" onResize={setRightPanelWidth} />
+        <RightPanel width={rightPanelWidth}>
           {selectedCounty && tab === 'map' ? (
             <CountyDetailPanel
               countyFips={selectedCounty}
