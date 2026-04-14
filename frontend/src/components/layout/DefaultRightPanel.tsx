@@ -3,7 +3,7 @@ import Section from './Section'
 import type { ScenarioState } from '../ControlPanel'
 import { countyLabel } from '../../utils/countyLabel'
 
-const MIN_EMPLOYMENT_FOR_RANKING = 50_000
+const MIN_EMPLOYMENT_FOR_RANKING = 100_000
 
 type CountyScore = {
   county_fips: string
@@ -90,19 +90,33 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
 
       <Section title="Most Exposed Counties">
         {stats ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {stats.top5.map((c, i) => (
-              <div key={c.county_fips} style={rowStyle}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
-                  <span style={rankStyle}>{i + 1}</span>
-                  <span style={countyNameStyle}>{countyLabel(c)}</span>
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {stats.top5.map((c, i) => (
+                <div key={c.county_fips} style={rowStyle}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
+                    <span style={rankStyle}>{i + 1}</span>
+                    <span style={countyNameStyle}>{countyLabel(c)}</span>
+                  </div>
+                  <span className="data-value" style={scoreStyle}>
+                    {(c.ai_exposure_score * 100).toFixed(0)}
+                  </span>
                 </div>
-                <span className="data-value" style={scoreStyle}>
-                  {(c.ai_exposure_score * 100).toFixed(0)}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+            <div style={{
+              fontSize: 11,
+              color: 'var(--text-muted)',
+              fontStyle: 'italic',
+              marginTop: 10,
+              paddingTop: 8,
+              borderTop: '1px solid var(--border)',
+              lineHeight: 1.4,
+            }}>
+              High scores reflect tech / defense / professional-services
+              sector concentration.
+            </div>
+          </>
         ) : (
           <span style={mutedStyle}>Loading…</span>
         )}

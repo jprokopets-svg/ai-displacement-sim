@@ -138,10 +138,21 @@ function Card({ item }: { item: FeedItem }) {
 
       <div style={headcountRowStyle}>
         <div>
-          <div className="data-value" style={headcountStyle}>
-            {(item.headcount_impact || 0).toLocaleString()}
-          </div>
-          <div style={headcountLabelStyle}>roles impacted</div>
+          {item.headcount_impact && item.headcount_impact > 0 ? (
+            <>
+              <div className="data-value" style={headcountStyle}>
+                {item.headcount_impact.toLocaleString()}
+              </div>
+              <div style={headcountLabelStyle}>roles impacted</div>
+            </>
+          ) : (
+            <>
+              <div style={{ ...headcountStyle, color: 'var(--text-muted)', fontSize: 18 }}>
+                Undisclosed
+              </div>
+              <div style={headcountLabelStyle}>headcount not reported</div>
+            </>
+          )}
         </div>
         <div style={{
           padding: '4px 8px', borderRadius: 3,
