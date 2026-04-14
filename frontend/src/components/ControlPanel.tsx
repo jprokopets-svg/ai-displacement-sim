@@ -26,13 +26,7 @@ export default function ControlPanel({ state, onChange }: ControlPanelProps) {
   const bandInfo = BAND_LABELS[uncertainty.band]
 
   return (
-    <div style={{
-      position: 'absolute', top: 12, left: 12, zIndex: 50,
-      background: 'var(--bg-panel)', borderRadius: 8,
-      border: '1px solid var(--border)', padding: 12,
-      width: 260, maxHeight: 'calc(100vh - 120px)', overflowY: 'auto',
-      fontSize: 12,
-    }}>
+    <div style={{ padding: 12, fontSize: 12 }}>
       {/* Section 1: Time and Scenario */}
       <SectionHeader title="Time & Scenario" />
 

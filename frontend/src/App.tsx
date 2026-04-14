@@ -10,7 +10,14 @@ import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
 
-type Tab = 'map' | 'simulate' | 'job' | 'market'
+import Header from './components/layout/Header'
+import type { Tab } from './components/layout/Header'
+import Sidebar from './components/layout/Sidebar'
+import RightPanel from './components/layout/RightPanel'
+import Footer from './components/layout/Footer'
+import Ticker from './components/layout/Ticker'
+import DefaultRightPanel from './components/layout/DefaultRightPanel'
+
 type MapView = 'us' | 'world'
 
 interface CountyScore {
@@ -43,6 +50,7 @@ export default function App() {
   const updateScenario = useCallback((updates: Partial<ScenarioState>) => {
     setScenario(prev => ({ ...prev, ...updates }))
   }, [])
+
   const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
   const [countries, setCountries] = useState<Record<string, unknown>[]>([])
   const [overlays, setOverlays] = useState<Record<string, Record<string, Record<string, unknown>>>>({})
@@ -55,17 +63,9 @@ export default function App() {
     Promise.all([
       fetchCounties().then(data => setBaseCounties(data.counties)),
       fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
-      fetchOverlays().then(data => {
-        console.log('[Overlays] loaded:', Object.keys(data),
-          'dynamics:', Object.keys(data.dynamics || {}).length,
-          'govt:', Object.keys(data.govt_floor || {}).length,
-          'kshape:', Object.keys(data.kshape || {}).length)
-        setOverlays(data)
-      }).catch(e => console.error('[Overlays] failed:', e)),
-      fetchCompanyDisplacement().then(data => {
-        console.log('[Companies] loaded:', (data.companies || []).length)
-        setCompanyData(data.companies || [])
-      }).catch(e => console.error('[Companies] failed:', e)),
+      fetchOverlays().then(data => setOverlays(data)).catch(e => console.error('[Overlays] failed:', e)),
+      fetchCompanyDisplacement().then(data => setCompanyData(data.companies || []))
+        .catch(e => console.error('[Companies] failed:', e)),
     ])
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
@@ -81,91 +81,56 @@ export default function App() {
     setSelectedCounty(prev => prev === fips ? null : fips)
   }, [])
 
+  // ---- Layout chrome ----
+  const tickerCompanies = companyData as unknown as Parameters<typeof Ticker>[0]['companies']
+
   return (
     <>
-      {/* Header */}
-      <header style={{
-        borderBottom: '1px solid var(--border)',
-        padding: '12px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <div>
-          <h1 style={{ fontSize: 18, fontWeight: 700 }}>AI Workforce Displacement Simulator</h1>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            {mapView === 'us' ? 'US county-level' : 'International'} AI exposure with Monte Carlo scenario modeling
-          </p>
-        </div>
-        <nav style={{ display: 'flex', gap: 4 }}>
-          {(['map', 'simulate', 'job', 'market'] as Tab[]).map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 4,
-                border: '1px solid var(--border)',
-                background: tab === t ? 'var(--accent)' : 'transparent',
-                color: tab === t ? '#fff' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: 500,
-              }}
-            >
-              {t === 'job' ? 'Check My Job' : t === 'simulate' ? 'Simulate' : t === 'market' ? 'Market Implications' : 'Map'}
-            </button>
-          ))}
-        </nav>
-      </header>
+      <Header
+        tab={tab}
+        onTabChange={setTab}
+        ticker={<Ticker companies={tickerCompanies} />}
+      />
 
-      {/* Main content */}
-      <main style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        {loading && (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Loading data...
-          </div>
-        )}
+      <main style={mainStyle}>
+        <Sidebar>
+          <ControlPanel state={scenario} onChange={updateScenario} />
+        </Sidebar>
 
-        {error && (
-          <div style={{ padding: 40, textAlign: 'center' }}>
-            <div style={{ color: 'var(--danger)', marginBottom: 8 }}>Failed to load data</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>
-              {error}. Make sure the backend is running and the data pipeline has been executed.
-            </div>
-          </div>
-        )}
+        <section style={centerStyle}>
+          {loading && <CenterMessage>Loading data…</CenterMessage>}
+          {error && (
+            <CenterMessage error>
+              Failed to load data: {error}
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
+                Make sure the backend is running.
+              </div>
+            </CenterMessage>
+          )}
 
-        {!loading && !error && tab === 'map' && (
-          <div style={{ position: 'relative', height: 'calc(100vh - 70px)', overflow: 'hidden' }}>
-            {/* Control Panel */}
-            <ControlPanel state={scenario} onChange={updateScenario} />
+          {!loading && !error && tab === 'map' && (
+            <div style={mapWrapperStyle}>
+              <div style={mapToggleStyle}>
+                {(['us', 'world'] as MapView[]).map(v => (
+                  <button
+                    key={v}
+                    onClick={() => { setMapView(v); setSelectedCounty(null) }}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: 4,
+                      background: mapView === v ? 'var(--bg-panel-hover)' : 'transparent',
+                      color: mapView === v ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      fontSize: 12,
+                      fontWeight: 500,
+                      transition: 'background var(--motion-fast)',
+                    }}
+                  >
+                    {v === 'us' ? 'US Counties' : 'World'}
+                  </button>
+                ))}
+              </div>
 
-            {/* US / World toggle (top center) */}
-            <div style={{
-              position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
-              zIndex: 50, display: 'flex', gap: 2,
-              background: 'var(--bg-panel)', borderRadius: 6,
-              border: '1px solid var(--border)', padding: 2,
-            }}>
-              {(['us', 'world'] as MapView[]).map(v => (
-                <button
-                  key={v}
-                  onClick={() => { setMapView(v); setSelectedCounty(null) }}
-                  style={{
-                    padding: '4px 12px', borderRadius: 4, border: 'none',
-                    background: mapView === v ? 'var(--accent)' : 'transparent',
-                    color: mapView === v ? '#fff' : 'var(--text-secondary)',
-                    cursor: 'pointer', fontSize: 12, fontWeight: 500,
-                  }}
-                >
-                  {v === 'us' ? 'US Counties' : 'World'}
-                </button>
-              ))}
-            </div>
-
-            {mapView === 'us' ? (
-              <>
+              {mapView === 'us' ? (
                 <USMap
                   counties={counties}
                   onCountyClick={handleCountyClick}
@@ -175,42 +140,102 @@ export default function App() {
                   companyData={companyData}
                   scenario={scenario}
                 />
-                {selectedCounty && (
-                  <CountyDetailPanel
-                    countyFips={selectedCounty}
-                    year={scenario.year}
-                    onClose={() => setSelectedCounty(null)}
-                  />
-                )}
-              </>
-            ) : (
-              <WorldMap countries={countries as never[]} scenario={scenario} />
-            )}
-          </div>
-        )}
+              ) : (
+                <WorldMap countries={countries as never[]} scenario={scenario} />
+              )}
+            </div>
+          )}
 
-        {tab === 'simulate' && <div style={{ overflow: 'auto', height: 'calc(100vh - 70px)' }}><SimulationPanel /></div>}
-        {tab === 'job' && <div style={{ overflow: 'auto', height: 'calc(100vh - 70px)' }}><JobSearch /></div>}
-        {tab === 'market' && <div style={{ overflow: 'auto', height: 'calc(100vh - 70px)' }}><MarketImplications /></div>}
+          {!loading && !error && tab === 'simulate' && (
+            <div style={scrollTabStyle}><SimulationPanel /></div>
+          )}
+          {!loading && !error && tab === 'job' && (
+            <div style={scrollTabStyle}><JobSearch /></div>
+          )}
+          {!loading && !error && tab === 'market' && (
+            <div style={scrollTabStyle}><MarketImplications /></div>
+          )}
+        </section>
+
+        <RightPanel>
+          {selectedCounty && tab === 'map' ? (
+            <CountyDetailPanel
+              countyFips={selectedCounty}
+              year={scenario.year}
+              onClose={() => setSelectedCounty(null)}
+            />
+          ) : (
+            <DefaultRightPanel
+              counties={counties}
+              companies={companyData as Parameters<typeof DefaultRightPanel>[0]['companies']}
+              scenario={scenario}
+            />
+          )}
+        </RightPanel>
       </main>
 
-      {/* Footer */}
-      <footer style={{
-        borderTop: '1px solid var(--border)',
-        padding: '8px 24px',
-        fontSize: 11,
-        color: 'var(--text-muted)',
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}>
-        <span>
-          Data: O*NET 29.1, BLS OEWS/QCEW 2024, OECD/ILO occupation statistics
-        </span>
-        <span>
-          All outputs are probability distributions. See methodology for assumptions.
-        </span>
-      </footer>
-
+      <Footer
+        lastUpdated={new Date().toISOString().slice(0, 10)}
+        confidence={scenario.year <= 2027 ? 'high' : scenario.year <= 2032 ? 'medium' : 'low'}
+      />
     </>
   )
+}
+
+function CenterMessage({ children, error }: { children: React.ReactNode; error?: boolean }) {
+  return (
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: error ? 'var(--danger)' : 'var(--text-secondary)',
+      textAlign: 'center',
+      padding: 40,
+    }}>
+      <div>{children}</div>
+    </div>
+  )
+}
+
+const mainStyle: React.CSSProperties = {
+  display: 'flex',
+  minHeight: 0,
+  height: '100%',
+  overflow: 'hidden',
+}
+
+const centerStyle: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  position: 'relative',
+  background: 'var(--bg-primary)',
+  overflow: 'hidden',
+  height: '100%',
+}
+
+const mapWrapperStyle: React.CSSProperties = {
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+  overflow: 'hidden',
+}
+
+const mapToggleStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: 16,
+  left: '50%',
+  transform: 'translateX(-50%)',
+  zIndex: 50,
+  display: 'flex',
+  gap: 2,
+  background: 'var(--bg-inset)',
+  border: '1px solid var(--border)',
+  borderRadius: 6,
+  padding: 2,
+}
+
+const scrollTabStyle: React.CSSProperties = {
+  overflow: 'auto',
+  height: '100%',
 }
