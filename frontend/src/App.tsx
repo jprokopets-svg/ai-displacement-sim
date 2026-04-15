@@ -20,6 +20,7 @@ import DefaultRightPanel from './components/layout/DefaultRightPanel'
 import NewsFeed from './components/layout/NewsFeed'
 import ResizeHandle from './components/layout/ResizeHandle'
 import MyRisk from './components/MyRisk'
+import CompareCounties from './components/CompareCounties'
 
 type MapView = 'us' | 'world'
 
@@ -58,6 +59,7 @@ export default function App() {
 
   const [sidebarWidth, setSidebarWidth] = useState(280)
   const [rightPanelWidth, setRightPanelWidth] = useState(320)
+  const [compareMode, setCompareMode] = useState(false)
 
   const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
   const [countries, setCountries] = useState<Record<string, unknown>[]>([])
@@ -120,7 +122,7 @@ export default function App() {
             </CenterMessage>
           )}
 
-          {!loading && !error && tab === 'map' && (
+          {!loading && !error && tab === 'map' && !compareMode && (
             <div style={mapColumnStyle}>
               <div style={toggleRowStyle}>
                 <div style={viewToggleStyle}>
@@ -143,6 +145,22 @@ export default function App() {
                     </button>
                   ))}
                 </div>
+                <button
+                  onClick={() => setCompareMode(true)}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: 4,
+                    background: 'transparent',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border-strong)',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    marginLeft: 10,
+                  }}
+                >
+                  Compare counties →
+                </button>
               </div>
               <div style={mapAreaStyle}>
                 {mapView === 'us' ? (
@@ -160,6 +178,17 @@ export default function App() {
                 )}
               </div>
             </div>
+          )}
+
+          {!loading && !error && tab === 'map' && compareMode && (
+            <CompareCounties
+              baseCounties={baseCounties}
+              counties={counties}
+              overlays={overlays}
+              scenario={scenario}
+              onYearChange={(y) => updateScenario({ year: y })}
+              onClose={() => setCompareMode(false)}
+            />
           )}
 
           {!loading && !error && tab === 'simulate' && (
