@@ -53,24 +53,7 @@ const TIER_LABELS = {
   tier3: 'Insufficient data',
 }
 
-// Cached baseline score distribution. Computed once from the untouched
-// country list so percentile bins don't drift when modifiers re-render.
-let baselineCacheKey: CountryScore[] | null = null
-let baselineCacheSorted: number[] = []
-
-function getBaselineSorted(countries: CountryScore[]): number[] {
-  if (countries === baselineCacheKey) return baselineCacheSorted
-  const scores: number[] = []
-  for (const c of countries) {
-    if (c.ai_exposure_score !== null) scores.push(c.ai_exposure_score)
-  }
-  scores.sort((a, b) => a - b)
-  baselineCacheKey = countries
-  baselineCacheSorted = scores
-  return scores
-}
-
-function scoreToBaselinePercentile(score: number, sorted: number[]): number {
+function scoreToPercentile(score: number, sorted: number[]): number {
   if (sorted.length === 0) return 50
   let lo = 0, hi = sorted.length
   while (lo < hi) {
@@ -96,12 +79,13 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
   })
   const [selectedCountry, setSelectedCountry] = useState<CountryScore | null>(null)
 
-  // Build lookup by numeric ID (what TopoJSON uses).
-  // Apply scenario modifiers then map adjusted scores into the BASELINE
-  // percentile distribution so a +25% modifier actually pushes a country
-  // into a higher color band (same pattern as US counties in utils/scenarios.ts).
+  // Apply scenario modifiers to every scored country, then rank all adjusted
+  // scores and assign each country a percentile within that post-modifier
+  // distribution. Ranking every render (rather than against a frozen baseline)
+  // guarantees that any scenario change produces a visible reshuffling of
+  // colors — which is what the user expects from dragging sliders.
   const countryByNumeric = new Map<string, CountryScore>()
-  const baselineSorted = getBaselineSorted(countries)
+  const adjusted: Array<{ c: CountryScore; score: number }> = []
 
   for (const c of countries) {
     if (!c.numeric_id) continue
@@ -113,48 +97,66 @@ export default function WorldMap({ countries, scenario }: WorldMapProps) {
     const base = c.ai_exposure_score
     let mod = 1.0
 
+    // Time. Baseline growth per year + agentic ramp for knowledge-heavy
+    // countries (high base scores) kicking in post-2026. Stronger magnitudes
+    // than before so dragging from 2025 → 2040 produces clearly different
+    // maps, not just subtle shading shifts.
     if (year > 2025) {
-      const agenticRamp = year > 2026 ? Math.min(1, (year - 2026) / 4) : 0
-      mod *= 1.0 + (year - 2025) * 0.008 + (base > 0.45 ? agenticRamp * 0.20 : 0)
+      const yearsOut = year - 2025
+      const agenticRamp = year > 2026 ? Math.min(1, (year - 2026) / 3) : 0
+      mod *= 1.0 + yearsOut * 0.020 + (base > 0.40 ? agenticRamp * 0.35 : agenticRamp * 0.10)
     }
 
-    if (tradePolicy === 'escalating_tariffs') mod *= base < 0.45 ? 1.20 : 1.05
-    else if (tradePolicy === 'free_trade') mod *= base > 0.45 ? 1.15 : 0.92
+    // Trade policy. Escalating tariffs hit manufacturing-heavy (low-score)
+    // countries harder via reshoring + robotics; free trade intensifies
+    // offshoring pressure on knowledge-heavy economies.
+    if (tradePolicy === 'escalating_tariffs') mod *= base < 0.45 ? 1.35 : 1.08
+    else if (tradePolicy === 'free_trade') mod *= base > 0.45 ? 1.25 : 0.88
 
-    if (corporateProfit === 'surge') mod *= 0.88
-    else if (corporateProfit === 'decline') mod *= 1.18
+    // Corporate profit regime — global sentiment effect.
+    if (corporateProfit === 'surge') mod *= 0.82
+    else if (corporateProfit === 'decline') mod *= 1.28
 
+    // AI equity loop break cascades after 2027.
     if (equityLoop === 'breaks' && year > 2027) {
-      mod *= 1.0 + 0.22 * Math.min(1, (year - 2027) / 6)
+      mod *= 1.0 + 0.32 * Math.min(1, (year - 2027) / 5)
     }
 
+    // Government intervention reduces displacement over a multi-year ramp.
     if (govtResponse !== 'none' && year >= 2027) {
       const ramp = Math.min(1, (year - 2025) / 3)
-      if (govtResponse === 'retraining') mod *= 1.0 - 0.12 * ramp
-      else if (govtResponse === 'ubi') mod *= 1.0 - 0.20 * ramp
+      if (govtResponse === 'retraining') mod *= 1.0 - 0.18 * ramp
+      else if (govtResponse === 'ubi') mod *= 1.0 - 0.28 * ramp
     }
 
+    // Fed response — effect fades after ~5 years as policy normalizes.
     if (fedResponse !== 'hold') {
       const yearsOut = year - 2025
       let policyStrength: number
       if (yearsOut <= 2) policyStrength = 1.0
       else if (yearsOut <= 5) policyStrength = 1.0 - (yearsOut - 2) / 3 * 0.7
       else policyStrength = 0.15
-      if (fedResponse === 'cut') mod *= 1.0 - 0.05 * policyStrength
-      else if (fedResponse === 'zero') mod *= 1.0 + 0.15 * policyStrength
+      if (fedResponse === 'cut') mod *= 1.0 - 0.08 * policyStrength
+      else if (fedResponse === 'zero') mod *= 1.0 + 0.22 * policyStrength
     }
 
+    // Feedback-aggressiveness compounds post-2026.
     if (year > 2026) {
-      const timeRamp = Math.min(1, (year - 2026) / 6)
-      mod *= 1.0 + feedbackAgg * 0.28 * timeRamp
+      const timeRamp = Math.min(1, (year - 2026) / 5)
+      mod *= 1.0 + feedbackAgg * 0.42 * timeRamp
     }
 
-    const adjusted = Math.min(1, Math.max(0, base * mod))
-    const pct = scoreToBaselinePercentile(adjusted, baselineSorted)
+    const adj = Math.min(1, Math.max(0, base * mod))
+    adjusted.push({ c, score: adj })
+  }
+
+  // Percentile rank across adjusted scores and commit to the lookup map.
+  const sortedAdjusted = adjusted.map(a => a.score).sort((a, b) => a - b)
+  for (const { c, score } of adjusted) {
     countryByNumeric.set(c.numeric_id, {
       ...c,
-      ai_exposure_score: adjusted,
-      exposure_percentile: pct,
+      ai_exposure_score: score,
+      exposure_percentile: scoreToPercentile(score, sortedAdjusted),
     })
   }
 

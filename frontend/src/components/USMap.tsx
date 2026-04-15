@@ -36,6 +36,35 @@ interface TooltipState {
 
 const TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'
 
+/**
+ * Rank an overlay dict by a numeric field and return fips → percentile (0-100).
+ * Used to spread overlay-driven opacity across the full visible range so
+ * cross-county variance is immediately obvious regardless of the field's
+ * absolute distribution.
+ */
+function rankOverlay(
+  data: Record<string, Record<string, unknown>>,
+  field: string,
+): Map<string, number> {
+  const pairs: Array<[string, number]> = []
+  for (const [fips, row] of Object.entries(data)) {
+    const v = row[field]
+    if (typeof v === 'number' && Number.isFinite(v)) pairs.push([fips, v])
+  }
+  const sorted = pairs.map(p => p[1]).sort((a, b) => a - b)
+  const out = new Map<string, number>()
+  for (const [fips, v] of pairs) {
+    let lo = 0, hi = sorted.length
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      if (sorted[mid] <= v) lo = mid + 1
+      else hi = mid
+    }
+    out.set(fips, (lo / sorted.length) * 100)
+  }
+  return out
+}
+
 export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025, overlays, companyData, scenario }: USMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
@@ -53,38 +82,70 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
   // Build lookup map
   const countyMap = new Map(counties.map(c => [c.county_fips, c]))
 
-  // Helper: get layer-specific score for a county
-  function getLayerScore(fips: string, layer: string): number | null {
+  // Raw layer score lookup — returns the unranked value (0-1 typically) so
+  // we can rank across all counties and color by percentile. This keeps each
+  // layer visually distinct: if a layer's raw values cluster in a narrow
+  // band (e.g. score * 60 for robotics sits mostly in 0.12-0.36), ranking
+  // by percentile spreads the colors across the full low→high gradient.
+  function getRawLayerScore(fips: string, layer: string): number | null {
     if (layer === 'composite') return null // use default percentile
     if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
-      return ((overlays.govt_floor[fips].govt_floor_score as number) || 0) * 100
+      return (overlays.govt_floor[fips].govt_floor_score as number) ?? null
     }
     if (layer === 'cascade' && overlays?.dynamics?.[fips]) {
-      return ((overlays.dynamics[fips].cascade_score as number) || 0) * 100
+      return (overlays.dynamics[fips].cascade_score as number) ?? null
     }
     if (layer === 'fragility' && overlays?.dynamics?.[fips]) {
       const d = overlays.dynamics[fips]
       const cascade = (d.cascade_score as number) || 0
       const smallBiz = (d.small_biz_concentration as number) || 0
-      return Math.min(100, (cascade * 0.5 + smallBiz * 0.5) * 100)
+      return cascade * 0.5 + smallBiz * 0.5
     }
-    // Multi-track layers
+    // Multi-track (backend-provided) — preferred when available.
     const mt = overlays?.multi_track?.[fips] as Record<string, number> | undefined
     if (mt) {
-      if (layer === 'cognitive') return (mt.cognitive_score || 0) * 100
-      if (layer === 'robotics') return (mt.robotics_score || 0) * 100
-      if (layer === 'agentic') return (mt.agentic_score || 0) * 100
-      if (layer === 'offshoring') return (mt.offshoring_score || 0) * 100
+      if (layer === 'cognitive') return mt.cognitive_score ?? null
+      if (layer === 'robotics') return mt.robotics_score ?? null
+      if (layer === 'agentic') return mt.agentic_score ?? null
+      if (layer === 'offshoring') return mt.offshoring_score ?? null
     }
-    // Fallback: derive approximate track scores from composite score
+    // Fallback: approximate tracks from composite score (multi_track is
+    // empty in the current backend, so this path actually runs in prod).
     const county = countyMap.get(fips)
     if (!county) return null
     const score = county.ai_exposure_score
-    if (layer === 'cognitive') return score * 110
-    if (layer === 'robotics') return score * 60
-    if (layer === 'agentic') return year > 2026 ? score * 90 : score * 20
-    if (layer === 'offshoring') return score * 70
+    if (layer === 'cognitive') return score * 1.10
+    if (layer === 'robotics') return score * 0.60
+    if (layer === 'agentic') return year > 2026 ? score * 0.90 : score * 0.20
+    if (layer === 'offshoring') return score * 0.70
     return null
+  }
+
+  // Precompute a fips → percentile (0-100) map for the active layer so we
+  // can color counties by their rank within the layer's distribution.
+  // `null` return means use the default (composite) coloring path.
+  function getLayerPercentiles(layer: string): Map<string, number> | null {
+    if (layer === 'composite') return null
+    const rawByFips: Array<[string, number]> = []
+    for (const c of counties) {
+      const raw = getRawLayerScore(c.county_fips, layer)
+      if (raw === null || !Number.isFinite(raw)) continue
+      rawByFips.push([c.county_fips, raw])
+    }
+    if (rawByFips.length === 0) return null
+    const sortedRaws = rawByFips.map(([, v]) => v).sort((a, b) => a - b)
+    // Binary-search each raw to its percentile rank.
+    const pctByFips = new Map<string, number>()
+    for (const [fips, raw] of rawByFips) {
+      let lo = 0, hi = sortedRaws.length
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1
+        if (sortedRaws[mid] <= raw) lo = mid + 1
+        else hi = mid
+      }
+      pctByFips.set(fips, (lo / sortedRaws.length) * 100)
+    }
+    return pctByFips
   }
 
   // Render map
@@ -118,6 +179,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     const g = svg.append('g')
 
     const layer = scenario?.mapLayer || 'composite'
+    const layerPercentiles = getLayerPercentiles(layer)
 
     g.selectAll('path')
       .data(countyFeatures.features)
@@ -128,13 +190,15 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         const county = countyMap.get(fips)
         if (!county) return '#1a1a25'
 
-        // Map layer dropdown: recolor by selected metric
-        const layerScore = getLayerScore(fips, layer)
-        if (layerScore !== null) {
-          return getExposureColor(Math.min(100, Math.max(0, layerScore)))
+        // Non-composite layer: color by percentile rank within the layer's
+        // distribution so every layer uses the full low→high color range.
+        if (layerPercentiles) {
+          const pct = layerPercentiles.get(fips)
+          if (pct != null) return getExposureColor(pct)
+          return '#1a1a25' // county has no data for this layer
         }
 
-        // Default: displacement percentile
+        // Default: composite displacement percentile
         return getExposureColor(county.exposure_percentile)
       })
       .attr('opacity', uncertainty.opacity)
@@ -186,9 +250,11 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       .attr('stroke', '#4a4a5a')
       .attr('stroke-width', 1.5)
 
-    // Transfer payment tint layer (separate SVG group on top of base colors)
-    // Uses actual transfer_pct data — shows real geographic variance
+    // Transfer payment tint layer — percentile-based opacity so variance is
+    // visible regardless of absolute range. Owsley KY (~81%, top percentile)
+    // renders at full 0.35, Fairfax VA (~27%, bottom quartile) near 0.
     if (scenario?.showTransferDependency && overlays?.govt_floor) {
+      const pctByFips = rankOverlay(overlays.govt_floor, 'transfer_pct')
       const tintGroup = g.append('g').attr('class', 'transfer-tint').attr('pointer-events', 'none')
       tintGroup.selectAll('path')
         .data(countyFeatures.features)
@@ -197,18 +263,16 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         .attr('fill', '#4169E1')  // Royal blue
         .attr('fill-opacity', d => {
           const fips = String(d.id).padStart(5, '0')
-          const data = overlays.govt_floor[fips]
-          if (!data) return 0
-          const tp = (data.transfer_pct as number) || 0
-          // Linear mapping: tp 0-1 → opacity 0.02-0.35
-          // This ensures Owsley KY (81%) looks dramatically different from Fairfax VA (17%)
-          return Math.min(0.35, Math.max(0.02, tp * 0.42))
+          const pct = pctByFips.get(fips)
+          if (pct == null) return 0
+          return (pct / 100) * 0.35  // 0th percentile → 0 opacity, 100th → 0.35
         })
         .attr('stroke', 'none')
     }
 
-    // K-shape tint layer — uses actual equity_wage_ratio data
+    // K-shape tint layer — percentile-based opacity.
     if (scenario?.showKshapeDivergence && overlays?.kshape) {
+      const pctByFips = rankOverlay(overlays.kshape, 'equity_wage_ratio')
       const tintGroup = g.append('g').attr('class', 'kshape-tint').attr('pointer-events', 'none')
       tintGroup.selectAll('path')
         .data(countyFeatures.features)
@@ -217,11 +281,9 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         .attr('fill', '#FF1493')  // Deep pink
         .attr('fill-opacity', d => {
           const fips = String(d.id).padStart(5, '0')
-          const data = overlays.kshape[fips]
-          if (!data) return 0
-          const ratio = (data.equity_wage_ratio as number) || 0
-          // Linear mapping: ratio 0-1 → opacity 0.02-0.35
-          return Math.min(0.35, Math.max(0.02, ratio * 0.38))
+          const pct = pctByFips.get(fips)
+          if (pct == null) return 0
+          return (pct / 100) * 0.35
         })
         .attr('stroke', 'none')
     }
