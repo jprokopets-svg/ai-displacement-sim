@@ -1021,6 +1021,30 @@
       "verified": true
     },
     {
+      "name": "Tata Consultancy Services",
+      "ticker": "TCS",
+      "sector": "IT Services",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2025-10-10",
+          "description": "AI Push Drives Record Job Cuts at Top India Private Employer TCS",
+          "headcount_impact": 19755,
+          "confidence_score": 3,
+          "source_url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPZGpSUTFnX2JmSDlKclNTZ1dZNDRKaF9BMUowZ3dtUDk0OHBWYlVfZmp0V2U1cjlvTjhWR2l3aTF1X0J2bkNNUU5uQXU0cmlIVmtETjBoQldSSC1YZWI0TFUwV0Y3elVPUGFqekxreU5qaDJqWHRjOW1nMG5DOVlqVllBX1h3cHd5dE4wTEhNYXYtaDRSMHFNd3pydjVHMXZEUzVudzgxX0w3OWQ3VnQwckNKQTNNdw?oc=5",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 19755,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
       "name": "UPS",
       "ticker": "UPS",
       "sector": "Logistics",
@@ -1144,7 +1168,7 @@
       "verified": true
     }
   ],
-  "last_updated": "2026-04-15T15:55:48.089150",
-  "total_companies": 25,
-  "total_jobs_impacted": 111957
+  "last_updated": "2026-04-15T16:10:59.203751",
+  "total_companies": 26,
+  "total_jobs_impacted": 131712
 }
