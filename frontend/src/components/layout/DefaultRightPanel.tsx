@@ -5,6 +5,12 @@ import { countyLabel } from '../../utils/countyLabel'
 
 const MIN_EMPLOYMENT_FOR_RANKING = 100_000
 
+// Composite-score cutoff for "elevated risk." County scores in the current
+// backend distribute 0.0–~0.64, so a 0.5 threshold partitions the workforce
+// into roughly the top third by exposure. Scenario modifiers push scores up,
+// so more counties cross this line at later projection years.
+const ELEVATED_RISK_SCORE_THRESHOLD = 0.5
+
 type CountyScore = {
   county_fips: string
   county_name: string
@@ -35,10 +41,16 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
     if (counties.length === 0) return null
     const totalExposed = counties.reduce((s, c) => s + (c.exposed_employment || 0), 0)
     const totalEmp = counties.reduce((s, c) => s + (c.total_employment || 0), 0)
-    // Jobs in counties where composite score exceeds the elevated-risk threshold.
-    // Drives the Projected Impact card — shifts live as scenario modifiers move scores.
+    // AI-exposed workers in counties where the composite score clears the
+    // elevated-risk threshold. Drives the Projected Impact card — shifts live
+    // as scenario modifiers move scores. Uses `exposed_employment` (pre-
+    // computed AI-exposed headcount per county) rather than raw
+    // `total_employment` so the projection reflects at-risk workers, not
+    // everyone in a high-score county.
     const elevatedRiskJobs = counties.reduce(
-      (s, c) => s + (c.ai_exposure_score > 0.6 ? (c.total_employment || 0) : 0),
+      (s, c) => s + (c.ai_exposure_score > ELEVATED_RISK_SCORE_THRESHOLD
+        ? (c.exposed_employment || 0)
+        : 0),
       0,
     )
     // Filter out tiny counties before ranking — a 46-worker county topping the
@@ -110,7 +122,7 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               jobs at elevated risk by {scenario.year}
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-              Composite score above 0.6 threshold
+              AI-exposed workers in counties with composite score above {ELEVATED_RISK_SCORE_THRESHOLD}
             </div>
           </div>
         ) : (
