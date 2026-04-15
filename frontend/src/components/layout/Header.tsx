@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { SITE_CONFIG } from '../../config/site'
 
-export type Tab = 'map' | 'simulate' | 'job' | 'market' | 'news'
+export type Tab = 'map' | 'simulate' | 'job' | 'market' | 'news' | 'my_risk'
 
 const TAB_LABELS: Record<Tab, string> = {
   map: 'Map',
@@ -9,6 +9,7 @@ const TAB_LABELS: Record<Tab, string> = {
   job: 'Check My Job',
   market: 'Market',
   news: 'News',
+  my_risk: 'My Risk',
 }
 
 interface Props {

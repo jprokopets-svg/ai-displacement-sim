@@ -19,6 +19,7 @@ import Ticker from './components/layout/Ticker'
 import DefaultRightPanel from './components/layout/DefaultRightPanel'
 import NewsFeed from './components/layout/NewsFeed'
 import ResizeHandle from './components/layout/ResizeHandle'
+import MyRisk from './components/MyRisk'
 
 type MapView = 'us' | 'world'
 
@@ -176,6 +177,11 @@ export default function App() {
               filterCompany={newsFilter}
               onClearFilter={() => setNewsFilter(null)}
             />
+          )}
+          {!loading && !error && tab === 'my_risk' && (
+            <div style={scrollTabStyle}>
+              <MyRisk companyData={companyData as unknown as Parameters<typeof MyRisk>[0]['companyData']} />
+            </div>
           )}
         </section>
 
