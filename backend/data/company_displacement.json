@@ -223,15 +223,6 @@
       ],
       "displacement_events": [
         {
-          "date": "2026-03-08",
-          "description": "Current and former Block workers say AI can\u2019t do their jobs after Jack Dorsey\u2019s mass layoffs: \u2018You can\u2019t really AI that\u2019",
-          "headcount_impact": null,
-          "confidence_score": 3,
-          "source_url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNdFBMOFZGZDJfNjlHRGI4ZlN3TXVsbzBVM0pZR19fcWZtYTJ6eFlvQkFXODNteHY3WjI0SS1jNmF6Skh2UTVVeFNGVElPbzBZZGRZRVlEQUJpNzMyNHk4Y3g0cWU1UkIwVmdDN0RoNnVqZUFNaXRUZTZHUzNvZDdLb1p4TG54Zw?oc=5",
-          "source_type": "The Guardian",
-          "evidence_type": "news_tier1"
-        },
-        {
           "date": "2025-03-25",
           "description": "Jack Dorsey just laid off 40% of staff. He said he's still hiring AI engineers.",
           "headcount_impact": null,
@@ -982,30 +973,6 @@
       "verified": true
     },
     {
-      "name": "Snap",
-      "ticker": null,
-      "sector": null,
-      "headquarters": {
-        "lat": null,
-        "lng": null
-      },
-      "offices": [],
-      "displacement_events": [
-        {
-          "date": "2026-04-15",
-          "description": "Snap's stock jumps on plans to axe 16% of its workforce citing AI efficiencies",
-          "headcount_impact": null,
-          "confidence_score": 3,
-          "source_url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPWkxlOEVFVDQ5eFZlcDhMbWl0dzRndDEyWkZpdnR1bVlxWmtZTWZPMDk5NG8wdUJvYUh4cFNZZE5xNl9qOWpuWXNnWW5rV3hrYlZkaWVDSWVYek1rTDRmLTJ0NktWSHB2QVRzMFVhYkxiZGJ1VWZrcTBIcVliOEpuTE1B0gGHAUFVX3lxTE9ydU1ZMllneFVuZ3VoOFMxX0dNbjNRc3Z2VTk5LUZ4TGFxdDE5VmFMaEJxUG1OdVJJSmlNZE8yVjRUaGhmVTl4a2JLVHM5eWt0aXUzUVlIY3BEaFEtZUQxTzNrWmY1X2pIdkU1dkhpQ0h4dDQ0WVJrcHBubm85VUZ1bzlkMENGTQ?oc=5",
-          "source_type": "CNBC",
-          "evidence_type": "news_tier1"
-        }
-      ],
-      "total_headcount_impacted": null,
-      "highest_confidence_score": 3,
-      "verified": true
-    },
-    {
       "name": "Spok Holdings, Inc",
       "ticker": "SPOK",
       "sector": null,
@@ -1153,7 +1120,7 @@
       "verified": true
     }
   ],
-  "last_updated": "2026-04-15T15:41:38.284368",
-  "total_companies": 25,
+  "last_updated": "2026-04-15T15:50:49.371010",
+  "total_companies": 24,
   "total_jobs_impacted": 110157
 }
