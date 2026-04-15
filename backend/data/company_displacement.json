@@ -663,6 +663,30 @@
       "verified": true
     },
     {
+      "name": "Intuit",
+      "ticker": "INTU",
+      "sector": "Software",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-07-10",
+          "description": "Intuit Targets Low Performers and Executives in 10% Jobs Cut",
+          "headcount_impact": 1800,
+          "confidence_score": 3,
+          "source_url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQY21HUk5JdXJibkgyaEhUcjU2eHhrS0RPZ0RWOEEzRlJsWjZrbXlVZE5iWG1qLTNqRHRDbmZwT0M4ZXBiNGZUUllueGVLbHFiTlB0S0hKWVE0aXlodXMyQmJxMWR1YXNmQm5yZEZhLVgwUWVXd0ZKWmszU1pBanVjckRXalFET0M3VHpOQ1ZMQ2JWclpzcVZDd3NGQVM0c3UwWVBKM3RSNnA0MVpKNUlpTDhmcw?oc=5",
+          "source_type": "news",
+          "evidence_type": "layoff"
+        }
+      ],
+      "total_headcount_impacted": 1800,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
       "name": "JPMorgan Chase",
       "ticker": "JPM",
       "sector": "Financial Services",
@@ -1120,7 +1144,7 @@
       "verified": true
     }
   ],
-  "last_updated": "2026-04-15T15:50:49.371010",
-  "total_companies": 24,
-  "total_jobs_impacted": 110157
+  "last_updated": "2026-04-15T15:55:48.089150",
+  "total_companies": 25,
+  "total_jobs_impacted": 111957
 }
