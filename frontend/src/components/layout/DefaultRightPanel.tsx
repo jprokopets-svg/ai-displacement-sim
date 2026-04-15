@@ -68,11 +68,14 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
   }, [counties])
 
   const latestEvent = useMemo(() => {
-    let best: { company: string; sector: string; jobs: number; date: string } | null = null
+    // headcount_impact is nullable in the JSON (e.g., Spok 2026-04-14 has no
+    // disclosed number) — carry it through as number|null and let the render
+    // path decide between numeric display and "Undisclosed".
+    let best: { company: string; sector: string; jobs: number | null; date: string } | null = null
     for (const c of companies || []) {
       for (const ev of c.displacement_events || []) {
         if (!best || ev.date > best.date) {
-          best = { company: c.name, sector: c.sector, jobs: ev.headcount_impact, date: ev.date }
+          best = { company: c.name, sector: c.sector, jobs: ev.headcount_impact ?? null, date: ev.date }
         }
       }
     }
@@ -174,15 +177,18 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               {latestEvent.sector}
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <span className="data-value" style={{ fontSize: 20, color: 'var(--danger)' }}>
-                {fmtNum(latestEvent.jobs)}
+              <span className="data-value" style={{
+                fontSize: latestEvent.jobs ? 20 : 16,
+                color: latestEvent.jobs ? 'var(--danger)' : 'var(--text-muted)',
+              }}>
+                {latestEvent.jobs ? fmtNum(latestEvent.jobs) : 'Undisclosed'}
               </span>
               <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                 {latestEvent.date}
               </span>
             </div>
             <div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 4 }}>
-              ROLES IMPACTED
+              {latestEvent.jobs ? 'ROLES IMPACTED' : 'HEADCOUNT NOT REPORTED'}
             </div>
           </div>
         ) : (
@@ -223,7 +229,8 @@ function Divider() {
   return <div style={{ height: 1, background: 'var(--border)', margin: '12px 0' }} />
 }
 
-function fmtNum(n: number): string {
+function fmtNum(n: number | null | undefined): string {
+  if (n == null || !Number.isFinite(n)) return '—'
   if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'
   if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'
   return n.toLocaleString()
