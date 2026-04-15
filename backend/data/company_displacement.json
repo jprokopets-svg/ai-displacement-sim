@@ -55,8 +55,7 @@
       ],
       "total_headcount_impacted": 19000,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Normalizes AI-driven headcount cuts across Big 4 / consulting. Junior-analyst and back-office roles face compression as firms redeploy talent to AI-advisory work."
+      "verified": true
     },
     {
       "name": "Amazon",
@@ -121,8 +120,7 @@
       ],
       "total_headcount_impacted": 100,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Sets industry benchmark competitors will follow. Retail and logistics customer-service roles face compression across all major players within 18-24 months."
+      "verified": true
     },
     {
       "name": "Aurora Innovation",
@@ -171,8 +169,31 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Validates driverless freight as commercially viable. Long-haul trucking employment across the US Sun Belt faces structural decline independent of local adoption pace."
+      "verified": true
+    },
+    {
+      "name": "BT Group",
+      "ticker": "BT",
+      "sector": "Telecom",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2023-05-18",
+          "description": "BT to cut 55,000 jobs with up to a fifth replaced by AI",
+          "headcount_impact": 55000,
+          "confidence_score": 3,
+          "source_url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE5UbHhBWjEzYWZaazhNSHVLYjZ3YVdsMC1RNDZvTWs4djBMVlRSakhzN3B0U0dtTDh0UGVlVHprMTlJUVRkT2llTlNGTHFfOG9fbzJLNEJzSQ?oc=5",
+          "source_type": "BBC",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 55000,
+      "highest_confidence_score": 3,
+      "verified": true
     },
     {
       "name": "Block",
@@ -202,6 +223,24 @@
       ],
       "displacement_events": [
         {
+          "date": "2026-03-08",
+          "description": "Current and former Block workers say AI can\u2019t do their jobs after Jack Dorsey\u2019s mass layoffs: \u2018You can\u2019t really AI that\u2019",
+          "headcount_impact": null,
+          "confidence_score": 3,
+          "source_url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNdFBMOFZGZDJfNjlHRGI4ZlN3TXVsbzBVM0pZR19fcWZtYTJ6eFlvQkFXODNteHY3WjI0SS1jNmF6Skh2UTVVeFNGVElPbzBZZGRZRVlEQUJpNzMyNHk4Y3g0cWU1UkIwVmdDN0RoNnVqZUFNaXRUZTZHUzNvZDdLb1p4TG54Zw?oc=5",
+          "source_type": "The Guardian",
+          "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-03-25",
+          "description": "Jack Dorsey just laid off 40% of staff. He said he's still hiring AI engineers.",
+          "headcount_impact": null,
+          "confidence_score": 3,
+          "source_url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNcU5NTThwbWhja0tuNmp4d3NqbVRHYlBNNHJGZXBkVldKODlySlZGYjNfU1dWb2diWmQ5OC1fOEFOT3Fib1pmb1p3YmdDRGxaMm40OFpEYWhiQndLdzRNY1MxSlM0UUtYRVdTM0VReE9NS2llNTRqS0psVmZOVllMakE5endlWFIySFd3T3FtUGEzcVBmLU5aeVhqQQ?oc=5",
+          "source_type": "Business Insider",
+          "evidence_type": "news_tier2"
+        },
+        {
           "date": "2024-01-11",
           "description": "Block CEO Jack Dorsey cut ~1000 employees in 2024, stating AI enables smaller teams. Internal memos showed AI replacing customer support and compliance review functions.",
           "headcount_impact": 1000,
@@ -213,8 +252,7 @@
       ],
       "total_headcount_impacted": 1000,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Signals fintech operations consolidation. Payment ops, compliance review, and tier-1 support roles face displacement across the broader payments sector."
+      "verified": true
     },
     {
       "name": "Chegg",
@@ -247,8 +285,7 @@
       ],
       "total_headcount_impacted": 319,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Signals broader EdTech disruption. Tutoring, test prep, and academic support services face existential competitive pressure from AI alternatives."
+      "verified": true
     },
     {
       "name": "CrowdStrike",
@@ -289,8 +326,7 @@
       ],
       "total_headcount_impacted": 500,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Legitimizes AI-first security-operations staffing. SOC tier-1 analyst roles face compression as detection and triage shift to autonomous agents."
+      "verified": true
     },
     {
       "name": "Dropbox",
@@ -339,8 +375,7 @@
       ],
       "total_headcount_impacted": 528,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Reinforces the pattern of mid-cap SaaS trimming to fund AI rebuilds. Product, marketing, and CX roles at subscale software companies face elevated displacement risk."
+      "verified": true
     },
     {
       "name": "Duolingo",
@@ -381,8 +416,7 @@
       ],
       "total_headcount_impacted": 70,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Accelerates contractor-to-AI substitution across content ops. Freelance translators, voice actors, and curriculum contributors lose a major employer category."
+      "verified": true
     },
     {
       "name": "Ford",
@@ -423,8 +457,7 @@
       ],
       "total_headcount_impacted": 3000,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Pressures other OEMs to match software-defined-vehicle headcount ratios. Traditional body/chassis engineering roles decline as software engineering share rises."
+      "verified": true
     },
     {
       "name": "Goldman Sachs",
@@ -473,8 +506,7 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Recalibrates what banking analyst headcount looks like industry-wide. Junior IB and research roles face structural reduction across bulge-bracket peers."
+      "verified": true
     },
     {
       "name": "Google",
@@ -539,8 +571,7 @@
       ],
       "total_headcount_impacted": 1000,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Sets cost-discipline expectations the rest of FAANG will adopt. Middle-management and recruiter roles across big tech face continued compression through 2026."
+      "verified": true
     },
     {
       "name": "HP",
@@ -581,8 +612,7 @@
       ],
       "total_headcount_impacted": 6000,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Signals hardware-sector retrenchment around AI-optimized product lines. Sales-ops, support, and legacy-product engineering roles face displacement."
+      "verified": true
     },
     {
       "name": "IBM",
@@ -639,8 +669,7 @@
       ],
       "total_headcount_impacted": 7800,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Validates pausing hiring in roles AI will absorb. HR, finance, and procurement ops roles face broad displacement as enterprise software vendors embed agentic workflows."
+      "verified": true
     },
     {
       "name": "JPMorgan Chase",
@@ -697,8 +726,7 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Normalizes AI deployment inside systemically-important banks. Operations, fraud review, and wealth-management support roles face compression across financial services."
+      "verified": true
     },
     {
       "name": "Klarna",
@@ -747,8 +775,7 @@
       ],
       "total_headcount_impacted": 700,
       "highest_confidence_score": 5,
-      "verified": true,
-      "downstream_impact": "Becomes the canonical case study for AI-driven CX replacement. BPO vendors serving consumer fintech lose a structural share of their addressable market."
+      "verified": true
     },
     {
       "name": "Kodiak Robotics",
@@ -789,8 +816,7 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Triggers regulatory precedent spreading nationally from Texas and Arizona. Long-haul trucking employment faces structural decline regardless of adoption pace elsewhere."
+      "verified": true
     },
     {
       "name": "Meta",
@@ -847,8 +873,7 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Cements AI-infra spend as the permanent offset against headcount growth. Middle-management layers across big tech face continued reduction."
+      "verified": true
     },
     {
       "name": "Microsoft",
@@ -905,8 +930,7 @@
       ],
       "total_headcount_impacted": 1900,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Accelerates cognitive-AI displacement across entertainment and media. Adjacent roles in content creation, QA testing, and customer support face elevated secondary risk."
+      "verified": true
     },
     {
       "name": "Salesforce",
@@ -955,8 +979,55 @@
       ],
       "total_headcount_impacted": 700,
       "highest_confidence_score": 4,
-      "verified": true,
-      "downstream_impact": "Signals the shift from seat-based SaaS to agent-based SaaS. Sales development and tier-1 support roles face displacement across the broader CRM ecosystem."
+      "verified": true
+    },
+    {
+      "name": "Snap",
+      "ticker": null,
+      "sector": null,
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2026-04-15",
+          "description": "Snap's stock jumps on plans to axe 16% of its workforce citing AI efficiencies",
+          "headcount_impact": null,
+          "confidence_score": 3,
+          "source_url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPWkxlOEVFVDQ5eFZlcDhMbWl0dzRndDEyWkZpdnR1bVlxWmtZTWZPMDk5NG8wdUJvYUh4cFNZZE5xNl9qOWpuWXNnWW5rV3hrYlZkaWVDSWVYek1rTDRmLTJ0NktWSHB2QVRzMFVhYkxiZGJ1VWZrcTBIcVliOEpuTE1B0gGHAUFVX3lxTE9ydU1ZMllneFVuZ3VoOFMxX0dNbjNRc3Z2VTk5LUZ4TGFxdDE5VmFMaEJxUG1OdVJJSmlNZE8yVjRUaGhmVTl4a2JLVHM5eWt0aXUzUVlIY3BEaFEtZUQxTzNrWmY1X2pIdkU1dkhpQ0h4dDQ0WVJrcHBubm85VUZ1bzlkMENGTQ?oc=5",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Spok Holdings, Inc",
+      "ticker": "SPOK",
+      "sector": null,
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2026-04-14",
+          "description": "e and our quarterly dividend, which represents a yield in excess of 10% relative to market,&rdquo; said Vincent D. Kelly, president and chief executive officer of Spok Holdings, Inc. &ldquo;While any reduction of our leadership team and employee base is a difficult decision, shifting customer preferences has required us to find new ways of driving productivity and efficiency, maintaining profitability, and streamlining our organizational structure to align with our commitments to our customers and stockholders. This includes implementing artificial intelligence technologies to further optimize our processes and workflows, both internally and externally. As part of this realignment, we are consolidating our executive team for efficiency. Michael Wallace, our",
+          "headcount_impact": null,
+          "confidence_score": 4,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1289945/000110465926043198/tm2611823d1_ex99-1.htm",
+          "source_type": "SEC EDGAR 8-K",
+          "evidence_type": "sec_8k"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 4,
+      "verified": true
     },
     {
       "name": "UPS",
@@ -997,8 +1068,7 @@
       ],
       "total_headcount_impacted": 12000,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Sets industry benchmark for logistics automation. Sorting, hub ops, and delivery-planning roles face displacement across FedEx, DHL, and regional carriers."
+      "verified": true
     },
     {
       "name": "Walmart",
@@ -1039,8 +1109,7 @@
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Reshapes retail workforce expectations at national scale. Cashier, inventory-management, and corporate-support roles face displacement across mid-market grocery and mass retail."
+      "verified": true
     },
     {
       "name": "Workday",
@@ -1081,11 +1150,10 @@
       ],
       "total_headcount_impacted": 540,
       "highest_confidence_score": 3,
-      "verified": true,
-      "downstream_impact": "Validates the agentic-HCM thesis. HR operations, benefits admin, and payroll-processing roles face displacement across enterprise back-office functions."
+      "verified": true
     }
   ],
-  "last_updated": "2026-04-07T19:19:06.774030",
-  "total_companies": 22,
-  "total_jobs_impacted": 55157
+  "last_updated": "2026-04-15T15:41:38.284368",
+  "total_companies": 25,
+  "total_jobs_impacted": 110157
 }
