@@ -198,7 +198,12 @@ export default function App() {
             <div style={scrollTabStyle}><JobSearch /></div>
           )}
           {!loading && !error && tab === 'market' && (
-            <div style={scrollTabStyle}><MarketImplications /></div>
+            <div style={scrollTabStyle}>
+              <MarketImplications
+                companyData={companyData as unknown as Parameters<typeof MarketImplications>[0]['companyData']}
+                onShowCompanyInNews={(name) => { setNewsFilter(name); setTab('news') }}
+              />
+            </div>
           )}
           {!loading && !error && tab === 'news' && (
             <NewsFeed
