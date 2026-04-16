@@ -23,7 +23,9 @@ interface ControlPanelProps {
 }
 
 export default function ControlPanel({ state, onChange, activeTab }: ControlPanelProps) {
-  const showMapControls = !activeTab || activeTab === 'map'
+  // Map Layer + Overlays sections ONLY render when the user is on the Map tab.
+  // When activeTab is undefined (shouldn't happen in prod) we default to hiding them.
+  const isMapTab = activeTab === 'map'
   const uncertainty = getUncertaintyState(state.year)
   const bandInfo = BAND_LABELS[uncertainty.band]
 
@@ -124,7 +126,7 @@ export default function ControlPanel({ state, onChange, activeTab }: ControlPane
       />
 
       {/* Section 3: Map Layer — only on Map tab */}
-      {showMapControls && (
+      {isMapTab && (
         <>
           <SectionHeader title="Map Layer" />
 

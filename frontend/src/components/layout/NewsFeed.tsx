@@ -174,6 +174,9 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
         </div>
       )}
 
+      {/* Market Signals section — prediction markets + options activity */}
+      {!filterCompany && <MarketSignals />}
+
       {/* Signal feed — unverified pipeline items */}
       {signals.length > 0 && !filterCompany && (
         <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
@@ -570,4 +573,177 @@ const unverifiedBadgeStyle: React.CSSProperties = {
   borderRadius: 3,
   padding: '2px 6px',
   flexShrink: 0,
+}
+
+// ---------- Market Signals section ----------
+
+interface PolymarketEntry {
+  question: string
+  probability: number
+  volume: string
+  closingDate: string
+}
+
+interface OptionsEntry {
+  company: string
+  ticker: string
+  activity: string
+  relevance: string
+}
+
+const SEEDED_POLYMARKET: PolymarketEntry[] = [
+  { question: 'US unemployment above 5% before 2028?', probability: 0.32, volume: '$2.1M', closingDate: '2028-01-01' },
+  { question: 'Major US tech company lays off >10,000 in 2026?', probability: 0.74, volume: '$890K', closingDate: '2026-12-31' },
+  { question: 'US GDP growth below 1% for any quarter in 2026?', probability: 0.28, volume: '$1.4M', closingDate: '2026-12-31' },
+  { question: 'Federal AI regulation bill passes before 2027?', probability: 0.18, volume: '$540K', closingDate: '2027-01-01' },
+  { question: 'Autonomous trucks operating on >5 US corridors by end of 2027?', probability: 0.62, volume: '$320K', closingDate: '2027-12-31' },
+]
+
+const SEEDED_OPTIONS: OptionsEntry[] = [
+  { company: 'ManpowerGroup', ticker: 'MAN', activity: 'Unusual put volume at $55 strike, 3x avg', relevance: 'Staffing agency — bearish bets align with displacement headwind thesis' },
+  { company: 'Nvidia', ticker: 'NVDA', activity: 'Call sweep $180 Jan 2027, $4.2M notional', relevance: 'AI infrastructure beneficiary — large upside bets on continued GPU demand' },
+  { company: 'Robert Half', ticker: 'RHI', activity: 'Put/call ratio 2.8x (bearish), elevated OI', relevance: 'Staffing agency — options market pricing in AI displacement of temp workers' },
+]
+
+function MarketSignals() {
+  const [polyData, setPolyData] = useState<PolymarketEntry[] | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('https://gamma-api.polymarket.com/markets?limit=20&closed=false&tag=ai')
+      .then(r => r.json())
+      .then((data: Array<Record<string, unknown>>) => {
+        if (cancelled) return
+        const relevant = (data || [])
+          .filter(m => {
+            const q = ((m.question as string) || '').toLowerCase()
+            return q.includes('job') || q.includes('unemploy') || q.includes('layoff')
+              || q.includes('ai') || q.includes('automat') || q.includes('displac')
+              || q.includes('workforce')
+          })
+          .slice(0, 5)
+          .map(m => ({
+            question: (m.question as string) || '',
+            probability: parseFloat(String(m.outcomePrices || '0.5')),
+            volume: `$${Math.round(parseFloat(String(m.liquidity || 0)) / 1000)}K`,
+            closingDate: ((m.endDate as string) || '').slice(0, 10),
+          }))
+        if (relevant.length >= 2) {
+          setPolyData(relevant)
+        } else {
+          setPolyData(null)
+        }
+      })
+      .catch(() => { if (!cancelled) setPolyData(null) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  const markets = polyData ?? SEEDED_POLYMARKET
+  const isLive = polyData !== null
+
+  return (
+    <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+      <div style={{ marginBottom: 14 }}>
+        <div className="eyebrow" style={{ color: '#8b5cf6' }}>Market Signals</div>
+        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '4px 0 2px', color: 'var(--text-primary)' }}>
+          Prediction Markets &amp; Options Activity
+        </h3>
+        <div style={mktDisclaimerStyle}>
+          Market signals are not investment advice. Prediction market probabilities reflect crowd
+          sentiment, not guaranteed outcomes. Options activity reflects institutional positioning,
+          not directional certainty.
+        </div>
+      </div>
+
+      {/* Prediction markets */}
+      <div style={mktSubheadStyle}>
+        Prediction Markets
+        {!isLive && !loading && (
+          <span style={{ fontSize: 10, color: 'var(--text-dim)', marginLeft: 8, fontWeight: 400 }}>
+            · Curated seed data — live Polymarket integration pending
+          </span>
+        )}
+        {loading && (
+          <span style={{ fontSize: 10, color: 'var(--text-dim)', marginLeft: 8, fontWeight: 400 }}>
+            · Connecting to market data…
+          </span>
+        )}
+      </div>
+      <div style={gridStyle}>
+        {markets.map((m, i) => (
+          <div key={i} style={mktCardStyle}>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: 8 }}>
+              {m.question}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <span className="data-value" style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 22, fontWeight: 500,
+                color: m.probability > 0.6 ? 'var(--amber)' : m.probability < 0.4 ? 'var(--success)' : 'var(--text-primary)',
+              }}>
+                {Math.round(m.probability * 100)}%
+              </span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {m.volume} · closes {m.closingDate}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Options activity */}
+      <div style={{ ...mktSubheadStyle, marginTop: 20 }}>
+        Options Activity — Displacement-Relevant Names
+        <span style={{ fontSize: 10, color: 'var(--text-dim)', marginLeft: 8, fontWeight: 400 }}>
+          · Curated seed data — live Unusual Whales integration pending
+        </span>
+      </div>
+      <div style={gridStyle}>
+        {SEEDED_OPTIONS.map((o, i) => (
+          <div key={i} style={mktCardStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{o.company}</span>
+                <span className="data-value" style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', marginLeft: 8,
+                }}>{o.ticker}</span>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--amber)', marginBottom: 4 }}>{o.activity}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>{o.relevance}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const mktDisclaimerStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: 'var(--text-muted)',
+  fontStyle: 'italic',
+  marginTop: 6,
+  padding: '6px 10px',
+  background: 'rgba(139, 92, 246, 0.06)',
+  border: '1px solid rgba(139, 92, 246, 0.2)',
+  borderRadius: 4,
+}
+
+const mktSubheadStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--text-muted)',
+  marginBottom: 10,
+}
+
+const mktCardStyle: React.CSSProperties = {
+  background: 'var(--bg-panel)',
+  border: '1px solid var(--border)',
+  borderLeft: '3px solid #8b5cf6',
+  borderRadius: 6,
+  padding: 14,
 }
