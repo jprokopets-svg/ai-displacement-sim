@@ -107,7 +107,7 @@ export default function App() {
 
       <main style={mainStyle}>
         <Sidebar width={sidebarWidth}>
-          <ControlPanel state={scenario} onChange={updateScenario} activeTab={tab} />
+          <ControlPanel state={scenario} onChange={updateScenario} showMapControls={tab === 'map'} />
         </Sidebar>
         <ResizeHandle width={sidebarWidth} side="left" onResize={setSidebarWidth} />
 

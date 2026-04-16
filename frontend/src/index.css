@@ -231,3 +231,14 @@ input[type="text"]:focus, input[type="search"]:focus {
 
 /* ===== SVG map defaults ===== */
 svg text { user-select: none; }
+
+/* ===== Story page animations ===== */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}

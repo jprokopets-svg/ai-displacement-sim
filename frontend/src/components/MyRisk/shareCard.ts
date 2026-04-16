@@ -125,7 +125,36 @@ export function downloadCard(input: CardInput, filename = 'my-ai-risk.png'): voi
 }
 
 export function shareTextFor(input: CardInput): string {
-  return `I just checked my AI displacement risk. ${input.probability}% probability of significant job change by ${input.timelineLabel.split('–')[0]}. Check yours: ${input.siteUrl}`
+  const year = input.timelineLabel.split('–')[0]
+  const title = input.jobTitle || 'my role'
+  const county = input.countyName ? ` in ${input.countyName.split(',')[0].trim()}` : ''
+  return `I just checked my AI displacement risk as a ${title}. ${input.probability}% probability of significant job change by ${year}${county}. Check yours: ${input.siteUrl}`
+}
+
+export function twitterShareUrl(input: CardInput): string {
+  const text = encodeURIComponent(shareTextFor(input))
+  return `https://twitter.com/intent/tweet?text=${text}`
+}
+
+export function linkedinShareUrl(siteUrl: string): string {
+  return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://' + siteUrl)}`
+}
+
+export function facebookShareUrl(siteUrl: string): string {
+  return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://' + siteUrl)}`
+}
+
+export function redditShareUrl(input: CardInput): string {
+  const title = `My job as a ${input.jobTitle || 'my role'} has a ${input.probability}% AI displacement risk by ${input.timelineLabel.split('–')[0]} — county-level simulator with 3,204 counties`
+  return `https://reddit.com/submit?url=${encodeURIComponent('https://' + input.siteUrl)}&title=${encodeURIComponent(title)}`
+}
+
+export function coworkerShareUrl(jobTitle: string, siteUrl: string): string {
+  return `https://${siteUrl}?prefill=${encodeURIComponent(jobTitle)}#my-risk`
+}
+
+export function coworkerShareText(input: CardInput): string {
+  return `My job as a ${input.jobTitle || 'my role'} has a ${input.probability}% AI displacement risk. What's yours? We can compare: ${coworkerShareUrl(input.jobTitle, input.siteUrl)}`
 }
 
 // --- helpers ---

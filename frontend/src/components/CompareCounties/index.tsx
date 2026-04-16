@@ -127,6 +127,27 @@ export default function CompareCounties({
         />
       </div>
 
+      {/* Provocative headline — auto-generated from the most interesting data difference */}
+      {a && b && (
+        <div style={{
+          marginTop: 14,
+          padding: '10px 16px',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
+          borderRadius: 6,
+          textAlign: 'center',
+        }}>
+          <div style={{
+            fontSize: 15,
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            lineHeight: 1.4,
+          }}>
+            {generateHeadline(a, b, overlays)}
+          </div>
+        </div>
+      )}
+
       {/* Divergence indicator */}
       {divergenceBand && (
         <div style={{
@@ -448,6 +469,95 @@ function Sparkline({ points, currentYear }: { points: Array<{ year: number; scor
 
 function shortName(c: CountyScore): string {
   return c.county_name.replace(/ County$/, '').split(',')[0].trim()
+}
+
+function generateHeadline(
+  a: CountyScore,
+  b: CountyScore,
+  overlays: Props['overlays'],
+): string {
+  const nameA = shortName(a)
+  const nameB = shortName(b)
+  const scoreA = a.ai_exposure_score
+  const scoreB = b.ai_exposure_score
+
+  type Candidate = { text: string; magnitude: number }
+  const candidates: Candidate[] = []
+
+  // Score ratio
+  if (scoreA > 0 && scoreB > 0) {
+    const ratio = Math.max(scoreA, scoreB) / Math.min(scoreA, scoreB)
+    if (ratio > 1.15) {
+      const higher = scoreA > scoreB ? nameA : nameB
+      const lower = scoreA > scoreB ? nameB : nameA
+      candidates.push({
+        text: `${higher} faces ${ratio.toFixed(1)}x more AI displacement pressure than ${lower}`,
+        magnitude: ratio,
+      })
+    }
+  }
+
+  // Percentile gap as percentage difference
+  const pctDiff = Math.abs(scoreA - scoreB) * 100
+  if (pctDiff > 5) {
+    const higher = scoreA > scoreB ? nameA : nameB
+    const lower = scoreA > scoreB ? nameB : nameA
+    candidates.push({
+      text: `${higher} has ${Math.round(pctDiff)}% more AI exposure than ${lower}`,
+      magnitude: pctDiff / 10,
+    })
+  }
+
+  // Govt floor comparison
+  const gfA = overlays?.govt_floor?.[a.county_fips]?.govt_floor_score as number | undefined
+  const gfB = overlays?.govt_floor?.[b.county_fips]?.govt_floor_score as number | undefined
+  if (gfA != null && gfB != null && Math.abs(gfA - gfB) > 0.1) {
+    const stronger = gfA > gfB ? nameA : nameB
+    const weaker = gfA > gfB ? nameB : nameA
+    const pct = Math.round(Math.abs(gfA - gfB) * 100)
+    candidates.push({
+      text: `${stronger} has a ${pct}% stronger government safety floor than ${weaker}`,
+      magnitude: pct / 15,
+    })
+  }
+
+  // Fragility comparison
+  const dynA = overlays?.dynamics?.[a.county_fips]
+  const dynB = overlays?.dynamics?.[b.county_fips]
+  if (dynA && dynB) {
+    const fragA = ((dynA.cascade_score as number) ?? 0) * 0.5 + ((dynA.small_biz_concentration as number) ?? 0) * 0.5
+    const fragB = ((dynB.cascade_score as number) ?? 0) * 0.5 + ((dynB.small_biz_concentration as number) ?? 0) * 0.5
+    const fragDiff = Math.abs(fragA - fragB)
+    if (fragDiff > 0.1) {
+      const more = fragA > fragB ? nameA : nameB
+      const less = fragA > fragB ? nameB : nameA
+      candidates.push({
+        text: `${more} is ${Math.round(fragDiff * 100)}% more economically fragile than ${less}`,
+        magnitude: fragDiff * 8,
+      })
+    }
+  }
+
+  // Employment scale contrast
+  if (a.total_employment > 0 && b.total_employment > 0) {
+    const ratio = Math.max(a.total_employment, b.total_employment) /
+                  Math.min(a.total_employment, b.total_employment)
+    if (ratio > 5) {
+      const bigger = a.total_employment > b.total_employment ? nameA : nameB
+      const smaller = a.total_employment > b.total_employment ? nameB : nameA
+      candidates.push({
+        text: `${bigger} has ${Math.round(ratio)}x the workforce of ${smaller} — and more to lose`,
+        magnitude: ratio / 5,
+      })
+    }
+  }
+
+  if (candidates.length === 0) {
+    return `${nameA} vs ${nameB} — two different AI displacement futures`
+  }
+
+  candidates.sort((a, b) => b.magnitude - a.magnitude)
+  return candidates[0].text
 }
 
 function formatK(n: number): string {

@@ -5,7 +5,10 @@ import {
   type FormAnswers, type Industry, type CompanySize, type Seniority,
   type YesNoSome, type AiUsage, type TechLiteracy, type SkillsType, type SalaryBand,
 } from './scoring'
-import { downloadCard, shareTextFor } from './shareCard'
+import {
+  downloadCard, shareTextFor, twitterShareUrl, linkedinShareUrl,
+  facebookShareUrl, redditShareUrl, coworkerShareText,
+} from './shareCard'
 
 type Step = 1 | 2 | 3 | 4 | 5 | 'output'
 
@@ -514,15 +517,47 @@ function OutputScreen({ answers, risk }: {
         </p>
       </Section>
 
-      {/* Share + Substack */}
-      <div style={shareRowStyle}>
-        <button onClick={() => downloadCard(card)} style={shareBtnStyle}>
-          ↓ Download share card (PNG)
+      {/* Share panel */}
+      <Section title="Share your results">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <a href={twitterShareUrl(card)} target="_blank" rel="noopener noreferrer" style={socialBtnStyle('#1da1f2')}>
+            𝕏 Twitter
+          </a>
+          <a href={linkedinShareUrl(card.siteUrl)} target="_blank" rel="noopener noreferrer" style={socialBtnStyle('#0a66c2')}>
+            in LinkedIn
+          </a>
+          <a href={facebookShareUrl(card.siteUrl)} target="_blank" rel="noopener noreferrer" style={socialBtnStyle('#1877f2')}>
+            f Facebook
+          </a>
+          <a href={redditShareUrl(card)} target="_blank" rel="noopener noreferrer" style={socialBtnStyle('#ff4500')}>
+            ↗ Reddit
+          </a>
+          <button onClick={copyShare} style={secondaryShareBtnStyle}>
+            {copied ? 'Copied!' : '🔗 Copy link'}
+          </button>
+          <button onClick={() => downloadCard(card)} style={secondaryShareBtnStyle}>
+            ↓ Download PNG
+          </button>
+        </div>
+      </Section>
+
+      {/* Coworker challenge */}
+      <Section title="Challenge a coworker">
+        <p style={{ margin: '0 0 10px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+          Send this to a coworker — they'll start with the same job title pre-filled so you can compare results.
+        </p>
+        <button
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(coworkerShareText(card))
+              setCopied(true); setTimeout(() => setCopied(false), 2000)
+            } catch { /* ignore */ }
+          }}
+          style={shareBtnStyle}
+        >
+          {copied ? 'Copied!' : 'Send this to a coworker →'}
         </button>
-        <button onClick={copyShare} style={secondaryShareBtnStyle}>
-          {copied ? 'Copied!' : 'Copy share text'}
-        </button>
-      </div>
+      </Section>
 
       <a
         href="https://substack.com"
@@ -532,6 +567,8 @@ function OutputScreen({ answers, risk }: {
       >
         Read the full analysis of how this displacement unfolds →
       </a>
+
+      <EmbedSection />
     </div>
   )
 }
@@ -692,6 +729,55 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+function EmbedSection() {
+  const [show, setShow] = useState(false)
+  const [embedCopied, setEmbedCopied] = useState(false)
+  const iframeCode = '<iframe src="https://ai-displacement-sim-4x9g.vercel.app/embed" width="600" height="800" frameborder="0"></iframe>'
+
+  const copyEmbed = async () => {
+    try {
+      await navigator.clipboard.writeText(iframeCode)
+      setEmbedCopied(true)
+      setTimeout(() => setEmbedCopied(false), 2000)
+    } catch { /* ignore */ }
+  }
+
+  return (
+    <div style={{ marginTop: 24, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
+      <button
+        onClick={() => setShow(!show)}
+        style={{
+          background: 'none', border: '1px solid var(--border)', borderRadius: 4,
+          padding: '8px 14px', color: 'var(--text-secondary)', fontSize: 12,
+          cursor: 'pointer',
+        }}
+      >
+        {show ? '− Hide embed code' : '< > Embed this tool on your site'}
+      </button>
+      {show && (
+        <div style={{ marginTop: 12, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 6, padding: 14 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>
+            Add this to your Substack, blog, or website to let your readers check their own displacement risk.
+          </div>
+          <div style={{
+            background: 'var(--bg-inset)', borderRadius: 4, padding: '10px 12px',
+            fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)',
+            wordBreak: 'break-all', lineHeight: 1.5, marginBottom: 8,
+          }}>
+            {iframeCode}
+          </div>
+          <button onClick={copyEmbed} style={{
+            padding: '6px 12px', background: 'var(--accent)', color: '#fff',
+            border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer',
+          }}>
+            {embedCopied ? 'Copied!' : 'Copy iframe code'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
@@ -804,9 +890,6 @@ const factorsRowStyle: React.CSSProperties = {
   borderBottom: '1px solid var(--border)',
 }
 
-const shareRowStyle: React.CSSProperties = {
-  display: 'flex', gap: 10, marginTop: 28,
-}
 
 const shareBtnStyle: React.CSSProperties = {
   padding: '10px 16px',
@@ -817,6 +900,21 @@ const shareBtnStyle: React.CSSProperties = {
   fontSize: 13,
   fontWeight: 500,
   cursor: 'pointer',
+}
+
+function socialBtnStyle(bg: string): React.CSSProperties {
+  return {
+    padding: '10px 14px',
+    background: bg,
+    color: '#fff',
+    border: 'none',
+    borderRadius: 4,
+    fontSize: 13,
+    fontWeight: 500,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    textAlign: 'center',
+  }
 }
 
 const secondaryShareBtnStyle: React.CSSProperties = {
