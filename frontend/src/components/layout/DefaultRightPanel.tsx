@@ -1,11 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Section from './Section'
 import type { ScenarioState } from '../ControlPanel'
 import { countyLabel } from '../../utils/countyLabel'
-
-// ~14M jobs face significant displacement risk over 10 years.
-// 14,000,000 / (365.25 * 24 * 3600) ≈ 0.4438 per second.
-const DISPLACEMENT_PER_SEC = 0.4438
 
 const MIN_EMPLOYMENT_FOR_RANKING = 100_000
 
@@ -88,7 +84,6 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
 
   return (
     <div>
-      <LiveCounter />
       <Section title="National Exposure">
         {stats ? (
           <>
@@ -208,45 +203,6 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
         </div>
       </Section>
     </div>
-  )
-}
-
-function LiveCounter() {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    const t0 = performance.now()
-    const id = setInterval(() => {
-      const elapsed = (performance.now() - t0) / 1000
-      setCount(Math.floor(elapsed * DISPLACEMENT_PER_SEC))
-    }, 200)
-    return () => clearInterval(id)
-  }, [])
-
-  return (
-    <Section title="">
-      <div style={{
-        textAlign: 'center',
-        padding: '8px 0 4px',
-      }}>
-        <div className="data-value" style={{
-          fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)',
-          fontSize: 28,
-          fontWeight: 500,
-          color: 'var(--amber)',
-          lineHeight: 1.1,
-        }}>
-          {count.toLocaleString()}
-        </div>
-        <div style={{
-          fontSize: 11,
-          color: 'var(--text-muted)',
-          marginTop: 8,
-          lineHeight: 1.4,
-        }}>
-          jobs affected by AI displacement since you opened this page
-        </div>
-      </div>
-    </Section>
   )
 }
 
