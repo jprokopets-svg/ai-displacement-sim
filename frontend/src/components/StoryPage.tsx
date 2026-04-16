@@ -249,8 +249,8 @@ function Section5() {
       <div style={{ ...fadeStyle(visible), maxWidth: 600, textAlign: 'center' }}>
         <h2 style={sectionTitleStyle}>This is just the beginning of the story.</h2>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 28 }}>
-          <a href={TOOL_URL} style={ctaBtnStyle}>Explore your county →</a>
-          <a href="/tool#my-risk" style={{ ...ctaBtnStyle, background: 'var(--amber)' }}>
+          <a href={TOOL_URL} style={ctaPrimaryStyle}>Explore your county →</a>
+          <a href="/tool#my-risk" style={ctaOutlineStyle}>
             Check your full risk profile →
           </a>
         </div>
@@ -358,12 +358,12 @@ const stickyNavStyle: React.CSSProperties = {
 }
 
 const enterToolBtnStyle: React.CSSProperties = {
-  padding: '6px 14px',
-  background: 'var(--accent)',
-  color: '#fff',
+  padding: '8px 16px',
+  background: '#fff',
+  color: '#0a0e1a',
   borderRadius: 4,
   fontSize: 12,
-  fontWeight: 500,
+  fontWeight: 600,
   textDecoration: 'none',
 }
 
@@ -457,10 +457,33 @@ const ctaBtnStyle: React.CSSProperties = {
   display: 'inline-block',
   marginTop: 20,
   padding: '12px 24px',
-  background: 'var(--accent)',
+  background: '#3b82f6',
   color: '#fff',
   borderRadius: 6,
   fontSize: 14,
-  fontWeight: 500,
+  fontWeight: 600,
+  textDecoration: 'none',
+}
+
+const ctaPrimaryStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '14px 28px',
+  background: '#3b82f6',
+  color: '#fff',
+  borderRadius: 6,
+  fontSize: 15,
+  fontWeight: 600,
+  textDecoration: 'none',
+}
+
+const ctaOutlineStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '14px 28px',
+  background: 'transparent',
+  color: '#fff',
+  border: '2px solid rgba(255, 255, 255, 0.6)',
+  borderRadius: 6,
+  fontSize: 15,
+  fontWeight: 600,
   textDecoration: 'none',
 }
