@@ -21,6 +21,7 @@ import NewsFeed from './components/layout/NewsFeed'
 import ResizeHandle from './components/layout/ResizeHandle'
 import MyRisk from './components/MyRisk'
 import CompareCounties from './components/CompareCounties'
+import CareerOutlook from './components/CareerOutlook'
 
 type MapView = 'us' | 'world'
 
@@ -215,6 +216,11 @@ export default function App() {
           {!loading && !error && tab === 'my_risk' && (
             <div style={scrollTabStyle}>
               <MyRisk companyData={companyData as unknown as Parameters<typeof MyRisk>[0]['companyData']} />
+            </div>
+          )}
+          {!loading && !error && tab === 'outlook' && (
+            <div style={scrollTabStyle}>
+              <CareerOutlook />
             </div>
           )}
         </section>
