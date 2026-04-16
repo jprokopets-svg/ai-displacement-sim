@@ -10,6 +10,9 @@ Endpoints:
     GET  /api/assumptions           — Model assumptions and methodology
     GET  /api/health                — Health check
 """
+import json as _json
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -90,7 +93,6 @@ def signals():
     path = Path(__file__).parent.parent / "data" / "signals.json"
     if not path.exists():
         return {"signals": [], "count": 0}
-    import json as _json
     data = _json.loads(path.read_text())
     return data
 
