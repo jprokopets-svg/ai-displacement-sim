@@ -84,6 +84,17 @@ def company_data():
     return {"companies": companies, "count": len(companies)}
 
 
+@app.get("/api/signals")
+def signals():
+    """Top pending items from the scraper pipeline, exported as a static snapshot."""
+    path = Path(__file__).parent.parent / "data" / "signals.json"
+    if not path.exists():
+        return {"signals": [], "count": 0}
+    import json as _json
+    data = _json.loads(path.read_text())
+    return data
+
+
 @app.get("/api/occupations/search")
 def occupation_search(q: str = Query(..., min_length=2, description="Search query")):
     """Search occupations by title."""

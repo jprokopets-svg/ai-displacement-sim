@@ -3,7 +3,7 @@ import {
   DEFAULT_PARAMS, N_SIMS, YEAR_END, YEAR_START, runMonteCarlo,
   type CorporateProfit, type FedResponse, type GovtResponse, type SimParams,
 } from './model'
-import { drawSimulation } from './canvasRender'
+import { drawSimulation, canvasToData, AXIS_LEFT, AXIS_RIGHT, AXIS_TOP, AXIS_BOTTOM } from './canvasRender'
 
 /**
  * Monte Carlo Simulation tab — 50,000 client-side paths rendered on Canvas.
@@ -14,6 +14,9 @@ export default function SimulationTab() {
   const [params, setParams] = useState<SimParams>(DEFAULT_PARAMS)
   const [computeMs, setComputeMs] = useState<number>(0)
   const [assumptionsOpen, setAssumptionsOpen] = useState(false)
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; year: number; pct: number; medianPct: number; visible: boolean }>({
+    x: 0, y: 0, year: YEAR_START, pct: 0, medianPct: 0, visible: false,
+  })
 
   const update = <K extends keyof SimParams>(k: K, v: SimParams[K]) =>
     setParams(prev => ({ ...prev, [k]: v }))
@@ -177,10 +180,71 @@ export default function SimulationTab() {
               <LegendItem color="rgba(59, 130, 246, 0.6)" label="90% CI" swatch />
               <LegendItem color="rgba(59, 130, 246, 0.25)" label={`${N_SIMS.toLocaleString()} paths`} swatch />
             </div>
-            <canvas
-              ref={canvasRef}
-              style={{ width: '100%', height: 320, display: 'block' }}
-            />
+            <div
+              style={{ position: 'relative', cursor: 'crosshair' }}
+              onMouseMove={e => {
+                const rect = canvasRef.current?.getBoundingClientRect()
+                if (!rect || !canvasRef.current) return
+                const cssX = e.clientX - rect.left
+                const cssY = e.clientY - rect.top
+                const d = canvasToData(cssX, cssY, canvasRef.current)
+                const yearIdx = d.year - YEAR_START
+                const medianPct = (result.percentiles.p50[yearIdx] ?? 0) * 100
+                setTooltip({ x: cssX, y: cssY, year: d.year, pct: d.pct, medianPct, visible: d.inPlot })
+              }}
+              onMouseLeave={() => setTooltip(t => ({ ...t, visible: false }))}
+            >
+              <canvas
+                ref={canvasRef}
+                style={{ width: '100%', height: 320, display: 'block' }}
+              />
+              {/* Crosshair + tooltip overlay — HTML for performance (avoids canvas redraw) */}
+              {tooltip.visible && (
+                <>
+                  {/* Vertical crosshair */}
+                  <div style={{
+                    position: 'absolute', left: tooltip.x, top: AXIS_TOP,
+                    width: 1, height: 320 - AXIS_TOP - AXIS_BOTTOM,
+                    background: 'rgba(230, 235, 245, 0.25)',
+                    pointerEvents: 'none',
+                  }} />
+                  {/* Horizontal crosshair */}
+                  <div style={{
+                    position: 'absolute', left: AXIS_LEFT, top: tooltip.y,
+                    width: `calc(100% - ${AXIS_LEFT + AXIS_RIGHT}px)`,
+                    height: 1,
+                    background: 'rgba(230, 235, 245, 0.12)',
+                    pointerEvents: 'none',
+                  }} />
+                  {/* Tooltip panel */}
+                  <div style={{
+                    position: 'absolute',
+                    left: Math.min(tooltip.x + 12, (canvasRef.current?.clientWidth ?? 600) - 200),
+                    top: tooltip.y < 160 ? tooltip.y + 16 : tooltip.y - 60,
+                    background: '#0c1120',
+                    border: '1px solid var(--border)',
+                    borderRadius: 4,
+                    padding: '6px 10px',
+                    pointerEvents: 'none',
+                    zIndex: 10,
+                    whiteSpace: 'nowrap',
+                  }}>
+                    <div style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 500,
+                      color: 'var(--text-primary)',
+                    }}>
+                      {tooltip.year} · {tooltip.pct.toFixed(1)}% displacement
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 11,
+                      color: 'var(--text-muted)', marginTop: 2,
+                    }}>
+                      Median at {tooltip.year}: {tooltip.medianPct.toFixed(1)}%
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <div style={{
               marginTop: 10, fontSize: 11, color: 'var(--text-muted)',
               display: 'flex', justifyContent: 'space-between',

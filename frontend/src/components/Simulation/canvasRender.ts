@@ -6,10 +6,35 @@
  */
 import { N_SIMS, N_YEARS, YEAR_START, YEAR_END, type SimulationResult } from './model'
 
-const AXIS_LEFT = 44        // room for Y labels
-const AXIS_BOTTOM = 26      // room for X labels
-const AXIS_TOP = 8
-const AXIS_RIGHT = 10
+export const AXIS_LEFT = 44        // room for Y labels
+export const AXIS_BOTTOM = 26      // room for X labels
+export const AXIS_TOP = 8
+export const AXIS_RIGHT = 10
+
+/** Reverse-map a CSS-pixel position on the canvas to year + displacement %. */
+export function canvasToData(
+  cssX: number,
+  cssY: number,
+  canvasEl: HTMLCanvasElement,
+): { year: number; pct: number; inPlot: boolean } {
+  const cssW = canvasEl.clientWidth
+  const cssH = canvasEl.clientHeight
+  const plotX = AXIS_LEFT
+  const plotY = AXIS_TOP
+  const plotW = cssW - AXIS_LEFT - AXIS_RIGHT
+  const plotH = cssH - AXIS_TOP - AXIS_BOTTOM
+
+  const xRatio = Math.max(0, Math.min(1, (cssX - plotX) / plotW))
+  const yearIdx = Math.round(xRatio * (N_YEARS - 1))
+  const year = YEAR_START + yearIdx
+
+  const yRatio = Math.max(0, Math.min(1, (cssY - plotY) / plotH))
+  const pct = (1 - yRatio) * 100
+
+  const inPlot = cssX >= plotX && cssX <= plotX + plotW &&
+                 cssY >= plotY && cssY <= plotY + plotH
+  return { year, pct, inPlot }
+}
 
 export function drawSimulation(
   canvas: HTMLCanvasElement,

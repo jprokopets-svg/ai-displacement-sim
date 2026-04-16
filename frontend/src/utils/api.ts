@@ -42,6 +42,12 @@ export async function fetchCompanyDisplacement() {
   return res.json()
 }
 
+export async function fetchSignals() {
+  const res = await fetch(`${API_BASE}/signals`)
+  if (!res.ok) return { signals: [], count: 0 }
+  return res.json()
+}
+
 export interface SimulationParams {
   ai_adoption_pace: number
   policy_response: 'none' | 'retraining' | 'ubi'

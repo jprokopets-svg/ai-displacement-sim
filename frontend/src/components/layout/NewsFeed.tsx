@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { fetchSignals } from '../../utils/api'
 import { trackForSector, colorForTrack } from '../../utils/trackClassifier'
 
 type Company = {
@@ -31,8 +32,31 @@ interface Props {
   onClearFilter?: () => void
 }
 
+type SortBy = 'recent' | 'impactful' | 'confidence'
+type ConfFilter = 'all' | 'high' | 'medium' | 'lower'
+type TrackFilter = 'all' | 'cognitive' | 'robotics' | 'agentic' | 'offshoring'
+
+interface Signal {
+  id: number
+  raw_text: string
+  source_url?: string
+  confidence: number
+  found_at: string
+  status: string
+}
+
 export default function NewsFeed({ companies, filterCompany, onClearFilter }: Props) {
   const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState<SortBy>('recent')
+  const [confFilter, setConfFilter] = useState<ConfFilter>('all')
+  const [trackFilter, setTrackFilter] = useState<TrackFilter>('all')
+  const [signals, setSignals] = useState<Signal[]>([])
+
+  useEffect(() => {
+    fetchSignals()
+      .then(d => setSignals((d.signals || []) as Signal[]))
+      .catch(() => {})
+  }, [])
 
   const items = useMemo<FeedItem[]>(() => {
     const all: FeedItem[] = []
@@ -48,17 +72,39 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
         })
       }
     }
+
+    let filtered = all
+
+    // Text search
     const q = search.trim().toLowerCase()
-    const filtered = q
-      ? all.filter(it =>
-          (it.company || '').toLowerCase().includes(q) ||
-          (it.sector || '').toLowerCase().includes(q) ||
-          (it.description || '').toLowerCase().includes(q),
-        )
-      : all
-    filtered.sort((a, b) => ((a.date || '') < (b.date || '') ? 1 : -1))
+    if (q) {
+      filtered = filtered.filter(it =>
+        (it.company || '').toLowerCase().includes(q) ||
+        (it.sector || '').toLowerCase().includes(q) ||
+        (it.description || '').toLowerCase().includes(q),
+      )
+    }
+
+    // Track filter
+    if (trackFilter !== 'all') {
+      filtered = filtered.filter(it => {
+        const t = trackForSector(it.sector).toLowerCase()
+        return t.includes(trackFilter)
+      })
+    }
+
+    // Confidence filter
+    if (confFilter === 'high') filtered = filtered.filter(it => it.confidence_score >= 4)
+    else if (confFilter === 'medium') filtered = filtered.filter(it => it.confidence_score === 3)
+    else if (confFilter === 'lower') filtered = filtered.filter(it => it.confidence_score <= 2)
+
+    // Sort
+    if (sortBy === 'recent') filtered.sort((a, b) => ((a.date || '') < (b.date || '') ? 1 : -1))
+    else if (sortBy === 'impactful') filtered.sort((a, b) => (b.headcount_impact || 0) - (a.headcount_impact || 0))
+    else filtered.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))
+
     return filtered
-  }, [companies, filterCompany, search])
+  }, [companies, filterCompany, search, sortBy, confFilter, trackFilter])
 
   const totalRoles = items.reduce((s, it) => s + (it.headcount_impact || 0), 0)
 
@@ -100,11 +146,50 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
         </div>
       </div>
 
+      {/* Filter and sort bar */}
+      <div style={filterBarStyle}>
+        <FilterGroup label="Sort">
+          {([['recent', 'Most recent'], ['impactful', 'Most impactful'], ['confidence', 'Highest confidence']] as const).map(([k, l]) => (
+            <Pill key={k} active={sortBy === k} onClick={() => setSortBy(k)}>{l}</Pill>
+          ))}
+        </FilterGroup>
+        <FilterGroup label="Track">
+          {([['all', 'All'], ['cognitive', 'Cognitive AI'], ['robotics', 'Industrial Robotics'], ['agentic', 'Agentic AI'], ['offshoring', 'Offshoring']] as const).map(([k, l]) => (
+            <Pill key={k} active={trackFilter === k} onClick={() => setTrackFilter(k)}>{l}</Pill>
+          ))}
+        </FilterGroup>
+        <FilterGroup label="Confidence">
+          {([['all', 'All'], ['high', 'High (C4-C5)'], ['medium', 'Medium (C3)'], ['lower', 'Lower (C1-C2)']] as const).map(([k, l]) => (
+            <Pill key={k} active={confFilter === k} onClick={() => setConfFilter(k)}>{l}</Pill>
+          ))}
+        </FilterGroup>
+      </div>
+
+      {/* Verified events */}
       {items.length === 0 ? (
         <div style={emptyStyle}>No events match the current filter.</div>
       ) : (
         <div style={gridStyle}>
           {items.map((it, i) => <Card key={i} item={it} />)}
+        </div>
+      )}
+
+      {/* Signal feed — unverified pipeline items */}
+      {signals.length > 0 && !filterCompany && (
+        <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+          <div style={{ marginBottom: 14 }}>
+            <div className="eyebrow" style={{ color: 'var(--text-muted)' }}>Signal Feed</div>
+            <h3 style={{ fontSize: 16, fontWeight: 600, margin: '4px 0 2px', color: 'var(--text-primary)' }}>
+              Unverified — awaiting review
+            </h3>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              These headlines passed the NLP displacement filter but have not been manually verified.
+              Treat as signals, not confirmed events.
+            </div>
+          </div>
+          <div style={gridStyle}>
+            {signals.map(s => <SignalCard key={s.id} signal={s} />)}
+          </div>
         </div>
       )}
     </div>
@@ -372,4 +457,99 @@ const sourceLinkStyle: React.CSSProperties = {
   color: 'var(--accent)',
   textDecoration: 'none',
   fontWeight: 500,
+}
+
+// ---------- Filter bar components ----------
+
+function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4, flexShrink: 0 }}>
+        {label}
+      </span>
+      {children}
+    </div>
+  )
+}
+
+function Pill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '4px 10px',
+        fontSize: 11,
+        fontWeight: 500,
+        borderRadius: 4,
+        background: active ? 'var(--bg-panel-hover)' : 'transparent',
+        color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+        border: 'none',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+const filterBarStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 12,
+  padding: '8px 10px',
+  background: 'var(--bg-inset)',
+  border: '1px solid var(--border)',
+  borderRadius: 6,
+  marginBottom: 18,
+}
+
+// ---------- Signal card ----------
+
+function SignalCard({ signal }: { signal: Signal }) {
+  return (
+    <article style={signalCardStyle}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4, flex: 1 }}>
+          {signal.raw_text}
+        </div>
+        <span style={unverifiedBadgeStyle}>UNVERIFIED</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--text-muted)' }}>
+        <span>
+          C{signal.confidence}
+          <span style={{ margin: '0 6px', color: 'var(--text-dim)' }}>·</span>
+          {signal.found_at?.slice(0, 10) || '—'}
+        </span>
+        {signal.source_url && (
+          <a
+            href={signal.source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: 11 }}
+          >
+            Source →
+          </a>
+        )}
+      </div>
+    </article>
+  )
+}
+
+const signalCardStyle: React.CSSProperties = {
+  background: 'var(--bg-panel)',
+  border: '1px dashed var(--border)',
+  borderRadius: 6,
+  padding: 14,
+}
+
+const unverifiedBadgeStyle: React.CSSProperties = {
+  fontSize: 9,
+  fontWeight: 600,
+  letterSpacing: '0.06em',
+  color: 'var(--amber)',
+  border: '1px solid var(--amber)',
+  borderRadius: 3,
+  padding: '2px 6px',
+  flexShrink: 0,
 }
