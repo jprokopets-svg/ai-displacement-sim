@@ -6,6 +6,7 @@
     { "source": "/api/:path*", "destination": "https://ai-displacement-sim-production.up.railway.app/api/:path*" },
     { "source": "/story", "destination": "/index.html" },
     { "source": "/embed", "destination": "/index.html" },
-    { "source": "/tool", "destination": "/index.html" }
+    { "source": "/tool", "destination": "/index.html" },
+    { "source": "/outlook", "destination": "/index.html" }
   ]
 }
