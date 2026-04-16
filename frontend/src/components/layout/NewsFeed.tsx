@@ -254,7 +254,7 @@ function Card({ item }: { item: FeedItem }) {
       </div>
 
       {item.description && (
-        <p style={descriptionStyle}>{item.description}</p>
+        <p style={descriptionStyle}>{cleanDescription(item.description)}</p>
       )}
 
       {item.downstream_impact && (
@@ -450,6 +450,24 @@ const cardFooterStyle: React.CSSProperties = {
   alignItems: 'center',
   paddingTop: 10,
   borderTop: '1px solid var(--border)',
+}
+
+function cleanDescription(raw: string): string {
+  let s = raw
+    .replace(/&[a-zA-Z]+;/g, m => {
+      const map: Record<string, string> = {
+        '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"',
+        '&apos;': "'", '&ndash;': '–', '&mdash;': '—', '&nbsp;': ' ',
+        '&ldquo;': '\u201C', '&rdquo;': '\u201D', '&lsquo;': '\u2018',
+        '&rsquo;': '\u2019', '&hellip;': '…',
+      }
+      return map[m] || m
+    })
+    .replace(/&#\d+;/g, m => String.fromCharCode(Number(m.slice(2, -1))))
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (s.length > 200) s = s.slice(0, 197) + '…'
+  return s
 }
 
 const sourceLinkStyle: React.CSSProperties = {
