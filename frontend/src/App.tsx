@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import USMap from './components/USMap'
 import WorldMap from './components/WorldMap'
 import CountyDetailPanel from './components/CountyDetailPanel'
-import SimulationPanel from './components/SimulationPanel'
+import SimulationTab from './components/Simulation'
 import JobSearch from './components/JobSearch'
 import ControlPanel from './components/ControlPanel'
 import MarketImplications from './components/MarketImplications'
@@ -192,7 +192,7 @@ export default function App() {
           )}
 
           {!loading && !error && tab === 'simulate' && (
-            <div style={scrollTabStyle}><SimulationPanel /></div>
+            <div style={scrollTabStyle}><SimulationTab /></div>
           )}
           {!loading && !error && tab === 'job' && (
             <div style={scrollTabStyle}><JobSearch /></div>
