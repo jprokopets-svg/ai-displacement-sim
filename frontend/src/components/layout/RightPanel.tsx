@@ -1,22 +1,64 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useState, useEffect } from 'react'
 
 interface Props {
   children: ReactNode
   width?: number
 }
 
+const STORAGE_KEY = 'rightpanel-collapsed'
+
 export default function RightPanel({ children, width }: Props) {
+  const [collapsed, setCollapsed] = useState(() => sessionStorage.getItem(STORAGE_KEY) === '1')
+
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0')
+  }, [collapsed])
+
   return (
-    <aside style={{ ...style, width: width ?? 'var(--right-panel-width)' }}>
-      {children}
+    <aside style={{
+      ...baseStyle,
+      width: collapsed ? 36 : (width ?? 320),
+      minWidth: collapsed ? 36 : undefined,
+      transition: 'width 0.2s ease',
+      position: 'relative',
+    }}>
+      {!collapsed && <div style={{ overflow: 'hidden', height: '100%', overflowY: 'auto' }}>{children}</div>}
+      <button
+        onClick={() => setCollapsed(c => !c)}
+        style={{
+          ...toggleStyle,
+          left: -12,
+        }}
+        title={collapsed ? 'Expand panel' : 'Collapse panel'}
+      >
+        {collapsed ? '‹' : '›'}
+      </button>
     </aside>
   )
 }
 
-const style: React.CSSProperties = {
+const baseStyle: React.CSSProperties = {
   flexShrink: 0,
   background: 'var(--bg-elevated)',
-  overflowY: 'auto',
-  overflowX: 'hidden',
   height: '100%',
+  overflow: 'hidden',
+}
+
+const toggleStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  width: 22,
+  height: 40,
+  background: 'var(--bg-panel)',
+  border: '1px solid var(--border)',
+  borderRadius: '4px 0 0 4px',
+  color: 'var(--text-muted)',
+  fontSize: 14,
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 10,
+  padding: 0,
 }

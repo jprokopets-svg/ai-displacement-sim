@@ -117,6 +117,7 @@ export default function CareerOutlook() {
   const [startYear, setStartYear] = useState(2025)
   const [degreeLen, setDegreeLen] = useState(4)
   const [copied, setCopied] = useState(false)
+  const [analyzed, setAnalyzed] = useState(false)
 
   const debounced = useDebounce(query, 300)
 
@@ -158,7 +159,7 @@ export default function CareerOutlook() {
           <div style={{ position: 'relative' }}>
             <input
               value={query}
-              onChange={e => { setQuery(e.target.value); setSelected(null); setOpen(true) }}
+              onChange={e => { setQuery(e.target.value); setSelected(null); setAnalyzed(false); setOpen(true) }}
               onFocus={() => setOpen(true)}
               onBlur={() => setTimeout(() => setOpen(false), 150)}
               placeholder="e.g. nursing, computer science, paralegal, accounting"
@@ -216,10 +217,19 @@ export default function CareerOutlook() {
         }}>
           You would graduate in <strong style={{ color: 'var(--text-primary)' }}>{gradYear}</strong>
         </div>
+
+        {selected && !analyzed && (
+          <button
+            onClick={() => setAnalyzed(true)}
+            style={{ ...analyzeBtnStyle, marginTop: 16, width: '100%' }}
+          >
+            Analyze →
+          </button>
+        )}
       </div>
 
-      {/* Results */}
-      {selected && temperature && gradScore != null && todayScore != null && (
+      {/* Results — only after clicking Analyze */}
+      {selected && analyzed && temperature && gradScore != null && todayScore != null && (
         <div style={{ marginTop: 28 }}>
           {/* Temperature gauge */}
           <div style={resultCardStyle}>
@@ -305,9 +315,9 @@ export default function CareerOutlook() {
 // ---------- Temperature gauge (D3 arc) ----------
 
 function TemperatureGauge({ score, temperature }: { score: number; temperature: Temperature }) {
-  const W = 240, H = 140
-  const cx = W / 2, cy = H - 10
-  const r = 100
+  const W = 200, H = 110
+  const cx = W / 2, cy = H - 8
+  const r = 80
   const startAngle = Math.PI
   const endAngle = 2 * Math.PI
   const needleAngle = startAngle + score * (endAngle - startAngle)
@@ -408,9 +418,11 @@ function useDebounce<T>(value: T, delay: number): T {
 const wrapStyle: React.CSSProperties = {
   maxWidth: 680,
   margin: '0 auto',
-  padding: '28px 24px 48px',
+  padding: '20px 24px 40px',
   width: '100%',
   boxSizing: 'border-box',
+  height: '100%',
+  overflowY: 'auto',
 }
 
 const formCardStyle: React.CSSProperties = {
@@ -479,6 +491,17 @@ const shareBtnStyle: React.CSSProperties = {
   borderRadius: 4,
   fontSize: 13,
   fontWeight: 500,
+  cursor: 'pointer',
+}
+
+const analyzeBtnStyle: React.CSSProperties = {
+  padding: '12px 24px',
+  background: '#3b82f6',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 6,
+  fontSize: 15,
+  fontWeight: 600,
   cursor: 'pointer',
 }
 

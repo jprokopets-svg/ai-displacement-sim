@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { searchOccupations, fetchCounties } from '../../utils/api'
+import StateCountyPicker from '../shared/StateCountyPicker'
 import {
   DEFAULT_ANSWERS, computeRisk, probabilityColor, resilienceColor,
   type FormAnswers, type Industry, type CompanySize, type Seniority,
@@ -112,7 +113,7 @@ export default function MyRisk({ companyData }: Props) {
             disabled={!canAdvance(step)}
             style={primaryBtn(!canAdvance(step))}
           >
-            {step === 5 ? 'See My Risk →' : 'Next →'}
+            {step === 5 ? 'Get My Risk Profile →' : 'Next →'}
           </button>
         </div>
       )}
@@ -364,55 +365,21 @@ function ScreenLocation({
   update: <K extends keyof FormAnswers>(k: K, v: FormAnswers[K]) => void
   counties: County[]
 }) {
-  const [query, setQuery] = useState(answers.countyName)
-  const [open, setOpen] = useState(false)
-
-  const matches = useMemo(() => {
-    if (query.trim().length < 2) return []
-    const q = query.trim().toLowerCase()
-    return counties
-      .filter(c => (c.county_name || '').toLowerCase().includes(q))
-      .slice(0, 10)
-  }, [query, counties])
-
   return (
     <>
       <Eyebrow>Step 5 — Location</Eyebrow>
       <H1>Where are you?</H1>
 
-      <Field label="County or city">
-        <div style={{ position: 'relative' }}>
-          <input
-            value={query}
-            onChange={e => { setQuery(e.target.value); update('countyName', e.target.value); update('countyFips', null); update('countyPercentile', null); setOpen(true) }}
-            onFocus={() => setOpen(true)}
-            onBlur={() => setTimeout(() => setOpen(false), 150)}
-            placeholder="Start typing your county (e.g. Fairfax County, Virginia)"
-            style={inputStyle}
-          />
-          {open && matches.length > 0 && (
-            <div style={dropdownStyle}>
-              {matches.map(c => (
-                <div
-                  key={c.county_fips}
-                  onMouseDown={() => {
-                    setQuery(c.county_name)
-                    update('countyName', c.county_name)
-                    update('countyFips', c.county_fips)
-                    update('countyPercentile', c.exposure_percentile)
-                    setOpen(false)
-                  }}
-                  style={dropdownItemStyle}
-                >
-                  <span>{c.county_name}</span>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                    p{Math.round(c.exposure_percentile)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      <Field label="Your county">
+        <StateCountyPicker
+          counties={counties}
+          selectedFips={answers.countyFips}
+          onSelect={c => {
+            update('countyName', c.county_name)
+            update('countyFips', c.county_fips)
+            update('countyPercentile', c.exposure_percentile)
+          }}
+        />
       </Field>
 
       <Field label="Is your salary significantly above or below median for your role?">

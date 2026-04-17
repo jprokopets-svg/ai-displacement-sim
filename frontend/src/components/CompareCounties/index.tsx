@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchCountyDetail } from '../../utils/api'
+import StateCountyPicker from '../shared/StateCountyPicker'
 import { applyScenarioModifiers } from '../../utils/scenarios'
 import { getExposureColor } from '../../utils/colors'
 import { getUncertaintyState, BAND_LABELS } from '../../utils/uncertainty'
@@ -198,17 +199,7 @@ function CountyPanel({
   overlays: Props['overlays']
   scenario: ScenarioState
 }) {
-  const [query, setQuery] = useState('')
-  const [open, setOpen] = useState(false)
   const [topOccs, setTopOccs] = useState<OccupationRow[]>([])
-
-  const matches = useMemo(() => {
-    if (query.trim().length < 2) return []
-    const q = query.trim().toLowerCase()
-    return baseCounties
-      .filter(c => (c.county_name || '').toLowerCase().includes(q))
-      .slice(0, 10)
-  }, [query, baseCounties])
 
   // Fetch top-5 exposed occupations when the selected county changes
   useEffect(() => {
@@ -247,36 +238,13 @@ function CountyPanel({
         County {side}
       </div>
 
-      {/* Search */}
-      <div style={{ position: 'relative', marginBottom: 14 }}>
-        <input
-          value={query}
-          onChange={e => { setQuery(e.target.value); setOpen(true) }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="Search for a county"
-          style={inputStyle}
+      {/* County selector — state first, then county */}
+      <div style={{ marginBottom: 14 }}>
+        <StateCountyPicker
+          counties={baseCounties}
+          selectedFips={selectedFips}
+          onSelect={c => setSelectedFips(c.county_fips)}
         />
-        {open && matches.length > 0 && (
-          <div style={dropdownStyle}>
-            {matches.map(c => (
-              <div
-                key={c.county_fips}
-                onMouseDown={() => {
-                  setSelectedFips(c.county_fips)
-                  setQuery(c.county_name)
-                  setOpen(false)
-                }}
-                style={dropdownItemStyle}
-              >
-                <span>{c.county_name}</span>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  p{Math.round(c.exposure_percentile)}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {!county ? (
@@ -651,38 +619,6 @@ const panelStyle: React.CSSProperties = {
 const verticalDividerStyle: React.CSSProperties = {
   width: 1, background: 'var(--border)', alignSelf: 'stretch',
   margin: '0 14px',
-}
-
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '8px 10px',
-  fontSize: 13,
-  background: 'var(--bg-secondary)',
-  color: 'var(--text-primary)',
-  border: '1px solid var(--border)',
-  borderRadius: 4,
-  outline: 'none',
-  boxSizing: 'border-box',
-  fontFamily: 'inherit',
-}
-
-const dropdownStyle: React.CSSProperties = {
-  position: 'absolute', top: '100%', left: 0, right: 0,
-  background: 'var(--bg-panel)',
-  border: '1px solid var(--border)',
-  borderRadius: 4,
-  marginTop: 2,
-  maxHeight: 220, overflowY: 'auto',
-  zIndex: 50,
-  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-}
-
-const dropdownItemStyle: React.CSSProperties = {
-  padding: '6px 10px',
-  fontSize: 12, cursor: 'pointer',
-  display: 'flex', justifyContent: 'space-between',
-  borderBottom: '1px solid var(--border)',
-  color: 'var(--text-primary)',
 }
 
 const compositeCardStyle: React.CSSProperties = {
