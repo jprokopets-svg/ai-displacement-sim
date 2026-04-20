@@ -114,7 +114,7 @@ function Section1({ top10 }: { top10: CompanyEvent[] }) {
   useEffect(() => {
     if (!visible) return
     const t0 = performance.now()
-    const target = 405378
+    const target = 426178
     const duration = 3000
     const id = setInterval(() => {
       const elapsed = performance.now() - t0
@@ -132,7 +132,7 @@ function Section1({ top10 }: { top10: CompanyEvent[] }) {
     <section ref={ref} style={sectionStyle}>
       <div style={{ ...fadeStyle(visible), maxWidth: 800, width: '100%', textAlign: 'center' }}>
         <h1 style={heroTitleStyle}>
-          {count > 0 ? count.toLocaleString() : '405,378'} jobs. 72 companies. 3 years.
+          {count > 0 ? count.toLocaleString() : '426,178'} jobs. 72 companies. 4 years.
         </h1>
         <p style={heroSubStyle}>
           AI displacement isn't a future event. It's happening now, county by county, job by job.

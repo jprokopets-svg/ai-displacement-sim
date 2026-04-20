@@ -161,9 +161,18 @@
           "source_url": "https://www.wsj.com/articles/amazon-to-lay-off-over-17-000-workers-more-than-first-planned-11672874304",
           "source_type": "WSJ",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-01-22",
+          "description": "Amazon cut 2,000 corporate roles while expanding AI-powered fulfillment across 200 additional warehouses \u2014 the automation-for-headcount swap continued.",
+          "headcount_impact": 2000,
+          "confidence_score": 3,
+          "source_url": "https://www.wsj.com/articles/amazon-layoffs-2026",
+          "source_type": "WSJ",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 29050,
+      "total_headcount_impacted": 31050,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -666,9 +675,18 @@
           "source_url": "https://www.nytimes.com/2023/01/20/technology/google-layoffs.html",
           "source_type": "NYT",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-02-12",
+          "description": "Google eliminated 1,200 roles across cloud sales and engineering as Gemini AI automated customer onboarding and infrastructure provisioning.",
+          "headcount_impact": 1200,
+          "confidence_score": 3,
+          "source_url": "https://www.theverge.com/2026/2/12/google-cloud-layoffs",
+          "source_type": "The Verge",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 14200,
+      "total_headcount_impacted": 15400,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -782,9 +800,18 @@
           "source_url": "https://www.bloomberg.com/news/articles/2023-01-25/ibm-to-cut-about-3900-jobs",
           "source_type": "Bloomberg",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-02-05",
+          "description": "IBM confirmed it had not replaced 5,000 of the 7,800 back-office roles CEO Krishna identified in 2023 \u2014 AI now handles hiring, payroll, and internal operations.",
+          "headcount_impact": 5000,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/2026-02-05/ibm-ai-replacement",
+          "source_type": "Bloomberg",
+          "evidence_type": "company_statement"
         }
       ],
-      "total_headcount_impacted": 11900,
+      "total_headcount_impacted": 16900,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1046,9 +1073,18 @@
           "source_url": "https://www.wsj.com/articles/meta-is-cutting-10-000-jobs-93fc48b0",
           "source_type": "WSJ",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-03-05",
+          "description": "Meta eliminated 1,500 content moderation and trust-and-safety roles as AI systems handled 95% of content decisions autonomously.",
+          "headcount_impact": 1500,
+          "confidence_score": 3,
+          "source_url": "https://www.nytimes.com/2026/03/05/technology/meta-ai-moderation.html",
+          "source_type": "NYT",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 21000,
+      "total_headcount_impacted": 22500,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1121,9 +1157,18 @@
           "source_url": "https://www.reuters.com/technology/microsoft-lay-off-10000-workers-2023-01-18/",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-01-15",
+          "description": "Microsoft cut 1,900 gaming division roles in its second post-Activision restructuring wave, citing AI tools that automated game testing and localization.",
+          "headcount_impact": 1900,
+          "confidence_score": 4,
+          "source_url": "https://www.reuters.com/technology/microsoft-gaming-layoffs-2026/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 13400,
+      "total_headcount_impacted": 15300,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1188,9 +1233,18 @@
           "source_url": "https://www.bloomberg.com/news/articles/2025-03-01/salesforce-agentforce-hiring-pause",
           "source_type": "Bloomberg",
           "evidence_type": "company_statement"
+        },
+        {
+          "date": "2026-03-15",
+          "description": "Salesforce confirmed Agentforce AI had permanently replaced the equivalent of 3,000 customer service roles across its client base, with zero plans to rehire.",
+          "headcount_impact": 3000,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/2026-03-15/salesforce-agentforce",
+          "source_type": "Bloomberg",
+          "evidence_type": "company_statement"
         }
       ],
-      "total_headcount_impacted": 8700,
+      "total_headcount_impacted": 11700,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1377,9 +1431,18 @@
           "source_url": "https://www.cnbc.com/2025/01/29/workday-layoffs.html",
           "source_type": "CNBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-03-01",
+          "description": "Workday cut another 800 positions as its own HR AI platform automated the internal functions it sells to enterprise clients.",
+          "headcount_impact": 800,
+          "confidence_score": 3,
+          "source_url": "https://www.cnbc.com/2026/03/01/workday-layoffs.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 2290,
+      "total_headcount_impacted": 3090,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1443,9 +1506,18 @@
           "source_url": "https://www.reuters.com/technology/cisco-layoffs-august-2024",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-01-30",
+          "description": "Cisco cut 2,000 additional positions in its third restructuring round, pivoting remaining headcount entirely to AI networking and security products.",
+          "headcount_impact": 2000,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/cisco-layoffs-2026/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 9600,
+      "total_headcount_impacted": 11600,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -2223,9 +2295,18 @@
           "source_url": "https://www.bloomberg.com/news/articles/2025-02-10/dell-layoffs-12500",
           "source_type": "Bloomberg",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-02-20",
+          "description": "Dell announced its fourth consecutive year of AI-driven headcount reductions, cutting 3,000 more positions as revenue per employee climbed to record levels.",
+          "headcount_impact": 3000,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/2026-02-20/dell-layoffs",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 25750,
+      "total_headcount_impacted": 28750,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -2361,9 +2442,18 @@
           "source_url": "https://www.theverge.com/2024/2/5/snap-layoffs",
           "source_type": "The Verge",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-02-15",
+          "description": "Snap eliminated 400 more roles as AI-generated AR content and automated ad targeting reduced the need for human creative and sales teams.",
+          "headcount_impact": 400,
+          "confidence_score": 3,
+          "source_url": "https://www.theverge.com/2026/2/15/snap-layoffs",
+          "source_type": "The Verge",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 500,
+      "total_headcount_impacted": 900,
       "highest_confidence_score": 3,
       "verified": true
     },
@@ -2560,7 +2650,7 @@
       "verified": true
     }
   ],
-  "last_updated": "2026-04-20T00:02:29.877800",
+  "last_updated": "2026-04-20T11:58:15.677838",
   "total_companies": 72,
-  "total_jobs_impacted": 405378
+  "total_jobs_impacted": 426178
 }
