@@ -128,6 +128,8 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
             <span> roles</span>
             <span style={{ color: 'var(--text-dim)', margin: '0 6px' }}>·</span>
             <span>Sources: Reuters, WSJ, BLS WARN notices, SEC filings, company statements</span>
+            <span style={{ color: 'var(--text-dim)', margin: '0 6px' }}>·</span>
+            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>Last updated: Apr 19, 2026</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>

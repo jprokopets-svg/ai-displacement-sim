@@ -89,11 +89,34 @@ def company_data():
 
 @app.get("/api/signals")
 def signals():
-    """Top pending items from the scraper pipeline, exported as a static snapshot."""
+    """Top pending items from the scraper pipeline.
+    Tries live scraper DB first, falls back to static snapshot."""
+    import sqlite3
+    import logging
+
+    scraper_db = Path.home() / "projects" / "ai-displacement-scraper" / "data" / "companies.db"
+    if scraper_db.exists():
+        try:
+            conn = sqlite3.connect(str(scraper_db))
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """SELECT id, raw_text, source_url, assigned_confidence as confidence,
+                          date_found as found_at, status
+                   FROM manual_queue WHERE status = 'pending'
+                   ORDER BY assigned_confidence DESC, id DESC LIMIT 20"""
+            ).fetchall()
+            conn.close()
+            result = [dict(r) for r in rows]
+            return {"signals": result, "count": len(result), "source": "live"}
+        except Exception as e:
+            logging.warning(f"Failed to read scraper DB: {e}")
+
+    # Fallback to static snapshot
     path = Path(__file__).parent.parent / "data" / "signals.json"
     if not path.exists():
-        return {"signals": [], "count": 0}
+        return {"signals": [], "count": 0, "source": "empty"}
     data = _json.loads(path.read_text())
+    data["source"] = "static"
     return data
 
 
