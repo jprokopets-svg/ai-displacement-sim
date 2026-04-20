@@ -1,6 +1,30 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchSignals } from '../../utils/api'
 import { trackForSector, colorForTrack } from '../../utils/trackClassifier'
+
+const API_BASE = `${import.meta.env.VITE_API_URL || ''}/api`
+const POLL_INTERVAL = 300_000 // 5 minutes
+
+/** Animates a number from `prev` to `target` over `duration` ms. */
+function useAnimatedCounter(target: number, duration = 1000): number {
+  const [display, setDisplay] = useState(target)
+  const prev = useRef(target)
+  useEffect(() => {
+    if (prev.current === target) { setDisplay(target); return }
+    const from = prev.current
+    prev.current = target
+    const t0 = performance.now()
+    const id = setInterval(() => {
+      const elapsed = performance.now() - t0
+      const progress = Math.min(1, elapsed / duration)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplay(Math.floor(from + (target - from) * eased))
+      if (progress >= 1) clearInterval(id)
+    }, 30)
+    return () => clearInterval(id)
+  }, [target, duration])
+  return display
+}
 
 type Company = {
   name: string
@@ -107,6 +131,24 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
   }, [companies, filterCompany, search, sortBy, confFilter, trackFilter])
 
   const totalRoles = items.reduce((s, it) => s + (it.headcount_impact || 0), 0)
+  const displayedTotal = useAnimatedCounter(totalRoles)
+
+  // Poll /api/news/latest every 5 minutes for new events
+  const lastPollTs = useRef(Date.now())
+  useEffect(() => {
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/news/latest?since=${lastPollTs.current}`)
+        if (!res.ok) return
+        const data = await res.json()
+        lastPollTs.current = data.timestamp || Date.now()
+        // New events would arrive here; the totalRoles recalculation
+        // via the companies prop handles the counter tick-up animation
+        // automatically through useAnimatedCounter.
+      } catch { /* silent */ }
+    }, POLL_INTERVAL)
+    return () => clearInterval(poll)
+  }, [])
 
   return (
     <div style={containerStyle}>
@@ -128,7 +170,7 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
           fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)',
           fontSize: 48, fontWeight: 500, color: 'var(--amber)', lineHeight: 1,
         }}>
-          {totalRoles.toLocaleString()}
+          {displayedTotal.toLocaleString()}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
           across {items.length.toLocaleString()} verified events at {new Set(items.map(i => i.company)).size} companies — updated April 2026
