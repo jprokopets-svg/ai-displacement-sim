@@ -5,7 +5,7 @@ import type { Topology } from 'topojson-specification'
 import { searchOccupations, fetchCounties, fetchCompanyDisplacement } from '../utils/api'
 import { getExposureColor } from '../utils/colors'
 
-const TOOL_URL = '/'
+const TOOL_URL = '/tool'
 const TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'
 
 // DC metro FIPS for slide 3 highlight
@@ -383,7 +383,7 @@ function Section4() {
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
               AI displacement exposure score
             </div>
-            <a href="/#my-risk" style={ctaBtnStyle}>
+            <a href="/tool#my-risk" style={ctaBtnStyle}>
               Explore your full risk profile →
             </a>
           </div>
@@ -406,7 +406,7 @@ function Section5() {
         <h2 style={sectionTitleStyle}>This is just the beginning of the story.</h2>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 28 }}>
           <a href={TOOL_URL} style={ctaPrimaryStyle}>Explore your county →</a>
-          <a href="/#my-risk" style={ctaOutlineStyle}>
+          <a href="/tool#my-risk" style={ctaOutlineStyle}>
             Check your full risk profile →
           </a>
         </div>

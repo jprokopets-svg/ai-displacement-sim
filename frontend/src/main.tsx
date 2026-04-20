@@ -15,9 +15,11 @@ metaDesc.setAttribute('content', SITE_CONFIG.description)
 const path = window.location.pathname.replace(/\/$/, '')
 
 function Root() {
+  if (path === '/tool') return <App />
   if (path === '/embed') return <EmbedPage />
   if (path === '/story') return <StoryPage />
-  return <App />
+  if (path === '') return <StoryPage />
+  return <StoryPage />  // root and unknown paths → story
 }
 
 createRoot(document.getElementById('root')!).render(
