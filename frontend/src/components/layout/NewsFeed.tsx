@@ -75,10 +75,14 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
   const [confFilter, setConfFilter] = useState<ConfFilter>('all')
   const [trackFilter, setTrackFilter] = useState<TrackFilter>('all')
   const [signals, setSignals] = useState<Signal[]>([])
+  const [signalsFetchedAt, setSignalsFetchedAt] = useState<string>('')
 
   useEffect(() => {
     fetchSignals()
-      .then(d => setSignals((d.signals || []) as Signal[]))
+      .then(d => {
+        setSignals((d.signals || []) as Signal[])
+        setSignalsFetchedAt(d.fetched_at || '')
+      })
       .catch(() => {})
   }, [])
 
@@ -244,8 +248,12 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
               Pending verification
             </h3>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              These headlines passed the NLP displacement filter but have not been manually verified.
-              Treat as signals, not confirmed events.
+              Live headlines from the last 48 hours. Passed NLP displacement filter, not yet manually verified.
+              {signalsFetchedAt && (
+                <span style={{ marginLeft: 8, color: 'var(--text-dim)' }}>
+                  Last fetched: {new Date(signalsFetchedAt).toLocaleString()}
+                </span>
+              )}
             </div>
           </div>
           <div style={gridStyle}>

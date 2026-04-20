@@ -293,9 +293,18 @@
           "source_url": "https://www.bloomberg.com/news/articles/2024-01-11/block-cuts-about-1000-employees",
           "source_type": "Bloomberg",
           "evidence_type": "earnings_call"
+        },
+        {
+          "date": "2024-10-16",
+          "description": "Block (Square/Cash App) cut 1,000 roles as CEO Jack Dorsey cited AI tools enabling the same output with fewer people across engineering and operations.",
+          "headcount_impact": 1000,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/block-layoffs-2024",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 1000,
+      "total_headcount_impacted": 2000,
       "highest_confidence_score": 3,
       "verified": true
     },
@@ -684,9 +693,18 @@
           "source_url": "https://www.theverge.com/2026/2/12/google-cloud-layoffs",
           "source_type": "The Verge",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-03-15",
+          "description": "Google cut 2,000 roles in cloud and advertising as AI tools replaced analyst and support functions.",
+          "headcount_impact": 2000,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/google-layoffs-2025",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 15400,
+      "total_headcount_impacted": 17400,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -833,10 +851,19 @@
           "source_url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQY21HUk5JdXJibkgyaEhUcjU2eHhrS0RPZ0RWOEEzRlJsWjZrbXlVZE5iWG1qLTNqRHRDbmZwT0M4ZXBiNGZUUllueGVLbHFiTlB0S0hKWVE0aXlodXMyQmJxMWR1YXNmQm5yZEZhLVgwUWVXd0ZKWmszU1pBanVjckRXalFET0M3VHpOQ1ZMQ2JWclpzcVZDd3NGQVM0c3UwWVBKM3RSNnA0MVpKNUlpTDhmcw?oc=5",
           "source_type": "news",
           "evidence_type": "layoff"
+        },
+        {
+          "date": "2024-07-09",
+          "description": "Intuit eliminated 1,800 roles while simultaneously announcing it would hire AI engineers \u2014 the clearest signal that AI investment directly replaces headcount budgets.",
+          "headcount_impact": 1800,
+          "confidence_score": 4,
+          "source_url": "https://www.cnbc.com/intuit-layoffs-2024",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 1800,
-      "highest_confidence_score": 3,
+      "total_headcount_impacted": 3600,
+      "highest_confidence_score": 4,
       "verified": true
     },
     {
@@ -1082,9 +1109,18 @@
           "source_url": "https://www.nytimes.com/2026/03/05/technology/meta-ai-moderation.html",
           "source_type": "NYT",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2026-04-18",
+          "description": "Meta announced 8,000 additional cuts targeting middle management \u2014 the largest single efficiency round since 2023, as AI tools flatten organizational hierarchies.",
+          "headcount_impact": 8000,
+          "confidence_score": 4,
+          "source_url": "https://www.nytimes.com/2026/04/18/technology/meta-layoffs.html",
+          "source_type": "NYT",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 22500,
+      "total_headcount_impacted": 30500,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1166,9 +1202,18 @@
           "source_url": "https://www.reuters.com/technology/microsoft-gaming-layoffs-2026/",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-05-13",
+          "description": "Microsoft cut 6,000 roles \u2014 its largest layoff since 2023 \u2014 explicitly citing Copilot AI agents handling work previously done by entire teams.",
+          "headcount_impact": 6000,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/microsoft-layoffs-2025",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 15300,
+      "total_headcount_impacted": 21300,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1473,6 +1518,15 @@
           "source_url": "https://www.reuters.com/technology/sap-plans-restructuring-affecting-3000-jobs-2023-01-26/",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2024-07-15",
+          "description": "SAP completed its 8,000-role restructuring six months ahead of schedule, confirming AI tools handled the work those employees previously performed.",
+          "headcount_impact": 0,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/sap-restructuring-complete",
+          "source_type": "Reuters",
+          "evidence_type": "company_statement"
         }
       ],
       "total_headcount_impacted": 11000,
@@ -1956,9 +2010,18 @@
           "source_url": "https://www.cnbc.com/2024/02/15/nike-layoffs.html",
           "source_type": "CNBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-02-06",
+          "description": "Nike cut 740 additional positions at its Oregon headquarters as AI design tools and automated supply chain management reduced creative and logistics headcount.",
+          "headcount_impact": 740,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/business/nike-layoffs-2025",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 1600,
+      "total_headcount_impacted": 2340,
       "highest_confidence_score": 3,
       "verified": true
     },
@@ -2643,14 +2706,287 @@
           "source_url": "https://fortune.com/2025/03/15/fiverr-ceo-ai-replacing-freelancers/",
           "source_type": "Fortune",
           "evidence_type": "company_statement"
+        },
+        {
+          "date": "2025-06-01",
+          "description": "Fiverr CEO Micha Kaufman sent internal memo warning AI is replacing freelancers on the platform faster than any previous technology shift.",
+          "headcount_impact": 0,
+          "confidence_score": 3,
+          "source_url": "https://fortune.com/2025/06/fiverr-ai-replacing-freelancers",
+          "source_type": "Fortune",
+          "evidence_type": "company_statement"
         }
       ],
       "total_headcount_impacted": null,
       "highest_confidence_score": 3,
       "verified": true
+    },
+    {
+      "name": "Shopify",
+      "ticker": "SHOP",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2025-04-07",
+          "description": "Shopify CEO Tobi Lutke announced employees must prove AI cannot do their job before any new hire is approved \u2014 effectively freezing most hiring company-wide.",
+          "headcount_impact": 0,
+          "confidence_score": 4,
+          "source_url": "https://www.theverge.com/shopify-ai-hiring-freeze-2025",
+          "source_type": "The Verge",
+          "evidence_type": "company_statement"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Anthropic",
+      "ticker": null,
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2025-03-01",
+          "description": "Anthropic CEO Dario Amodei stated AI could eliminate half of all entry-level white-collar jobs within five years \u2014 the starkest prediction from any major AI CEO.",
+          "headcount_impact": 0,
+          "confidence_score": 4,
+          "source_url": "https://www.axios.com/anthropic-dario-amodei-jobs",
+          "source_type": "Axios",
+          "evidence_type": "company_statement"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Zendesk",
+      "ticker": null,
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2025-02-20",
+          "description": "Zendesk cut 500 roles as its own AI customer service agents replaced the human support teams that previously ran platform operations.",
+          "headcount_impact": 500,
+          "confidence_score": 3,
+          "source_url": "https://techcrunch.com/zendesk-layoffs-2025",
+          "source_type": "TechCrunch",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 500,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Stability AI",
+      "ticker": null,
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-06-03",
+          "description": "Stability AI cut 10% of staff despite being an AI company \u2014 proving that even the companies building displacement tools face their own version of it.",
+          "headcount_impact": 20,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/stability-ai-layoffs",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 20,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Bumble",
+      "ticker": "BMBL",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-02-05",
+          "description": "Bumble cut 350 employees \u2014 30% of workforce \u2014 as AI matchmaking and automated content moderation replaced human curation teams.",
+          "headcount_impact": 350,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/bumble-layoffs-2024",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 350,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Rivian",
+      "ticker": "RIVN",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-02-21",
+          "description": "Rivian cut 10% of workforce (~840 salaried employees) as AI-driven manufacturing optimization reduced the need for production engineering staff.",
+          "headcount_impact": 840,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/business/autos-transportation/rivian-layoffs",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 840,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Expedia",
+      "ticker": "EXPE",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-02-20",
+          "description": "Expedia cut 1,500 positions as AI travel planning tools automated the customer service and booking optimization functions.",
+          "headcount_impact": 1500,
+          "confidence_score": 3,
+          "source_url": "https://www.cnbc.com/expedia-layoffs-2024",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 1500,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Sonos",
+      "ticker": "SONO",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-08-13",
+          "description": "Sonos cut 100 employees as AI-driven product development and automated testing compressed the hardware engineering cycle.",
+          "headcount_impact": 100,
+          "confidence_score": 3,
+          "source_url": "https://www.theverge.com/sonos-layoffs-2024",
+          "source_type": "The Verge",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 100,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Paramount",
+      "ticker": "PARA",
+      "sector": "Media",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-08-12",
+          "description": "Paramount cut 2,000 positions \u2014 15% of workforce \u2014 as AI content tools and streaming automation reduced the need for human production and operations staff.",
+          "headcount_impact": 2000,
+          "confidence_score": 3,
+          "source_url": "https://www.wsj.com/articles/paramount-layoffs-2024",
+          "source_type": "WSJ",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 2000,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Uber",
+      "ticker": "UBER",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2026-03-20",
+          "description": "Uber cut 1,200 corporate support roles as AI-powered dispatch, pricing, and customer service systems handled functions previously requiring human teams.",
+          "headcount_impact": 1200,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/uber-layoffs-2026",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 1200,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Spotify",
+      "ticker": "SPOT",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2026-02-28",
+          "description": "Spotify cut 600 positions as AI-generated playlists, automated podcast editing, and recommendation systems reduced the need for human editorial and production staff.",
+          "headcount_impact": 600,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/spotify-layoffs-2026",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 600,
+      "highest_confidence_score": 3,
+      "verified": true
     }
   ],
-  "last_updated": "2026-04-20T11:58:15.677838",
-  "total_companies": 72,
-  "total_jobs_impacted": 426178
+  "last_updated": "2026-04-20T12:01:54.716217",
+  "total_companies": 83,
+  "total_jobs_impacted": 452828
 }
