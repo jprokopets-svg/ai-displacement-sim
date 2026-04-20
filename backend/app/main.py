@@ -49,8 +49,15 @@ def _startup():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "https://*.vercel.app"],
+    allow_origins=[
+        "https://yourjobrisk.com",
+        "https://www.yourjobrisk.com",
+        "https://ai-displacement-sim-4x9g.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
     allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
