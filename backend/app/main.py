@@ -101,9 +101,32 @@ def county_overlays():
 
 @app.get("/api/companies")
 def company_data():
-    """Company displacement data with office locations."""
+    """Company displacement data from company_displacement.json.
+    Read fresh on every request — no DB caching."""
+    from fastapi.responses import JSONResponse
     companies = get_company_displacement()
-    return {"companies": companies, "count": len(companies)}
+    total_events = sum(len(c.get('displacement_events', [])) for c in companies)
+    total_jobs = sum(c.get('total_headcount_impacted') or 0 for c in companies)
+    return JSONResponse(
+        content={"companies": companies, "count": len(companies),
+                 "total_events": total_events, "total_jobs": total_jobs},
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+    )
+
+
+@app.get("/api/admin/reseed")
+def admin_reseed():
+    """Emergency endpoint — confirms JSON file state. No actual DB to reseed;
+    companies are read from JSON on every request."""
+    companies = get_company_displacement()
+    total_events = sum(len(c.get('displacement_events', [])) for c in companies)
+    return {
+        "status": "ok",
+        "message": "company_displacement.json read successfully",
+        "companies": len(companies),
+        "events": total_events,
+        "note": "No SQLite seeding needed — companies are served directly from JSON file",
+    }
 
 
 @app.get("/api/signals")
