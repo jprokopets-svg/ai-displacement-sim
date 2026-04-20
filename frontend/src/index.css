@@ -155,6 +155,7 @@ input[type="range"] {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  display: block;
 }
 
 input[type="range"]::-webkit-slider-runnable-track {

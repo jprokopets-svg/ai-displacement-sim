@@ -183,9 +183,9 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
       {signals.length > 0 && !filterCompany && (
         <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
           <div style={{ marginBottom: 14 }}>
-            <div className="eyebrow" style={{ color: 'var(--text-muted)' }}>Signal Feed</div>
+            <div className="eyebrow" style={{ color: 'var(--text-muted)' }}>Recent Documented Events</div>
             <h3 style={{ fontSize: 16, fontWeight: 600, margin: '4px 0 2px', color: 'var(--text-primary)' }}>
-              Unverified — awaiting review
+              Pending verification
             </h3>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
               These headlines passed the NLP displacement filter but have not been manually verified.
