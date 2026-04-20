@@ -110,26 +110,40 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
 
   return (
     <div style={containerStyle}>
+      {/* Dramatic counter header */}
+      <div style={{ textAlign: 'center', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+          <span className="live-dot" style={{
+            width: 8, height: 8, borderRadius: '50%', background: '#10b981',
+            display: 'inline-block', animation: 'pulse 2s infinite',
+          }} />
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', color: '#10b981', textTransform: 'uppercase' as const }}>
+            LIVE
+          </span>
+          <span style={{ fontSize: 10, letterSpacing: '0.08em', color: 'var(--text-muted)', textTransform: 'uppercase' as const }}>
+            DOCUMENTED JOBS AFFECTED BY AI DISPLACEMENT
+          </span>
+        </div>
+        <div className="data-value" style={{
+          fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)',
+          fontSize: 48, fontWeight: 500, color: 'var(--amber)', lineHeight: 1,
+        }}>
+          {totalRoles.toLocaleString()}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
+          across {items.length.toLocaleString()} verified events at {new Set(items.map(i => i.company)).size} companies — updated April 2026
+        </div>
+      </div>
+
       <div style={topBarStyle}>
         <div>
-          <div className="eyebrow" style={{ color: 'var(--amber)' }}>Displacement Feed</div>
-          <h2 style={titleStyle}>
-            {filterCompany ? filterCompany : 'All AI-driven workforce events'}
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h2 style={titleStyle}>
+              {filterCompany ? filterCompany : 'All AI-driven workforce events'}
+            </h2>
+          </div>
           <div style={metaStyle}>
-            <span className="data-value" style={{ color: 'var(--text-primary)' }}>
-              {items.length.toLocaleString()}
-            </span>
-            <span> events</span>
-            <span style={{ color: 'var(--text-dim)', margin: '0 6px' }}>·</span>
-            <span className="data-value" style={{ color: 'var(--text-primary)' }}>
-              {totalRoles.toLocaleString()}
-            </span>
-            <span> roles</span>
-            <span style={{ color: 'var(--text-dim)', margin: '0 6px' }}>·</span>
-            <span>Sources: Reuters, WSJ, BLS WARN notices, SEC filings, company statements</span>
-            <span style={{ color: 'var(--text-dim)', margin: '0 6px' }}>·</span>
-            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>Last updated: Apr 20, 2026</span>
+            Sources: Reuters, WSJ, Bloomberg, FT, CNBC, SEC filings, company statements
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
@@ -215,7 +229,7 @@ function Card({ item }: { item: FeedItem }) {
     'var(--text-muted)'
 
   return (
-    <article style={cardStyle}>
+    <article className="news-card-enter" style={cardStyle}>
       <header style={cardHeaderStyle}>
         <div style={{ minWidth: 0 }}>
           <div style={companyStyle}>

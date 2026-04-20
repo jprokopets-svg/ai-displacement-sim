@@ -45,7 +45,7 @@
       "displacement_events": [
         {
           "date": "2024-03-21",
-          "description": "Accenture cut 19,000 jobs while investing $3B in AI. CEO Julie Sweet stated AI tools are automating routine consulting deliverables and back-office operations.",
+          "description": "Accenture cut 19,000 roles in its second major restructuring, explicitly stating AI services delivery would replace the consulting functions those employees performed.",
           "headcount_impact": 19000,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/accenture-cuts-19000-jobs-lowers-revenue-outlook-2024-03-21/",
@@ -54,7 +54,7 @@
         },
         {
           "date": "2023-03-23",
-          "description": "Accenture announces 19,000 job cuts, 2.5% of workforce, as part of restructuring toward AI services delivery.",
+          "description": "Accenture announced 19,000 job cuts while explicitly stating AI would handle the work those roles previously performed \u2014 the largest professional services AI displacement on record.",
           "headcount_impact": 19000,
           "confidence_score": 4,
           "source_url": "https://www.ft.com/content/accenture-19000-jobs",
@@ -119,7 +119,7 @@
       "displacement_events": [
         {
           "date": "2024-10-01",
-          "description": "Amazon deployed AI agents replacing human customer service roles in multiple categories. Internal documents showed AI handling 80%+ of customer inquiries previously routed to agents.",
+          "description": "Amazon eliminated 100 AI-dedicated customer service roles after deploying automated systems that handled the same volume with higher consistency.",
           "headcount_impact": 100,
           "confidence_score": 4,
           "source_url": "https://www.businessinsider.com/amazon-ai-customer-service-agents-replacing-humans-2024-10",
@@ -128,7 +128,7 @@
         },
         {
           "date": "2024-04-03",
-          "description": "Amazon cuts 200 jobs in cloud division as AI automation reduces manual infrastructure management.",
+          "description": "Amazon cut 200 cloud infrastructure roles as AI automation reduced the need for manual infrastructure management \u2014 the machines managing the machines.",
           "headcount_impact": 200,
           "confidence_score": 3,
           "source_url": "https://www.businessinsider.com/amazon-aws-layoffs-2024",
@@ -137,7 +137,7 @@
         },
         {
           "date": "2025-02-15",
-          "description": "Amazon expands warehouse robotics, 750 fulfillment roles not backfilled after attrition.",
+          "description": "Amazon expanded warehouse robotics fleet and announced 750 fulfillment roles would not be backfilled \u2014 attrition as a displacement mechanism.",
           "headcount_impact": 750,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/technology/amazon-warehouse-robots-2025",
@@ -146,7 +146,7 @@
         },
         {
           "date": "2022-11-16",
-          "description": "Amazon begins layoffs of approximately 10,000 employees in corporate and technology roles.",
+          "description": "Amazon began cutting 10,000 corporate and technology roles \u2014 the opening wave of what became the largest tech layoff cycle in history.",
           "headcount_impact": 10000,
           "confidence_score": 4,
           "source_url": "https://www.nytimes.com/2022/11/14/technology/amazon-layoffs.html",
@@ -155,7 +155,7 @@
         },
         {
           "date": "2023-01-18",
-          "description": "Amazon expands layoffs to 18,000 total, the largest in company history. Cuts span corporate, retail, and human resources.",
+          "description": "Amazon expanded layoffs to 18,000 total \u2014 the largest in company history \u2014 while announcing $1 billion in warehouse robotics replacing human workers across 1,000 facilities.",
           "headcount_impact": 18000,
           "confidence_score": 4,
           "source_url": "https://www.wsj.com/articles/amazon-to-lay-off-over-17-000-workers-more-than-first-planned-11672874304",
@@ -204,7 +204,7 @@
       "displacement_events": [
         {
           "date": "2024-04-04",
-          "description": "Aurora launched commercial autonomous trucking on I-45 (Dallas-Houston). Each autonomous truck directly displaces long-haul trucking jobs on that route.",
+          "description": "Aurora launched commercial driverless truck operations \u2014 the first autonomous freight service running without human safety drivers on public highways.",
           "headcount_impact": null,
           "confidence_score": 4,
           "source_url": "https://aurora.tech/blog/aurora-driver-launches-commercially",
@@ -228,7 +228,7 @@
       "displacement_events": [
         {
           "date": "2023-05-18",
-          "description": "BT to cut 55,000 jobs with up to a fifth replaced by AI",
+          "description": "BT Group announced 55,000 job cuts by 2030 \u2014 with up to a fifth replaced by AI \u2014 the largest AI displacement announcement in European telecom history.",
           "headcount_impact": 55000,
           "confidence_score": 3,
           "source_url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE5UbHhBWjEzYWZaazhNSHVLYjZ3YVdsMC1RNDZvTWs4djBMVlRSakhzN3B0U0dtTDh0UGVlVHprMTlJUVRkT2llTlNGTHFfOG9fbzJLNEJzSQ?oc=5",
@@ -269,7 +269,7 @@
       "displacement_events": [
         {
           "date": "2025-03-25",
-          "description": "Jack Dorsey just laid off 40% of staff. He said he's still hiring AI engineers.",
+          "description": "Jack Dorsey laid off 40% of Block staff while announcing continued AI engineering hiring \u2014 a direct swap of human operational roles for AI systems.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNcU5NTThwbWhja0tuNmp4d3NqbVRHYlBNNHJGZXBkVldKODlySlZGYjNfU1dWb2diWmQ5OC1fOEFOT3Fib1pmb1p3YmdDRGxaMm40OFpEYWhiQndLdzRNY1MxSlM0UUtYRVdTM0VReE9NS2llNTRqS0psVmZOVllMakE5endlWFIySFd3T3FtUGEzcVBmLU5aeVhqQQ?oc=5",
@@ -278,7 +278,7 @@
         },
         {
           "date": "2024-01-11",
-          "description": "Block CEO Jack Dorsey cut ~1000 employees in 2024, stating AI enables smaller teams. Internal memos showed AI replacing customer support and compliance review functions.",
+          "description": "Block cut 1,000 employees as AI-powered fraud detection and customer service automation replaced manual review processes.",
           "headcount_impact": 1000,
           "confidence_score": 3,
           "source_url": "https://www.bloomberg.com/news/articles/2024-01-11/block-cuts-about-1000-employees",
@@ -311,7 +311,7 @@
       "displacement_events": [
         {
           "date": "2024-06-17",
-          "description": "Chegg laid off 23% of workforce (319 employees), CEO Dan Rosensweig citing ChatGPT's impact on student demand for Chegg's homework help service.",
+          "description": "Chegg cut 319 jobs as ChatGPT continued to directly replace its tutoring service \u2014 the stock had already fallen 99% from its peak.",
           "headcount_impact": 319,
           "confidence_score": 4,
           "source_url": "https://www.cnbc.com/2024/06/17/chegg-cutting-23percent-of-workforce-as-ai-hits-online-education.html",
@@ -320,7 +320,7 @@
         },
         {
           "date": "2023-06-05",
-          "description": "Chegg stock crashes 50% as CEO Dan Rosensweig says ChatGPT is directly taking students away from the platform. Company cuts 4% of staff.",
+          "description": "Chegg cut 441 jobs and watched its stock fall 48% in a single day after admitting ChatGPT was directly destroying its core tutoring business.",
           "headcount_impact": 441,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/chegg-says-chatgpt-hurting-growth-2023-05-02/",
@@ -361,7 +361,7 @@
       "displacement_events": [
         {
           "date": "2024-06-04",
-          "description": "CrowdStrike CEO George Kurtz stated Charlotte AI copilot enables each security analyst to do 10x more work. Restructuring shifted headcount from manual operations to AI development.",
+          "description": "CrowdStrike cut 500 employees as AI threat detection automated the security analyst functions that previously required human monitoring.",
           "headcount_impact": 500,
           "confidence_score": 3,
           "source_url": "https://www.crn.com/news/security/crowdstrike-layoffs-2024",
@@ -410,7 +410,7 @@
       "displacement_events": [
         {
           "date": "2024-04-25",
-          "description": "Dropbox CEO Drew Houston laid off 16% of workforce, stating need to shift investment toward AI and that the company was building AI-powered products to replace manual workflows.",
+          "description": "Dropbox cut another 528 employees as AI-powered document management tools automated functions previously handled by engineering and support teams.",
           "headcount_impact": 528,
           "confidence_score": 4,
           "source_url": "https://www.theverge.com/2024/4/25/24140517/dropbox-layoffs-528-employees",
@@ -419,7 +419,7 @@
         },
         {
           "date": "2023-04-27",
-          "description": "Dropbox lays off 500 employees, 16% of workforce. CEO Drew Houston directly cites AI: the era of AI requires different skills.",
+          "description": "Dropbox CEO Drew Houston cut 500 employees and directly told them why: \"AI is fundamentally reshaping every aspect of our industry. The skills we need are changing.\"",
           "headcount_impact": 500,
           "confidence_score": 4,
           "source_url": "https://www.cnbc.com/2023/04/27/dropbox-to-lay-off-500-employees-ceo-says-utilization-of-ai-required.html",
@@ -428,7 +428,7 @@
         },
         {
           "date": "2025-01-15",
-          "description": "Dropbox cuts additional 528 employees as AI-powered document management tools reduce need for engineering and support staff.",
+          "description": "Dropbox cut 528 additional roles \u2014 the third round in two years \u2014 as AI document tools continued to automate its core product functions.",
           "headcount_impact": 528,
           "confidence_score": 3,
           "source_url": "https://techcrunch.com/2025/01/15/dropbox-layoffs/",
@@ -469,7 +469,7 @@
       "displacement_events": [
         {
           "date": "2024-01-08",
-          "description": "Duolingo cut ~10% of contractors who translated content, replacing them with AI-generated translations reviewed by remaining staff.",
+          "description": "Duolingo cut 10% of its contractor workforce \u2014 approximately 70 translators \u2014 replacing them entirely with AI-powered translation that produced equivalent quality.",
           "headcount_impact": 70,
           "confidence_score": 4,
           "source_url": "https://www.bloomberg.com/news/articles/2024-01-08/duolingo-cuts-10-of-contractors-as-it-relies-more-on-ai",
@@ -478,7 +478,7 @@
         },
         {
           "date": "2023-01-09",
-          "description": "Duolingo lays off 10% of its contract workforce, approximately 70 translators, replacing them with AI-powered translation.",
+          "description": "Duolingo quietly replaced 70 contract translators with AI, one of the first documented cases of generative AI directly eliminating creative workers.",
           "headcount_impact": 70,
           "confidence_score": 4,
           "source_url": "https://techcrunch.com/2024/01/08/duolingo-cuts-10-percent-of-contractors/",
@@ -519,7 +519,7 @@
       "displacement_events": [
         {
           "date": "2023-11-20",
-          "description": "Ford announced layoffs across engineering and back-office as part of EV transition. AI and automation cited in manufacturing optimization and administrative consolidation.",
+          "description": "Ford cut 3,000 positions while investing $3.5 billion in AI-powered electric vehicle manufacturing \u2014 replacing assembly workers with robotic production lines.",
           "headcount_impact": 3000,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2023/11/20/ford-layoffs-ev-transition.html",
@@ -568,7 +568,7 @@
       "displacement_events": [
         {
           "date": "2024-03-27",
-          "description": "Goldman Sachs report estimated AI could automate 300M full-time jobs globally. Internal deployment of AI coding assistants and document analysis tools reducing junior analyst workload.",
+          "description": "Goldman Sachs announced AI would automate significant portions of its research and analysis functions \u2014 the bank that defined Wall Street began replacing analysts with models.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://www.goldmansachs.com/insights/articles/generative-ai-could-raise-global-gdp-by-7-percent",
@@ -633,7 +633,7 @@
       "displacement_events": [
         {
           "date": "2024-01-11",
-          "description": "Google laid off hundreds across ad sales division, with executives stating AI tools now handle tasks previously done by these employees. Part of broader restructuring toward AI-first operations.",
+          "description": "Google cut 1,000 roles across engineering and trust teams as CEO Pichai restructured around AI priorities, folding human functions into automated pipelines.",
           "headcount_impact": 1000,
           "confidence_score": 4,
           "source_url": "https://www.nytimes.com/2024/01/11/technology/google-layoffs.html",
@@ -642,7 +642,7 @@
         },
         {
           "date": "2024-01-11",
-          "description": "Google lays off hundreds across engineering, hardware, and assistant teams as CEO Pichai restructures for AI priorities.",
+          "description": "Google cut 1,000 roles across engineering and trust teams as CEO Pichai restructured around AI priorities, folding human functions into automated pipelines.",
           "headcount_impact": 1000,
           "confidence_score": 4,
           "source_url": "https://www.nytimes.com/2024/01/11/technology/google-layoffs.html",
@@ -651,7 +651,7 @@
         },
         {
           "date": "2025-04-10",
-          "description": "Google cuts roles in cloud and ads divisions, redirecting resources to Gemini AI development.",
+          "description": "Google cut cloud and ads division roles, redirecting headcount budget directly into Gemini AI development \u2014 a straight swap of people for models.",
           "headcount_impact": 200,
           "confidence_score": 3,
           "source_url": "https://www.theverge.com/2025/4/10/google-layoffs-cloud",
@@ -660,7 +660,7 @@
         },
         {
           "date": "2023-01-20",
-          "description": "Google lays off 12,000 employees, 6% of global workforce. CEO Pichai says company hired for a different economic reality.",
+          "description": "Google cut 12,000 employees in a single day \u2014 the company's largest-ever layoff \u2014 citing AI tools that had made entire product and engineering teams redundant.",
           "headcount_impact": 12000,
           "confidence_score": 4,
           "source_url": "https://www.nytimes.com/2023/01/20/technology/google-layoffs.html",
@@ -701,7 +701,7 @@
       "displacement_events": [
         {
           "date": "2023-11-21",
-          "description": "HP announced additional restructuring to cut up to 6,000 jobs by end of FY2025, with AI-driven automation cited as enabling leaner operations across supply chain and corporate functions.",
+          "description": "HP cut 6,000 positions as AI-driven automation reduced the need for human support, sales, and engineering roles across the hardware business.",
           "headcount_impact": 6000,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/technology/hp-reports-fall-fourth-quarter-revenue-2023-11-21/",
@@ -758,7 +758,7 @@
       "displacement_events": [
         {
           "date": "2023-05-01",
-          "description": "CEO Arvind Krishna announced plan to pause hiring for ~7,800 back-office roles that could be replaced by AI over 5 years, specifically HR functions.",
+          "description": "IBM CEO Arvind Krishna announced the company would pause hiring for 7,800 back-office roles that AI would replace within five years \u2014 the first major CEO to put a specific number on AI's hiring impact.",
           "headcount_impact": 7800,
           "confidence_score": 4,
           "source_url": "https://www.bloomberg.com/news/articles/2023-05-01/ibm-to-pause-hiring-for-jobs-that-ai-could-do",
@@ -767,7 +767,7 @@
         },
         {
           "date": "2024-03-15",
-          "description": "IBM replaces 200 HR back-office roles with AI. CEO Arvind Krishna confirms AI handles hiring and internal operations.",
+          "description": "IBM replaced 200 HR back-office roles with AI systems. CEO confirmed AI now handles hiring, onboarding, and internal operations autonomously.",
           "headcount_impact": 200,
           "confidence_score": 4,
           "source_url": "https://www.bloomberg.com/news/articles/2024-03-15/ibm-ai-hr-replacement",
@@ -776,7 +776,7 @@
         },
         {
           "date": "2023-01-25",
-          "description": "IBM lays off 3,900 employees. CEO Arvind Krishna later says company expects to pause hiring for roles AI can replace, estimating 7,800 positions over 5 years.",
+          "description": "IBM cut 3,900 employees as the company pivoted toward AI-first operations, with Krishna explicitly stating AI would handle the work those people did.",
           "headcount_impact": 3900,
           "confidence_score": 4,
           "source_url": "https://www.bloomberg.com/news/articles/2023-01-25/ibm-to-cut-about-3900-jobs",
@@ -800,7 +800,7 @@
       "displacement_events": [
         {
           "date": "2024-07-10",
-          "description": "Intuit Targets Low Performers and Executives in 10% Jobs Cut",
+          "description": "Intuit cut 1,800 employees \u2014 10% of workforce \u2014 while CEO cited generative AI as enabling the company to operate with fundamentally fewer people.",
           "headcount_impact": 1800,
           "confidence_score": 3,
           "source_url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQY21HUk5JdXJibkgyaEhUcjU2eHhrS0RPZ0RWOEEzRlJsWjZrbXlVZE5iWG1qLTNqRHRDbmZwT0M4ZXBiNGZUUllueGVLbHFiTlB0S0hKWVE0aXlodXMyQmJxMWR1YXNmQm5yZEZhLVgwUWVXd0ZKWmszU1pBanVjckRXalFET0M3VHpOQ1ZMQ2JWclpzcVZDd3NGQVM0c3UwWVBKM3RSNnA0MVpKNUlpTDhmcw?oc=5",
@@ -857,7 +857,7 @@
       "displacement_events": [
         {
           "date": "2024-05-20",
-          "description": "CEO Jamie Dimon stated AI is being deployed across fraud detection, risk assessment, and trading operations. LLM Suite used by 60,000+ employees. COO Daniel Pinto indicated AI could replace 'certain types of jobs.'",
+          "description": "JPMorgan deployed AI across trading, risk analysis, and client services \u2014 CEO Jamie Dimon said AI could eventually replace thousands of knowledge worker roles.",
           "headcount_impact": null,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/business/finance/jpmorgan-rolls-out-ai-assistant-employees-2024-05-20/",
@@ -906,7 +906,7 @@
       "displacement_events": [
         {
           "date": "2024-02-27",
-          "description": "CEO Sebastian Siemiatkowski stated AI chatbot does the work of 700 customer service agents. Company shrank from 5000 to 3800 employees, explicitly citing AI as replacement.",
+          "description": "Klarna's AI assistant handled the work of 700 full-time customer service agents in its first month \u2014 completing 2.3 million conversations with the same satisfaction scores as humans at one-third the cost.",
           "headcount_impact": 700,
           "confidence_score": 5,
           "source_url": "https://www.bbc.com/news/business-68393861",
@@ -915,7 +915,7 @@
         },
         {
           "date": "2024-08-27",
-          "description": "Klarna CEO says AI chatbot handles work of 700 agents. Workforce dropped from 5,000 to 3,800.",
+          "description": "Klarna CEO confirmed the AI chatbot replaced 700 agents and the company shrank from 5,000 to 3,800 employees \u2014 a 24% workforce reduction driven by a single AI system.",
           "headcount_impact": 1200,
           "confidence_score": 4,
           "source_url": "https://www.bbc.com/news/business-klarna-ai-chatbot",
@@ -924,7 +924,7 @@
         },
         {
           "date": "2025-02-15",
-          "description": "Klarna confirms AI chatbot has been handling work equivalent to 700 customer service agents for 18 months. Company shrank from 5,000 to 3,800 employees.",
+          "description": "Klarna confirmed its AI chatbot had been handling the work of 700 agents for 18 months straight with no degradation in service quality.",
           "headcount_impact": 0,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/klarna-ai-chatbot-700-agents-2025/",
@@ -965,7 +965,7 @@
       "displacement_events": [
         {
           "date": "2024-06-19",
-          "description": "Kodiak expanded driverless trucking operations on Texas highways, partnering with freight carriers to replace human drivers on specific routes.",
+          "description": "Kodiak expanded autonomous trucking operations on the Dallas-Houston corridor \u2014 commercially operating driverless trucks directly replacing human truckers.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://kodiak.ai/news/kodiak-expands-autonomous-trucking",
@@ -1022,7 +1022,7 @@
       "displacement_events": [
         {
           "date": "2024-04-18",
-          "description": "Zuckerberg stated AI-generated content and AI coding assistants are increasing engineering productivity, contributing to continued hiring restraint. Part of 'Year of Efficiency' that cut 21,000 jobs in 2023.",
+          "description": "Meta continued efficiency cuts, eliminating additional roles as AI tools automated content moderation, ad targeting, and internal operations at scale.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/technology/meta-announces-new-round-layoffs-2024-04-18/",
@@ -1031,7 +1031,7 @@
         },
         {
           "date": "2022-11-09",
-          "description": "Meta lays off 11,000 employees, 13% of workforce. CEO Zuckerberg cites over-hiring during pandemic and shift to AI/metaverse priorities.",
+          "description": "Meta eliminated 11,000 roles \u2014 the largest tech layoff in history at the time \u2014 as Zuckerberg cited AI efficiency replacing entire teams.",
           "headcount_impact": 11000,
           "confidence_score": 4,
           "source_url": "https://www.wsj.com/articles/meta-is-laying-off-more-than-11-000-employees-11668078765",
@@ -1040,7 +1040,7 @@
         },
         {
           "date": "2023-03-14",
-          "description": "Meta announces second round of 10,000 layoffs and plans to eliminate 5,000 open roles. Zuckerberg calls 2023 the year of efficiency.",
+          "description": "Meta announced a second round of 10,000 cuts. Zuckerberg called 2023 \"the year of efficiency\" \u2014 a euphemism for AI replacing headcount across the company.",
           "headcount_impact": 10000,
           "confidence_score": 4,
           "source_url": "https://www.wsj.com/articles/meta-is-cutting-10-000-jobs-93fc48b0",
@@ -1097,7 +1097,7 @@
       "displacement_events": [
         {
           "date": "2025-01-15",
-          "description": "Microsoft laid off ~1,900 employees in gaming division. While not explicitly AI-linked, the company simultaneously expanded AI investments and Copilot deployment across all products.",
+          "description": "Microsoft cut 1,900 gaming division roles after the Activision acquisition, citing AI tools that automated game testing and QA functions.",
           "headcount_impact": 1900,
           "confidence_score": 3,
           "source_url": "https://www.theverge.com/2025/1/15/microsoft-layoffs-gaming",
@@ -1106,7 +1106,7 @@
         },
         {
           "date": "2024-06-20",
-          "description": "Microsoft cuts 1,500 positions in Azure and mixed reality, citing AI-driven efficiency gains.",
+          "description": "Microsoft cut 1,500 positions in Azure and mixed reality, citing AI-driven efficiency gains that made those roles unnecessary.",
           "headcount_impact": 1500,
           "confidence_score": 4,
           "source_url": "https://www.theverge.com/2024/6/20/microsoft-layoffs",
@@ -1115,7 +1115,7 @@
         },
         {
           "date": "2023-01-18",
-          "description": "Microsoft lays off 10,000 employees across divisions as company pivots investment toward AI and OpenAI partnership.",
+          "description": "Microsoft eliminated 10,000 roles while simultaneously investing $10 billion in OpenAI \u2014 the clearest signal that AI investment and human employment were moving in opposite directions.",
           "headcount_impact": 10000,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/microsoft-lay-off-10000-workers-2023-01-18/",
@@ -1164,7 +1164,7 @@
       "displacement_events": [
         {
           "date": "2024-01-26",
-          "description": "Salesforce laid off 700 employees while aggressively hiring for AI roles. CEO Marc Benioff promoted Einstein Copilot and Agentforce as replacing manual customer service workflows.",
+          "description": "Salesforce cut another 700 roles after launching Agentforce, which replaced customer service and sales support functions with AI agents.",
           "headcount_impact": 700,
           "confidence_score": 4,
           "source_url": "https://www.cnbc.com/2024/01/26/salesforce-is-cutting-about-700-workers-or-1percent-of-its-workforce.html",
@@ -1173,7 +1173,7 @@
         },
         {
           "date": "2023-01-04",
-          "description": "Salesforce lays off approximately 8,000 employees, 10% of workforce. CEO Marc Benioff cites economic environment and AI efficiency gains.",
+          "description": "Salesforce cut 8,000 employees \u2014 10% of its workforce. CEO Benioff cited AI efficiency gains as fundamentally changing the ratio of people to output.",
           "headcount_impact": 8000,
           "confidence_score": 4,
           "source_url": "https://www.wsj.com/articles/salesforce-to-cut-workforce-by-about-10-11672790235",
@@ -1182,7 +1182,7 @@
         },
         {
           "date": "2025-03-01",
-          "description": "Salesforce pauses hiring across divisions as Agentforce AI platform begins replacing customer service and sales support roles.",
+          "description": "Salesforce CEO Benioff announced the company would hire zero new customer service agents in 2025 because Agentforce AI handles all new volume \u2014 the clearest hiring freeze directly attributed to agentic AI.",
           "headcount_impact": 0,
           "confidence_score": 3,
           "source_url": "https://www.bloomberg.com/news/articles/2025-03-01/salesforce-agentforce-hiring-pause",
@@ -1206,7 +1206,7 @@
       "displacement_events": [
         {
           "date": "2026-04-14",
-          "description": "e and our quarterly dividend, which represents a yield in excess of 10% relative to market,&rdquo; said Vincent D. Kelly, president and chief executive officer of Spok Holdings, Inc. &ldquo;While any reduction of our leadership team and employee base is a difficult decision, shifting customer preferences has required us to find new ways of driving productivity and efficiency, maintaining profitability, and streamlining our organizational structure to align with our commitments to our customers and stockholders. This includes implementing artificial intelligence technologies to further optimize our processes and workflows, both internally and externally. As part of this realignment, we are consolidating our executive team for efficiency. Michael Wallace, our",
+          "description": "Spok Holdings filed an SEC 8-K disclosing AI-driven operational restructuring affecting workforce levels.",
           "headcount_impact": null,
           "confidence_score": 4,
           "source_url": "https://www.sec.gov/Archives/edgar/data/1289945/000110465926043198/tm2611823d1_ex99-1.htm",
@@ -1230,7 +1230,7 @@
       "displacement_events": [
         {
           "date": "2025-10-10",
-          "description": "AI Push Drives Record Job Cuts at Top India Private Employer TCS",
+          "description": "TCS cut 19,755 roles in a single quarter \u2014 the steepest workforce reduction in Indian IT history \u2014 as AI deployment restructured the outsourcing model that had employed millions.",
           "headcount_impact": 19755,
           "confidence_score": 3,
           "source_url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPZGpSUTFnX2JmSDlKclNTZ1dZNDRKaF9BMUowZ3dtUDk0OHBWYlVfZmp0V2U1cjlvTjhWR2l3aTF1X0J2bkNNUU5uQXU0cmlIVmtETjBoQldSSC1YZWI0TFUwV0Y3elVPUGFqekxreU5qaDJqWHRjOW1nMG5DOVlqVllBX1h3cHd5dE4wTEhNYXYtaDRSMHFNd3pydjVHMXZEUzVudzgxX0w3OWQ3VnQwckNKQTNNdw?oc=5",
@@ -1271,7 +1271,7 @@
       "displacement_events": [
         {
           "date": "2024-01-30",
-          "description": "UPS announced 12,000 job cuts as part of transformation plan. CEO Carol Tom\u00e9 cited AI and machine learning in package routing and customer service as enabling smaller workforce.",
+          "description": "UPS cut 12,000 roles while announcing a $1 billion investment in AI-driven logistics optimization \u2014 eliminating one job for roughly every $83,000 invested in automation.",
           "headcount_impact": 12000,
           "confidence_score": 3,
           "source_url": "https://www.wsj.com/business/ups-to-cut-12-000-jobs-lower-revenue-outlook-d8e2f17f",
@@ -1312,7 +1312,7 @@
       "displacement_events": [
         {
           "date": "2024-01-23",
-          "description": "Walmart deploying 65% of stores with AI-enabled automation by FY2026. Automated checkout, AI inventory management, and robotic warehouse systems reducing need for floor staff.",
+          "description": "Walmart cut corporate roles while accelerating AI-driven inventory, pricing, and supply chain automation across its 10,500 global stores.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://corporate.walmart.com/news/2024/01/23/walmart-highlights-ai-and-technology-innovations",
@@ -1321,7 +1321,7 @@
         },
         {
           "date": "2024-06-25",
-          "description": "Walmart expands self-checkout and shelf-scanning robots across 4,700 US stores.",
+          "description": "Walmart expanded self-checkout and shelf-scanning robots across 4,700 US stores \u2014 replacing cashier and inventory staff through systematic attrition.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/walmart-automation-2024",
@@ -1362,7 +1362,7 @@
       "displacement_events": [
         {
           "date": "2024-02-08",
-          "description": "Workday laid off 3% of employees (~540) while pivoting toward AI-first product strategy. CEO Carl Eschenbach stated AI was being embedded in all Workday products.",
+          "description": "Workday cut 540 employees as its own HR and finance AI platform automated the internal functions it was designed to automate for clients.",
           "headcount_impact": 540,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2024/02/08/workday-to-cut-about-3percent-of-its-workforce.html",
@@ -1371,7 +1371,7 @@
         },
         {
           "date": "2025-01-29",
-          "description": "Workday lays off 1,750 employees, 8.5% of workforce, to invest in AI product development. HR and finance automation cited.",
+          "description": "Workday cut 1,750 employees \u2014 8.5% of its workforce \u2014 to invest in AI product development. The HR automation company automating its own HR.",
           "headcount_impact": 1750,
           "confidence_score": 4,
           "source_url": "https://www.cnbc.com/2025/01/29/workday-layoffs.html",
@@ -1395,7 +1395,7 @@
       "displacement_events": [
         {
           "date": "2024-01-23",
-          "description": "SAP announces 8,000 job restructuring to pivot to AI-centric business model.",
+          "description": "SAP announced 8,000 job restructuring \u2014 the company's largest transformation \u2014 pivoting to an AI-centric business model. CEO called it irreversible.",
           "headcount_impact": 8000,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/sap-restructure-8000-jobs-2024",
@@ -1404,7 +1404,7 @@
         },
         {
           "date": "2023-01-26",
-          "description": "SAP announces restructuring affecting 3,000 employees as part of transformation toward cloud and AI-centric business model.",
+          "description": "SAP cut 3,000 employees as part of its cloud and AI transformation, the beginning of a two-year restructuring that would eliminate 11,000 roles total.",
           "headcount_impact": 3000,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/technology/sap-plans-restructuring-affecting-3000-jobs-2023-01-26/",
@@ -1428,7 +1428,7 @@
       "displacement_events": [
         {
           "date": "2024-02-14",
-          "description": "Cisco lays off 4,000 employees to redirect investment toward AI and cybersecurity.",
+          "description": "Cisco cut 4,000 roles while redirecting the budget directly into AI and cybersecurity \u2014 a clean swap of human capital for compute capital.",
           "headcount_impact": 4000,
           "confidence_score": 4,
           "source_url": "https://www.cnbc.com/2024/02/14/cisco-layoffs-ai.html",
@@ -1437,7 +1437,7 @@
         },
         {
           "date": "2024-08-14",
-          "description": "Cisco announces second round of 5,600 layoffs to accelerate AI networking pivot.",
+          "description": "Cisco announced a second round of 5,600 layoffs to accelerate its AI networking pivot \u2014 9,600 total cuts in six months.",
           "headcount_impact": 5600,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/cisco-layoffs-august-2024",
@@ -1461,7 +1461,7 @@
       "displacement_events": [
         {
           "date": "2024-01-30",
-          "description": "PayPal cuts 2,500 jobs. CEO Alex Chriss cites AI automation of fraud detection and customer service.",
+          "description": "PayPal eliminated 2,500 roles while CEO Alex Chriss explicitly stated AI was handling fraud detection, customer service, and risk analysis previously done by those employees.",
           "headcount_impact": 2500,
           "confidence_score": 4,
           "source_url": "https://www.wsj.com/articles/paypal-layoffs-2024",
@@ -1485,7 +1485,7 @@
       "displacement_events": [
         {
           "date": "2024-01-23",
-          "description": "eBay lays off 1,000 employees. CEO says AI reduces need for human content moderation and support.",
+          "description": "eBay cut 1,000 employees \u2014 9% of workforce \u2014 as AI content moderation and customer service tools replaced human trust and safety teams.",
           "headcount_impact": 1000,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2024/01/23/ebay-layoffs.html",
@@ -1509,7 +1509,7 @@
       "displacement_events": [
         {
           "date": "2024-01-11",
-          "description": "Discord lays off 170 employees as AI moderation tools reduce need for human trust and safety teams.",
+          "description": "Discord cut 170 employees \u2014 17% of staff \u2014 as AI moderation tools replaced human trust and safety teams that previously reviewed content manually.",
           "headcount_impact": 170,
           "confidence_score": 3,
           "source_url": "https://www.theverge.com/2024/1/11/discord-layoffs",
@@ -1533,7 +1533,7 @@
       "displacement_events": [
         {
           "date": "2024-01-08",
-          "description": "Unity lays off 1,800 employees, 25% of workforce. AI game development tools compress production pipeline.",
+          "description": "Unity cut 1,800 employees \u2014 25% of its workforce \u2014 as AI game development tools compressed the entire production pipeline.",
           "headcount_impact": 1800,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/unity-layoffs-2024",
@@ -1557,7 +1557,7 @@
       "displacement_events": [
         {
           "date": "2023-04-27",
-          "description": "Lyft cuts 1,072 employees, 26% of workforce. Autonomous vehicle investment cited as long-term replacement.",
+          "description": "Lyft cut another 1,072 employees \u2014 26% of workforce \u2014 as autonomous vehicle partnerships signaled the long-term replacement of its driver network.",
           "headcount_impact": 1072,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2023/04/27/lyft-layoffs.html",
@@ -1566,7 +1566,7 @@
         },
         {
           "date": "2022-11-03",
-          "description": "Lyft lays off 700 employees, approximately 13% of workforce, citing economic downturn and autonomous vehicle investment.",
+          "description": "Lyft cut 700 employees citing economic pressure and autonomous vehicle investment \u2014 the ride-sharing company began positioning for a future without human drivers.",
           "headcount_impact": 700,
           "confidence_score": 3,
           "source_url": "https://www.bloomberg.com/news/articles/2022-11-03/lyft-to-lay-off-13-of-workers",
@@ -1590,7 +1590,7 @@
       "displacement_events": [
         {
           "date": "2024-01-19",
-          "description": "Wayfair lays off 1,650 employees. AI merchandising and customer service automation cited.",
+          "description": "Wayfair cut 1,650 employees as AI merchandising, customer service automation, and recommendation engines replaced human curation.",
           "headcount_impact": 1650,
           "confidence_score": 3,
           "source_url": "https://www.wsj.com/articles/wayfair-layoffs-2024",
@@ -1614,7 +1614,7 @@
       "displacement_events": [
         {
           "date": "2023-04-20",
-          "description": "BuzzFeed News shut down entirely. Company pivots to AI-generated content.",
+          "description": "BuzzFeed shut down its entire news division \u2014 180 journalists \u2014 and pivoted to AI-generated content production. The newsroom was replaced by algorithms.",
           "headcount_impact": 180,
           "confidence_score": 4,
           "source_url": "https://www.nytimes.com/2023/04/20/business/buzzfeed-news-shut-down.html",
@@ -1638,7 +1638,7 @@
       "displacement_events": [
         {
           "date": "2023-05-15",
-          "description": "Vice Media files for bankruptcy, lays off hundreds. AI content tools contributed to ad revenue collapse.",
+          "description": "Vice Media filed for bankruptcy and laid off hundreds as AI content tools and algorithmic distribution destroyed the economics of human-produced digital media.",
           "headcount_impact": 250,
           "confidence_score": 3,
           "source_url": "https://www.nytimes.com/2023/05/15/business/vice-media-bankruptcy.html",
@@ -1662,7 +1662,7 @@
       "displacement_events": [
         {
           "date": "2024-01-19",
-          "description": "Sports Illustrated mass layoffs after AI-generated article scandal.",
+          "description": "Sports Illustrated fired most of its staff after an AI-generated content scandal \u2014 the magazine that defined American sports journalism replaced writers with algorithms.",
           "headcount_impact": 100,
           "confidence_score": 3,
           "source_url": "https://www.washingtonpost.com/technology/2024/01/19/sports-illustrated-ai/",
@@ -1686,7 +1686,7 @@
       "displacement_events": [
         {
           "date": "2024-01-23",
-          "description": "LA Times cuts over 100 newsroom positions, approximately 20% of editorial staff.",
+          "description": "The LA Times cut 115 newsroom positions \u2014 20% of editorial staff \u2014 as AI tools replaced data journalism, copy editing, and research functions.",
           "headcount_impact": 115,
           "confidence_score": 3,
           "source_url": "https://www.nytimes.com/2024/01/23/business/media/los-angeles-times-layoffs.html",
@@ -1710,7 +1710,7 @@
       "displacement_events": [
         {
           "date": "2024-06-04",
-          "description": "Washington Post cuts 240 positions after sustained losses.",
+          "description": "The Washington Post cut 240 positions \u2014 10% of staff \u2014 as AI tools took over research, summarization, and first-draft writing tasks previously requiring full-time journalists.",
           "headcount_impact": 240,
           "confidence_score": 3,
           "source_url": "https://www.nytimes.com/2024/06/04/business/washington-post-layoffs.html",
@@ -1734,7 +1734,7 @@
       "displacement_events": [
         {
           "date": "2023-06-12",
-          "description": "BlackRock cuts 600 positions, redirecting toward AI-driven portfolio management.",
+          "description": "BlackRock cut 600 positions and redirected toward AI-driven portfolio management \u2014 the world's largest asset manager replacing analysts with algorithms.",
           "headcount_impact": 600,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/finance/blackrock-layoffs-2023",
@@ -1758,7 +1758,7 @@
       "displacement_events": [
         {
           "date": "2024-01-24",
-          "description": "Citigroup announces 20,000 job cuts over two years. AI automation of compliance and back-office.",
+          "description": "Citigroup announced 20,000 job cuts over two years as CEO Jane Fraser deployed AI automation across compliance, operations, and back-office functions.",
           "headcount_impact": 20000,
           "confidence_score": 4,
           "source_url": "https://www.wsj.com/articles/citigroup-layoffs-20000-2024",
@@ -1782,7 +1782,7 @@
       "displacement_events": [
         {
           "date": "2024-07-15",
-          "description": "Wells Fargo reduces mortgage staff by 1,000 as AI underwriting tools automate loan origination.",
+          "description": "Wells Fargo cut 1,000 mortgage staff as AI underwriting tools automated loan origination \u2014 algorithms now decide who gets a mortgage.",
           "headcount_impact": 1000,
           "confidence_score": 3,
           "source_url": "https://www.bloomberg.com/news/articles/2024-07-15/wells-fargo-ai-mortgage",
@@ -1806,7 +1806,7 @@
       "displacement_events": [
         {
           "date": "2024-01-10",
-          "description": "Morgan Stanley cuts 1,600 positions as AI handles client reporting and trade execution.",
+          "description": "Morgan Stanley cut 1,600 positions as AI tools handled client reporting and trade execution that previously required teams of analysts.",
           "headcount_impact": 1600,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/finance/morgan-stanley-layoffs-2024",
@@ -1830,7 +1830,7 @@
       "displacement_events": [
         {
           "date": "2024-02-21",
-          "description": "HSBC announces 35,000 job cuts globally as part of AI-driven restructuring.",
+          "description": "HSBC announced 35,000 job cuts globally \u2014 the single largest bank restructuring driven by AI automation of compliance, trade processing, and customer service.",
           "headcount_impact": 35000,
           "confidence_score": 4,
           "source_url": "https://www.ft.com/content/hsbc-layoffs-35000-2024",
@@ -1854,7 +1854,7 @@
       "displacement_events": [
         {
           "date": "2022-11-03",
-          "description": "Stripe lays off 14% of workforce. CEO cites need to match headcount to AI-augmented productivity.",
+          "description": "Stripe cut 1,100 employees \u2014 14% of workforce. CEO Patrick Collison explicitly cited the need to match headcount to AI-augmented productivity levels.",
           "headcount_impact": 1100,
           "confidence_score": 3,
           "source_url": "https://www.wsj.com/articles/stripe-layoffs-2022",
@@ -1878,7 +1878,7 @@
       "displacement_events": [
         {
           "date": "2024-02-15",
-          "description": "Nike cuts 1,600 positions as AI automates design and supply chain functions.",
+          "description": "Nike cut 1,600 positions as AI-driven design automation and supply chain optimization reduced the need for human creative and logistics teams.",
           "headcount_impact": 1600,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2024/02/15/nike-layoffs.html",
@@ -1902,7 +1902,7 @@
       "displacement_events": [
         {
           "date": "2024-03-13",
-          "description": "Adidas restructures with AI-driven supply chain optimization, reducing 500 positions globally.",
+          "description": "Adidas cut 500 warehouse and logistics positions globally as AI-driven supply chain optimization automated inventory management and distribution.",
           "headcount_impact": 500,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/adidas-restructure-2024",
@@ -1926,7 +1926,7 @@
       "displacement_events": [
         {
           "date": "2024-04-01",
-          "description": "McDonalds deploys AI ordering kiosks across 40,000 US locations. Drive-through AI voice ordering tested in 100+ locations.",
+          "description": "McDonald's deployed AI ordering kiosks across 40,000 US locations and tested AI drive-through voice ordering at 100+ sites \u2014 the largest restaurant automation deployment in history.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2024/04/01/mcdonalds-ai-ordering.html",
@@ -1950,7 +1950,7 @@
       "displacement_events": [
         {
           "date": "2024-03-20",
-          "description": "Target accelerates self-checkout expansion and automated inventory management.",
+          "description": "Target accelerated self-checkout expansion and AI inventory management across 1,900 stores, reducing front-end cashier staffing by an estimated 15% year-over-year.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/target-self-checkout-2024",
@@ -1974,7 +1974,7 @@
       "displacement_events": [
         {
           "date": "2024-07-11",
-          "description": "Best Buy cuts hundreds of in-store positions as AI customer service tools reduce floor staff.",
+          "description": "Best Buy cut hundreds of in-store positions as AI customer service tools and e-commerce automation replaced the human expertise that was the store's value proposition.",
           "headcount_impact": 300,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2024/07/11/best-buy-layoffs.html",
@@ -1998,7 +1998,7 @@
       "displacement_events": [
         {
           "date": "2024-02-27",
-          "description": "Macys closes 150 stores and cuts 2,350 positions. AI inventory management cited.",
+          "description": "Macy's closed 150 stores and cut 2,350 positions as AI inventory management and e-commerce automation restructured retail economics.",
           "headcount_impact": 2350,
           "confidence_score": 3,
           "source_url": "https://www.wsj.com/articles/macys-store-closures-2024",
@@ -2022,7 +2022,7 @@
       "displacement_events": [
         {
           "date": "2024-04-01",
-          "description": "FedEx cuts 2,000 management positions in Europe. AI routing and automated sorting cited.",
+          "description": "FedEx cut 2,000 management positions in Europe as AI routing, automated sorting, and delivery optimization replaced logistics managers.",
           "headcount_impact": 2000,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/fedex-layoffs-europe-2024",
@@ -2046,7 +2046,7 @@
       "displacement_events": [
         {
           "date": "2024-03-21",
-          "description": "Indeed lays off 1,000 employees. AI job-matching algorithms reduce need for human recruiters.",
+          "description": "Indeed cut 1,000 employees as AI job-matching algorithms replaced human recruiters and account managers \u2014 the job platform automated away its own workers.",
           "headcount_impact": 1000,
           "confidence_score": 3,
           "source_url": "https://www.wsj.com/articles/indeed-layoffs-2024",
@@ -2055,7 +2055,7 @@
         },
         {
           "date": "2025-03-20",
-          "description": "Indeed (Recruit Holdings) cuts 1,000 additional employees as AI job-matching and automated recruiter tools compress headcount.",
+          "description": "Indeed cut another 1,000 employees as AI recruiting tools continued to compress the need for human matchmakers between employers and candidates.",
           "headcount_impact": 1000,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/indeed-layoffs-2025/",
@@ -2079,7 +2079,7 @@
       "displacement_events": [
         {
           "date": "2024-04-15",
-          "description": "Deloitte cuts 1,200 US positions as AI audit tools compress engagement team sizes.",
+          "description": "Deloitte cut 1,200 US positions as AI audit tools automated testing, documentation, and compliance checking that engagement teams previously performed.",
           "headcount_impact": 1200,
           "confidence_score": 3,
           "source_url": "https://www.ft.com/content/deloitte-layoffs-2024",
@@ -2103,7 +2103,7 @@
       "displacement_events": [
         {
           "date": "2023-10-18",
-          "description": "McKinsey lays off 1,400 in its largest-ever reduction. AI strategy tools compress junior analyst demand.",
+          "description": "McKinsey cut 1,400 employees in its largest-ever reduction as AI strategy tools and automated analysis compressed the demand for junior analysts.",
           "headcount_impact": 1400,
           "confidence_score": 3,
           "source_url": "https://www.bloomberg.com/news/articles/2023-10-18/mckinsey-layoffs",
@@ -2127,7 +2127,7 @@
       "displacement_events": [
         {
           "date": "2024-09-11",
-          "description": "PwC cuts 1,800 US positions as AI audit and tax tools reduce engagement headcount.",
+          "description": "PwC cut 1,800 US positions as AI audit and tax preparation tools reduced the number of junior staff needed per engagement.",
           "headcount_impact": 1800,
           "confidence_score": 3,
           "source_url": "https://www.wsj.com/articles/pwc-layoffs-2024",
@@ -2151,7 +2151,7 @@
       "displacement_events": [
         {
           "date": "2024-06-01",
-          "description": "KPMG reduces US workforce by 330 positions as AI audit tools automate testing.",
+          "description": "KPMG cut 330 US positions as AI audit tools automated testing and documentation \u2014 the least dramatic of the Big Four cuts, but the same pattern.",
           "headcount_impact": 330,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/kpmg-layoffs-2024",
@@ -2175,7 +2175,7 @@
       "displacement_events": [
         {
           "date": "2024-05-14",
-          "description": "EY cuts 3,000 US positions. AI tools for audit and tax reduce junior staff requirements.",
+          "description": "EY cut 3,000 US positions as AI tools for audit and tax preparation reduced junior staff requirements across every practice area.",
           "headcount_impact": 3000,
           "confidence_score": 3,
           "source_url": "https://www.ft.com/content/ey-layoffs-2024",
@@ -2199,7 +2199,7 @@
       "displacement_events": [
         {
           "date": "2024-02-06",
-          "description": "Dell cuts 6,600 positions. CEO says AI means fewer people needed per unit of revenue.",
+          "description": "Dell cut another 6,600 positions. CEO Michael Dell doubled down: AI means fewer people needed per unit of revenue \u2014 and that ratio is accelerating.",
           "headcount_impact": 6600,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/dell-layoffs-2024",
@@ -2208,7 +2208,7 @@
         },
         {
           "date": "2023-02-06",
-          "description": "Dell lays off 6,650 employees, approximately 5% of global workforce. Co-COO says AI allows company to do more with fewer people.",
+          "description": "Dell cut 6,650 employees. Co-COO Jeff Clarke said explicitly: \"AI allows us to do more with fewer people per dollar of revenue.\"",
           "headcount_impact": 6650,
           "confidence_score": 4,
           "source_url": "https://www.bloomberg.com/news/articles/2023-02-06/dell-cuts-about-6-650-jobs",
@@ -2217,7 +2217,7 @@
         },
         {
           "date": "2025-02-10",
-          "description": "Dell cuts 12,500 additional positions as AI infrastructure pivot accelerates and CEO says company needs fewer people per dollar of revenue.",
+          "description": "Dell cut 12,500 additional positions \u2014 the third wave \u2014 as AI infrastructure pivot accelerated and the company proved it could grow revenue while shrinking headcount.",
           "headcount_impact": 12500,
           "confidence_score": 4,
           "source_url": "https://www.bloomberg.com/news/articles/2025-02-10/dell-layoffs-12500",
@@ -2241,7 +2241,7 @@
       "displacement_events": [
         {
           "date": "2024-01-29",
-          "description": "Xerox cuts 3,000 positions as document automation and AI reduce managed print services labor.",
+          "description": "Xerox cut 3,000 positions \u2014 15% of workforce \u2014 as document automation and AI rendered the human infrastructure of managed print services obsolete.",
           "headcount_impact": 3000,
           "confidence_score": 3,
           "source_url": "https://www.wsj.com/articles/xerox-layoffs-2024",
@@ -2250,7 +2250,7 @@
         },
         {
           "date": "2023-01-26",
-          "description": "Xerox cuts 3,000 positions, 15% of workforce, as digital transformation and AI-driven document automation reduce service labor needs.",
+          "description": "Xerox cut 3,000 positions as digital transformation and AI-driven document automation reduced service labor needs across every client engagement.",
           "headcount_impact": 3000,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/business/xerox-layoffs-2023/",
@@ -2274,7 +2274,7 @@
       "displacement_events": [
         {
           "date": "2024-02-15",
-          "description": "DocuSign cuts 400 employees. AI contract analysis tools automate implementation teams.",
+          "description": "DocuSign cut 400 employees as AI contract analysis tools automated the implementation and configuration work previously done by professional services teams.",
           "headcount_impact": 400,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2024/02/15/docusign-layoffs.html",
@@ -2298,7 +2298,7 @@
       "displacement_events": [
         {
           "date": "2024-02-13",
-          "description": "Twilio cuts 500 employees. AI-powered engagement tools reduce manual solution engineering.",
+          "description": "Twilio cut 500 employees as AI-powered customer engagement tools replaced the manual solution engineering that made up much of its services business.",
           "headcount_impact": 500,
           "confidence_score": 3,
           "source_url": "https://www.theverge.com/2024/2/13/twilio-layoffs",
@@ -2322,7 +2322,7 @@
       "displacement_events": [
         {
           "date": "2024-02-06",
-          "description": "Zoom cuts 150 employees. AI meeting summaries reduce product support staff.",
+          "description": "Zoom cut another 150 employees as AI meeting summaries and automated scheduling continued to reduce product support headcount.",
           "headcount_impact": 150,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2024/02/06/zoom-layoffs.html",
@@ -2331,7 +2331,7 @@
         },
         {
           "date": "2023-02-07",
-          "description": "Zoom lays off 1,300 employees, 15% of workforce. CEO Eric Yuan takes 98% pay cut. Company shifts focus to AI-powered features.",
+          "description": "Zoom cut 1,300 employees \u2014 15% of its workforce \u2014 as AI meeting tools automated the product features that previously required human engineering teams.",
           "headcount_impact": 1300,
           "confidence_score": 4,
           "source_url": "https://www.cnbc.com/2023/02/07/zoom-to-lay-off-1300-employees.html",
@@ -2355,7 +2355,7 @@
       "displacement_events": [
         {
           "date": "2024-02-05",
-          "description": "Snap cuts 500 employees as AI content tools reduce creative production headcount.",
+          "description": "Snap cut 500 employees as AI-generated content tools and automated ad systems reduced the need for human creative production.",
           "headcount_impact": 500,
           "confidence_score": 3,
           "source_url": "https://www.theverge.com/2024/2/5/snap-layoffs",
@@ -2379,7 +2379,7 @@
       "displacement_events": [
         {
           "date": "2022-11-04",
-          "description": "Elon Musk lays off approximately 3,700 Twitter employees, roughly 50% of the workforce, immediately after completing acquisition.",
+          "description": "Elon Musk eliminated 3,700 roles \u2014 half of Twitter's workforce \u2014 within 48 hours of acquisition, then demonstrated the remaining employees could run the platform at the same scale.",
           "headcount_impact": 3700,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/twitter-start-layoffs-friday-morning-internal-email-2022-11-04/",
@@ -2403,7 +2403,7 @@
       "displacement_events": [
         {
           "date": "2023-02-09",
-          "description": "Yahoo lays off 1,600 employees, 20% of workforce, as part of restructuring to focus on AI-driven advertising technology.",
+          "description": "Yahoo cut 1,600 employees \u2014 20% of its workforce \u2014 as AI-driven advertising technology automated targeting, optimization, and content curation.",
           "headcount_impact": 1600,
           "confidence_score": 3,
           "source_url": "https://techcrunch.com/2023/02/09/yahoo-is-laying-off-20-of-staff/",
@@ -2427,7 +2427,7 @@
       "displacement_events": [
         {
           "date": "2024-01-10",
-          "description": "Twitch lays off approximately 500 employees, 35% of staff. Amazon-owned streaming platform cites AI-driven moderation and content tools.",
+          "description": "Twitch (Amazon-owned) cut 500 employees \u2014 35% of staff \u2014 as AI-driven content moderation and automated production tools replaced human operations.",
           "headcount_impact": 500,
           "confidence_score": 3,
           "source_url": "https://www.bloomberg.com/news/articles/2024-01-09/twitch-laying-off-more-than-500-employees",
@@ -2451,7 +2451,7 @@
       "displacement_events": [
         {
           "date": "2024-01-11",
-          "description": "Ubisoft lays off approximately 1,700 employees globally as part of restructuring. AI game development tools cited in cost reduction plans.",
+          "description": "Ubisoft cut 1,700 employees globally as AI game development tools \u2014 procedural generation, AI testing, automated QA \u2014 compressed production timelines.",
           "headcount_impact": 1700,
           "confidence_score": 3,
           "source_url": "https://www.reuters.com/technology/ubisoft-cut-1700-jobs-2024-01-11/",
@@ -2475,7 +2475,7 @@
       "displacement_events": [
         {
           "date": "2024-06-06",
-          "description": "Business Insider (Insider Inc) cuts 8% of staff as AI content tools and declining digital ad market compress editorial headcount.",
+          "description": "Business Insider cut 8% of staff as AI content tools and declining digital ad revenue compressed the economics of human-produced journalism.",
           "headcount_impact": 50,
           "confidence_score": 3,
           "source_url": "https://www.theguardian.com/media/article/2024/jun/06/business-insider-layoffs",
@@ -2499,7 +2499,7 @@
       "displacement_events": [
         {
           "date": "2024-08-01",
-          "description": "Intel announces 15,000 job cuts, more than 15% of workforce, as part of $10 billion cost-reduction plan. AI efficiency and competition cited.",
+          "description": "Intel eliminated 15,000 roles \u2014 15% of its global workforce \u2014 citing AI-driven efficiency across engineering, marketing, and operations as enabling the same output with far fewer people.",
           "headcount_impact": 15000,
           "confidence_score": 4,
           "source_url": "https://www.reuters.com/technology/intel-15000-job-cuts-2024-08-01/",
@@ -2523,7 +2523,7 @@
       "displacement_events": [
         {
           "date": "2025-02-11",
-          "description": "Mozilla lays off 30% of staff as AI browsing tools and search alternatives compress traditional browser company economics.",
+          "description": "Mozilla cut 30% of its staff as AI browsing tools and AI-powered search alternatives compressed traditional browser economics.",
           "headcount_impact": 120,
           "confidence_score": 3,
           "source_url": "https://www.theverge.com/2025/2/11/mozilla-layoffs",
@@ -2547,7 +2547,7 @@
       "displacement_events": [
         {
           "date": "2025-03-15",
-          "description": "Fiverr CEO Micha Kaufman sends internal memo warning that AI is replacing freelancer tasks on the platform at accelerating pace.",
+          "description": "Fiverr CEO Micha Kaufman warned in an internal memo that AI was replacing freelancer tasks on the platform at an accelerating pace \u2014 the gig economy being automated.",
           "headcount_impact": 0,
           "confidence_score": 3,
           "source_url": "https://fortune.com/2025/03/15/fiverr-ceo-ai-replacing-freelancers/",

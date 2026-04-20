@@ -256,6 +256,15 @@ svg text { user-select: none; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes cardFlash {
+  0%   { border-color: var(--amber); box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
+  100% { border-color: var(--border); box-shadow: none; }
+}
+
+.news-card-enter {
+  animation: fadeSlideUp 0.4s ease, cardFlash 2s ease;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 0.4; }
   50%      { opacity: 1; }

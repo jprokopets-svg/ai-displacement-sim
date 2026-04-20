@@ -145,6 +145,32 @@ def signals():
     return data
 
 
+@app.get("/api/news/latest")
+def news_latest(since: int = Query(0, description="Epoch milliseconds — return events after this timestamp")):
+    """Returns company displacement events added after the given timestamp.
+    Used by the frontend polling mechanism to detect new events."""
+    from datetime import datetime
+    companies = get_company_displacement()
+    since_date = datetime.fromtimestamp(since / 1000).strftime('%Y-%m-%d') if since > 0 else '2000-01-01'
+    new_events = []
+    for c in companies:
+        for ev in (c.get('displacement_events') or []):
+            if (ev.get('date') or '') > since_date:
+                new_events.append({
+                    'company': c.get('name'),
+                    'date': ev.get('date'),
+                    'headcount_impact': ev.get('headcount_impact'),
+                    'description': ev.get('description'),
+                })
+    total_new_jobs = sum(e.get('headcount_impact') or 0 for e in new_events)
+    return {
+        'events': new_events[:20],
+        'count': len(new_events),
+        'newJobsCount': total_new_jobs,
+        'timestamp': int(datetime.now().timestamp() * 1000),
+    }
+
+
 @app.get("/api/occupations/search")
 def occupation_search(q: str = Query(..., min_length=2, description="Search query")):
     """Search occupations by title."""
