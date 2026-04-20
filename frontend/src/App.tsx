@@ -39,6 +39,10 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('map')
   const [mapView, setMapView] = useState<MapView>('us')
   const [newsFilter, setNewsFilter] = useState<string | null>(null)
+  const [mobileBannerDismissed, setMobileBannerDismissed] = useState(
+    () => typeof sessionStorage !== 'undefined' && sessionStorage.getItem('mobileBannerDismissed') === 'true'
+  )
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   const [scenario, setScenario] = useState<ScenarioState>({
     year: 2025,
@@ -100,6 +104,26 @@ export default function App() {
 
   return (
     <>
+      {isMobile && !mobileBannerDismissed && (
+        <div style={{
+          background: '#1e293b', borderBottom: '1px solid #334155',
+          padding: '10px 16px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', fontSize: 13, color: '#94a3b8',
+          position: 'sticky', top: 0, zIndex: 1000,
+        }}>
+          <span>Best experienced on desktop.</span>
+          <button
+            onClick={() => { sessionStorage.setItem('mobileBannerDismissed', 'true'); setMobileBannerDismissed(true) }}
+            style={{
+              background: 'transparent', border: '1px solid #475569',
+              color: '#94a3b8', padding: '4px 10px', borderRadius: 4,
+              cursor: 'pointer', fontSize: 12,
+            }}
+          >
+            Continue anyway
+          </button>
+        </div>
+      )}
       <Header
         tab={tab}
         onTabChange={setTab}

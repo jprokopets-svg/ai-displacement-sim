@@ -105,26 +105,35 @@ export default function StoryPage() {
 
 // ---------- Section 1: The Opening ----------
 
+const ALL_TIME = { jobs: 452828, companies: 83, label: 'All time (2022–)' } as const
+const RECENT = { jobs: 79443, companies: 24, label: 'Last 18 months' } as const
+
 function Section1({ top10 }: { top10: CompanyEvent[] }) {
+  const [view, setView] = useState<'all' | 'recent'>('all')
+  const target = view === 'all' ? ALL_TIME.jobs : RECENT.jobs
+  const companiesCount = view === 'all' ? ALL_TIME.companies : RECENT.companies
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   useObserver(ref, setVisible)
 
+  // Animate counter on visible or view change
+  const prevTarget = useRef(0)
   useEffect(() => {
     if (!visible) return
+    const from = prevTarget.current
+    prevTarget.current = target
     const t0 = performance.now()
-    const target = 452828
-    const duration = 3000
+    const duration = from === 0 ? 3000 : 1000
     const id = setInterval(() => {
       const elapsed = performance.now() - t0
       const progress = Math.min(1, elapsed / duration)
       const eased = 1 - Math.pow(1 - progress, 3)
-      setCount(Math.floor(eased * target))
+      setCount(Math.floor(from + (target - from) * eased))
       if (progress >= 1) clearInterval(id)
     }, 30)
     return () => clearInterval(id)
-  }, [visible])
+  }, [visible, target])
 
   const maxHc = Math.max(...top10.map(c => c.total_headcount_impacted || 0), 1)
 
@@ -132,11 +141,39 @@ function Section1({ top10 }: { top10: CompanyEvent[] }) {
     <section ref={ref} style={sectionStyle}>
       <div style={{ ...fadeStyle(visible), maxWidth: 800, width: '100%', textAlign: 'center' }}>
         <h1 style={heroTitleStyle}>
-          {count > 0 ? count.toLocaleString() : '452,828'} jobs. 83 companies. 4 years.
+          {count > 0 ? count.toLocaleString() : ALL_TIME.jobs.toLocaleString()} jobs. {companiesCount} companies. {view === 'all' ? '4 years' : '18 months'}.
         </h1>
         <p style={heroSubStyle}>
           AI displacement isn't a future event. It's happening now, county by county, job by job.
         </p>
+        {view === 'all' && (
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 6 }}>
+            Including {RECENT.jobs.toLocaleString()} jobs in the last 18 months
+          </p>
+        )}
+        {view === 'recent' && (
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 6 }}>
+            {ALL_TIME.jobs.toLocaleString()} total documented since 2022
+          </p>
+        )}
+
+        {/* Toggle pills */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14 }}>
+          {(['recent', 'all'] as const).map(v => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              style={{
+                padding: '5px 14px', fontSize: 12, fontWeight: 500, borderRadius: 4, cursor: 'pointer',
+                background: view === v ? 'rgba(255,255,255,0.12)' : 'transparent',
+                color: view === v ? '#fff' : 'var(--text-muted)',
+                border: view === v ? '1px solid rgba(255,255,255,0.25)' : '1px solid transparent',
+              }}
+            >
+              {v === 'recent' ? RECENT.label : ALL_TIME.label}
+            </button>
+          ))}
+        </div>
 
         {/* Top 10 bar chart */}
         {top10.length > 0 && (

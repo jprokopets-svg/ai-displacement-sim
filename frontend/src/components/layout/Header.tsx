@@ -107,6 +107,9 @@ const navStyle: React.CSSProperties = {
   border: '1px solid var(--border)',
   borderRadius: 6,
   padding: 2,
+  overflowX: 'auto',
+  flexWrap: 'nowrap',
+  scrollbarWidth: 'none',
 }
 
 function tabButtonStyle(active: boolean): React.CSSProperties {
@@ -120,5 +123,6 @@ function tabButtonStyle(active: boolean): React.CSSProperties {
     border: 'none',
     transition: 'background var(--motion-fast), color var(--motion-fast)',
     whiteSpace: 'nowrap',
+    flexShrink: 0,
   }
 }

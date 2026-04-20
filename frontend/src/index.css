@@ -269,3 +269,40 @@ svg text { user-select: none; }
   0%, 100% { opacity: 0.4; }
   50%      { opacity: 1; }
 }
+
+/* ===== Mobile responsive ===== */
+@media (max-width: 768px) {
+  /* Tab bar: horizontal scroll */
+  nav[style] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+  }
+  nav[style]::-webkit-scrollbar { display: none; }
+  nav[style] button {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Three-column layout → vertical stack */
+  main[style] {
+    flex-direction: column !important;
+  }
+  main[style] > aside:first-of-type {
+    width: 100% !important;
+    max-height: 200px;
+    overflow-y: auto;
+    order: 1;
+  }
+  main[style] > section {
+    width: 100% !important;
+    order: 2;
+    min-height: 50vh;
+  }
+  main[style] > aside:last-of-type {
+    width: 100% !important;
+    order: 3;
+    max-height: none !important;
+  }
+}
