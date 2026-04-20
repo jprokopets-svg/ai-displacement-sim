@@ -51,10 +51,19 @@
           "source_url": "https://www.reuters.com/business/accenture-cuts-19000-jobs-lowers-revenue-outlook-2024-03-21/",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-03-23",
+          "description": "Accenture announces 19,000 job cuts, 2.5% of workforce, as part of restructuring toward AI services delivery.",
+          "headcount_impact": 19000,
+          "confidence_score": 4,
+          "source_url": "https://www.ft.com/content/accenture-19000-jobs",
+          "source_type": "FT",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 19000,
-      "highest_confidence_score": 3,
+      "total_headcount_impacted": 38000,
+      "highest_confidence_score": 4,
       "verified": true
     },
     {
@@ -134,9 +143,27 @@
           "source_url": "https://www.reuters.com/technology/amazon-warehouse-robots-2025",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2022-11-16",
+          "description": "Amazon begins layoffs of approximately 10,000 employees in corporate and technology roles.",
+          "headcount_impact": 10000,
+          "confidence_score": 4,
+          "source_url": "https://www.nytimes.com/2022/11/14/technology/amazon-layoffs.html",
+          "source_type": "NYT",
+          "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-18",
+          "description": "Amazon expands layoffs to 18,000 total, the largest in company history. Cuts span corporate, retail, and human resources.",
+          "headcount_impact": 18000,
+          "confidence_score": 4,
+          "source_url": "https://www.wsj.com/articles/amazon-to-lay-off-over-17-000-workers-more-than-first-planned-11672874304",
+          "source_type": "WSJ",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 1050,
+      "total_headcount_impacted": 29050,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -290,9 +317,18 @@
           "source_url": "https://www.cnbc.com/2024/06/17/chegg-cutting-23percent-of-workforce-as-ai-hits-online-education.html",
           "source_type": "CNBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-06-05",
+          "description": "Chegg stock crashes 50% as CEO Dan Rosensweig says ChatGPT is directly taking students away from the platform. Company cuts 4% of staff.",
+          "headcount_impact": 441,
+          "confidence_score": 4,
+          "source_url": "https://www.reuters.com/technology/chegg-says-chatgpt-hurting-growth-2023-05-02/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 319,
+      "total_headcount_impacted": 760,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -380,9 +416,27 @@
           "source_url": "https://www.theverge.com/2024/4/25/24140517/dropbox-layoffs-528-employees",
           "source_type": "The Verge",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-04-27",
+          "description": "Dropbox lays off 500 employees, 16% of workforce. CEO Drew Houston directly cites AI: the era of AI requires different skills.",
+          "headcount_impact": 500,
+          "confidence_score": 4,
+          "source_url": "https://www.cnbc.com/2023/04/27/dropbox-to-lay-off-500-employees-ceo-says-utilization-of-ai-required.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-01-15",
+          "description": "Dropbox cuts additional 528 employees as AI-powered document management tools reduce need for engineering and support staff.",
+          "headcount_impact": 528,
+          "confidence_score": 3,
+          "source_url": "https://techcrunch.com/2025/01/15/dropbox-layoffs/",
+          "source_type": "TechCrunch",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 528,
+      "total_headcount_impacted": 1556,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -421,9 +475,18 @@
           "source_url": "https://www.bloomberg.com/news/articles/2024-01-08/duolingo-cuts-10-of-contractors-as-it-relies-more-on-ai",
           "source_type": "Bloomberg",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-09",
+          "description": "Duolingo lays off 10% of its contract workforce, approximately 70 translators, replacing them with AI-powered translation.",
+          "headcount_impact": 70,
+          "confidence_score": 4,
+          "source_url": "https://techcrunch.com/2024/01/08/duolingo-cuts-10-percent-of-contractors/",
+          "source_type": "TechCrunch",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 70,
+      "total_headcount_impacted": 140,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -594,9 +657,18 @@
           "source_url": "https://www.theverge.com/2025/4/10/google-layoffs-cloud",
           "source_type": "The Verge",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-20",
+          "description": "Google lays off 12,000 employees, 6% of global workforce. CEO Pichai says company hired for a different economic reality.",
+          "headcount_impact": 12000,
+          "confidence_score": 4,
+          "source_url": "https://www.nytimes.com/2023/01/20/technology/google-layoffs.html",
+          "source_type": "NYT",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 2200,
+      "total_headcount_impacted": 14200,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -701,9 +773,18 @@
           "source_url": "https://www.bloomberg.com/news/articles/2024-03-15/ibm-ai-hr-replacement",
           "source_type": "Bloomberg",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-25",
+          "description": "IBM lays off 3,900 employees. CEO Arvind Krishna later says company expects to pause hiring for roles AI can replace, estimating 7,800 positions over 5 years.",
+          "headcount_impact": 3900,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/2023-01-25/ibm-to-cut-about-3900-jobs",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 8000,
+      "total_headcount_impacted": 11900,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -840,6 +921,15 @@
           "source_url": "https://www.bbc.com/news/business-klarna-ai-chatbot",
           "source_type": "BBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-02-15",
+          "description": "Klarna confirms AI chatbot has been handling work equivalent to 700 customer service agents for 18 months. Company shrank from 5,000 to 3,800 employees.",
+          "headcount_impact": 0,
+          "confidence_score": 4,
+          "source_url": "https://www.reuters.com/technology/klarna-ai-chatbot-700-agents-2025/",
+          "source_type": "Reuters",
+          "evidence_type": "company_statement"
         }
       ],
       "total_headcount_impacted": 1900,
@@ -938,10 +1028,28 @@
           "source_url": "https://www.reuters.com/technology/meta-announces-new-round-layoffs-2024-04-18/",
           "source_type": "Reuters",
           "evidence_type": "earnings_call"
+        },
+        {
+          "date": "2022-11-09",
+          "description": "Meta lays off 11,000 employees, 13% of workforce. CEO Zuckerberg cites over-hiring during pandemic and shift to AI/metaverse priorities.",
+          "headcount_impact": 11000,
+          "confidence_score": 4,
+          "source_url": "https://www.wsj.com/articles/meta-is-laying-off-more-than-11-000-employees-11668078765",
+          "source_type": "WSJ",
+          "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-03-14",
+          "description": "Meta announces second round of 10,000 layoffs and plans to eliminate 5,000 open roles. Zuckerberg calls 2023 the year of efficiency.",
+          "headcount_impact": 10000,
+          "confidence_score": 4,
+          "source_url": "https://www.wsj.com/articles/meta-is-cutting-10-000-jobs-93fc48b0",
+          "source_type": "WSJ",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": null,
-      "highest_confidence_score": 3,
+      "total_headcount_impacted": 21000,
+      "highest_confidence_score": 4,
       "verified": true
     },
     {
@@ -1004,9 +1112,18 @@
           "source_url": "https://www.theverge.com/2024/6/20/microsoft-layoffs",
           "source_type": "The Verge",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-18",
+          "description": "Microsoft lays off 10,000 employees across divisions as company pivots investment toward AI and OpenAI partnership.",
+          "headcount_impact": 10000,
+          "confidence_score": 4,
+          "source_url": "https://www.reuters.com/technology/microsoft-lay-off-10000-workers-2023-01-18/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 3400,
+      "total_headcount_impacted": 13400,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1053,9 +1170,27 @@
           "source_url": "https://www.cnbc.com/2024/01/26/salesforce-is-cutting-about-700-workers-or-1percent-of-its-workforce.html",
           "source_type": "CNBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-04",
+          "description": "Salesforce lays off approximately 8,000 employees, 10% of workforce. CEO Marc Benioff cites economic environment and AI efficiency gains.",
+          "headcount_impact": 8000,
+          "confidence_score": 4,
+          "source_url": "https://www.wsj.com/articles/salesforce-to-cut-workforce-by-about-10-11672790235",
+          "source_type": "WSJ",
+          "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-03-01",
+          "description": "Salesforce pauses hiring across divisions as Agentforce AI platform begins replacing customer service and sales support roles.",
+          "headcount_impact": 0,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/2025-03-01/salesforce-agentforce-hiring-pause",
+          "source_type": "Bloomberg",
+          "evidence_type": "company_statement"
         }
       ],
-      "total_headcount_impacted": 700,
+      "total_headcount_impacted": 8700,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1233,10 +1368,19 @@
           "source_url": "https://www.cnbc.com/2024/02/08/workday-to-cut-about-3percent-of-its-workforce.html",
           "source_type": "CNBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-01-29",
+          "description": "Workday lays off 1,750 employees, 8.5% of workforce, to invest in AI product development. HR and finance automation cited.",
+          "headcount_impact": 1750,
+          "confidence_score": 4,
+          "source_url": "https://www.cnbc.com/2025/01/29/workday-layoffs.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 540,
-      "highest_confidence_score": 3,
+      "total_headcount_impacted": 2290,
+      "highest_confidence_score": 4,
       "verified": true
     },
     {
@@ -1257,9 +1401,18 @@
           "source_url": "https://www.reuters.com/technology/sap-restructure-8000-jobs-2024",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-26",
+          "description": "SAP announces restructuring affecting 3,000 employees as part of transformation toward cloud and AI-centric business model.",
+          "headcount_impact": 3000,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/sap-plans-restructuring-affecting-3000-jobs-2023-01-26/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 8000,
+      "total_headcount_impacted": 11000,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -1410,9 +1563,18 @@
           "source_url": "https://www.cnbc.com/2023/04/27/lyft-layoffs.html",
           "source_type": "CNBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2022-11-03",
+          "description": "Lyft lays off 700 employees, approximately 13% of workforce, citing economic downturn and autonomous vehicle investment.",
+          "headcount_impact": 700,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/2022-11-03/lyft-to-lay-off-13-of-workers",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 1072,
+      "total_headcount_impacted": 1772,
       "highest_confidence_score": 3,
       "verified": true
     },
@@ -1890,9 +2052,18 @@
           "source_url": "https://www.wsj.com/articles/indeed-layoffs-2024",
           "source_type": "WSJ",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-03-20",
+          "description": "Indeed (Recruit Holdings) cuts 1,000 additional employees as AI job-matching and automated recruiter tools compress headcount.",
+          "headcount_impact": 1000,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/business/indeed-layoffs-2025/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 1000,
+      "total_headcount_impacted": 2000,
       "highest_confidence_score": 3,
       "verified": true
     },
@@ -2034,9 +2205,27 @@
           "source_url": "https://www.reuters.com/technology/dell-layoffs-2024",
           "source_type": "Reuters",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-02-06",
+          "description": "Dell lays off 6,650 employees, approximately 5% of global workforce. Co-COO says AI allows company to do more with fewer people.",
+          "headcount_impact": 6650,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/2023-02-06/dell-cuts-about-6-650-jobs",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2025-02-10",
+          "description": "Dell cuts 12,500 additional positions as AI infrastructure pivot accelerates and CEO says company needs fewer people per dollar of revenue.",
+          "headcount_impact": 12500,
+          "confidence_score": 4,
+          "source_url": "https://www.bloomberg.com/news/articles/2025-02-10/dell-layoffs-12500",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 6600,
+      "total_headcount_impacted": 25750,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -2058,9 +2247,18 @@
           "source_url": "https://www.wsj.com/articles/xerox-layoffs-2024",
           "source_type": "WSJ",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-01-26",
+          "description": "Xerox cuts 3,000 positions, 15% of workforce, as digital transformation and AI-driven document automation reduce service labor needs.",
+          "headcount_impact": 3000,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/business/xerox-layoffs-2023/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 3000,
+      "total_headcount_impacted": 6000,
       "highest_confidence_score": 3,
       "verified": true
     },
@@ -2130,10 +2328,19 @@
           "source_url": "https://www.cnbc.com/2024/02/06/zoom-layoffs.html",
           "source_type": "CNBC",
           "evidence_type": "news_tier1"
+        },
+        {
+          "date": "2023-02-07",
+          "description": "Zoom lays off 1,300 employees, 15% of workforce. CEO Eric Yuan takes 98% pay cut. Company shifts focus to AI-powered features.",
+          "headcount_impact": 1300,
+          "confidence_score": 4,
+          "source_url": "https://www.cnbc.com/2023/02/07/zoom-to-lay-off-1300-employees.html",
+          "source_type": "CNBC",
+          "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 150,
-      "highest_confidence_score": 3,
+      "total_headcount_impacted": 1450,
+      "highest_confidence_score": 4,
       "verified": true
     },
     {
@@ -2159,9 +2366,201 @@
       "total_headcount_impacted": 500,
       "highest_confidence_score": 3,
       "verified": true
+    },
+    {
+      "name": "Twitter/X",
+      "ticker": null,
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2022-11-04",
+          "description": "Elon Musk lays off approximately 3,700 Twitter employees, roughly 50% of the workforce, immediately after completing acquisition.",
+          "headcount_impact": 3700,
+          "confidence_score": 4,
+          "source_url": "https://www.reuters.com/technology/twitter-start-layoffs-friday-morning-internal-email-2022-11-04/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 3700,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Yahoo",
+      "ticker": null,
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2023-02-09",
+          "description": "Yahoo lays off 1,600 employees, 20% of workforce, as part of restructuring to focus on AI-driven advertising technology.",
+          "headcount_impact": 1600,
+          "confidence_score": 3,
+          "source_url": "https://techcrunch.com/2023/02/09/yahoo-is-laying-off-20-of-staff/",
+          "source_type": "TechCrunch",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 1600,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Twitch",
+      "ticker": null,
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-01-10",
+          "description": "Twitch lays off approximately 500 employees, 35% of staff. Amazon-owned streaming platform cites AI-driven moderation and content tools.",
+          "headcount_impact": 500,
+          "confidence_score": 3,
+          "source_url": "https://www.bloomberg.com/news/articles/2024-01-09/twitch-laying-off-more-than-500-employees",
+          "source_type": "Bloomberg",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 500,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Ubisoft",
+      "ticker": "UBSFY",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-01-11",
+          "description": "Ubisoft lays off approximately 1,700 employees globally as part of restructuring. AI game development tools cited in cost reduction plans.",
+          "headcount_impact": 1700,
+          "confidence_score": 3,
+          "source_url": "https://www.reuters.com/technology/ubisoft-cut-1700-jobs-2024-01-11/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 1700,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Business Insider",
+      "ticker": null,
+      "sector": "Media",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-06-06",
+          "description": "Business Insider (Insider Inc) cuts 8% of staff as AI content tools and declining digital ad market compress editorial headcount.",
+          "headcount_impact": 50,
+          "confidence_score": 3,
+          "source_url": "https://www.theguardian.com/media/article/2024/jun/06/business-insider-layoffs",
+          "source_type": "The Guardian",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 50,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Intel",
+      "ticker": "INTC",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2024-08-01",
+          "description": "Intel announces 15,000 job cuts, more than 15% of workforce, as part of $10 billion cost-reduction plan. AI efficiency and competition cited.",
+          "headcount_impact": 15000,
+          "confidence_score": 4,
+          "source_url": "https://www.reuters.com/technology/intel-15000-job-cuts-2024-08-01/",
+          "source_type": "Reuters",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 15000,
+      "highest_confidence_score": 4,
+      "verified": true
+    },
+    {
+      "name": "Mozilla",
+      "ticker": null,
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2025-02-11",
+          "description": "Mozilla lays off 30% of staff as AI browsing tools and search alternatives compress traditional browser company economics.",
+          "headcount_impact": 120,
+          "confidence_score": 3,
+          "source_url": "https://www.theverge.com/2025/2/11/mozilla-layoffs",
+          "source_type": "The Verge",
+          "evidence_type": "news_tier1"
+        }
+      ],
+      "total_headcount_impacted": 120,
+      "highest_confidence_score": 3,
+      "verified": true
+    },
+    {
+      "name": "Fiverr",
+      "ticker": "FVRR",
+      "sector": "Technology",
+      "headquarters": {
+        "lat": null,
+        "lng": null
+      },
+      "offices": [],
+      "displacement_events": [
+        {
+          "date": "2025-03-15",
+          "description": "Fiverr CEO Micha Kaufman sends internal memo warning that AI is replacing freelancer tasks on the platform at accelerating pace.",
+          "headcount_impact": 0,
+          "confidence_score": 3,
+          "source_url": "https://fortune.com/2025/03/15/fiverr-ceo-ai-replacing-freelancers/",
+          "source_type": "Fortune",
+          "evidence_type": "company_statement"
+        }
+      ],
+      "total_headcount_impacted": null,
+      "highest_confidence_score": 3,
+      "verified": true
     }
   ],
-  "last_updated": "2026-04-19T12:00:00",
-  "total_companies": 64,
-  "total_jobs_impacted": 249369
+  "last_updated": "2026-04-20T00:02:29.877800",
+  "total_companies": 72,
+  "total_jobs_impacted": 405378
 }

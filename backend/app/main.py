@@ -35,6 +35,18 @@ app = FastAPI(
     version="0.1.0",
 )
 
+
+@app.on_event("startup")
+def _startup():
+    """Run initial signal fetch and start scheduler on deploy."""
+    import logging
+    try:
+        from .news_fetcher import fetch_live_signals, start_signal_scheduler
+        fetch_live_signals()
+        start_signal_scheduler()
+    except Exception as e:
+        logging.warning(f"Signal fetcher startup failed (non-fatal): {e}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://localhost:5173", "https://*.vercel.app"],
@@ -89,11 +101,24 @@ def company_data():
 
 @app.get("/api/signals")
 def signals():
-    """Top pending items from the scraper pipeline.
-    Tries live scraper DB first, falls back to static snapshot."""
+    """Live news signals from NewsAPI + scraper fallback.
+    Layer 1: NewsAPI live fetch (cached in signals.json).
+    Layer 2: Static scraper snapshot fallback."""
     import sqlite3
     import logging
+    import os
 
+    # Try live NewsAPI signals first
+    signals_cache = Path(__file__).parent.parent / "data" / "signals_live.json"
+    if signals_cache.exists():
+        try:
+            data = _json.loads(signals_cache.read_text())
+            if data.get("signals") and len(data["signals"]) > 0:
+                return data
+        except Exception:
+            pass
+
+    # Try scraper DB
     scraper_db = Path.home() / "projects" / "ai-displacement-scraper" / "data" / "companies.db"
     if scraper_db.exists():
         try:
