@@ -17,6 +17,25 @@ const DC_METRO_FIPS = new Set([
 // States to render on slide 3 zoomed map (VA, MD, DC, DE, PA, WV)
 const DC_REGION_STATES = new Set(['51', '24', '11', '10', '42', '54'])
 
+// FIPS state code → abbreviation (only the ones we need for top rankings)
+const STATE_ABBR: Record<string, string> = {
+  '01':'AL','02':'AK','04':'AZ','05':'AR','06':'CA','08':'CO','09':'CT',
+  '10':'DE','11':'DC','12':'FL','13':'GA','15':'HI','16':'ID','17':'IL',
+  '18':'IN','19':'IA','20':'KS','21':'KY','22':'LA','23':'ME','24':'MD',
+  '25':'MA','26':'MI','27':'MN','28':'MS','29':'MO','30':'MT','31':'NE',
+  '32':'NV','33':'NH','34':'NJ','35':'NM','36':'NY','37':'NC','38':'ND',
+  '39':'OH','40':'OK','41':'OR','42':'PA','44':'RI','45':'SC','46':'SD',
+  '47':'TN','48':'TX','49':'UT','50':'VT','51':'VA','53':'WA','54':'WV',
+  '55':'WI','56':'WY',
+}
+
+function countyDisplayName(c: CountyData): string {
+  if (c.county_fips === '11001') return 'District of Columbia'
+  const stateCode = c.county_fips.slice(0, 2)
+  const abbr = STATE_ABBR[stateCode]
+  return abbr ? `${c.county_name}, ${abbr}` : c.county_name
+}
+
 interface CountyData {
   county_fips: string
   county_name: string
@@ -284,7 +303,7 @@ function Section3({ counties, top5 }: { counties: CountyData[]; top5: CountyData
         <div style={{ maxWidth: 440, margin: '0 auto' }}>
           {top5.map(c => (
             <div key={c.county_fips} style={dcRowStyle}>
-              <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{c.county_name}</span>
+              <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{countyDisplayName(c)}</span>
               <span className="data-value" style={{
                 fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 500,
                 color: getExposureColor(c.exposure_percentile),
