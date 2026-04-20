@@ -21,6 +21,7 @@ interface CountyData {
   county_fips: string
   county_name: string
   ai_exposure_score: number
+  total_employment: number
   exposure_percentile: number
 }
 
@@ -48,9 +49,12 @@ export default function StoryPage() {
       .catch(() => {})
   }, [])
 
-  // Top 5 counties by composite score from live data
+  // Top 5 counties by composite score — filtered to 100K+ employment
+  // to exclude tiny counties with volatile scores. Same threshold as
+  // the right panel's "Most Exposed Counties" list.
+  const MIN_RANKING_EMPLOYMENT = 100_000
   const top5Counties = counties
-    .filter(c => c.ai_exposure_score > 0)
+    .filter(c => c.ai_exposure_score > 0 && c.total_employment >= MIN_RANKING_EMPLOYMENT)
     .sort((a, b) => b.ai_exposure_score - a.ai_exposure_score)
     .slice(0, 5)
 

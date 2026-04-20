@@ -158,8 +158,8 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               borderTop: '1px solid var(--border)',
               lineHeight: 1.4,
             }}>
-              High scores reflect tech / defense / professional-services
-              sector concentration.
+              Counties under 100,000 workers excluded from rankings due to
+              small-sample score volatility. All counties appear on the map.
             </div>
           </>
         ) : (
