@@ -38,12 +38,14 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
         </label>
         <InfoTip text="Projection year. Near-term uses deployment evidence. Long-term uses scenario modeling with wider uncertainty." />
       </div>
-      <input
-        type="range" min="2025" max="2040" step="1"
-        value={state.year}
-        onChange={e => onChange({ year: +e.target.value })}
-        style={{ width: '100%' }}
-      />
+      <div style={sliderWrapStyle}>
+        <input
+          type="range" min="2025" max="2040" step="1"
+          value={state.year}
+          onChange={e => onChange({ year: +e.target.value })}
+          style={{ width: '100%' }}
+        />
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <label style={{ ...labelStyle, marginBottom: 0 }}>
@@ -51,7 +53,7 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
         </label>
         <InfoTip text="How aggressively AI displacement accelerates itself. Left = Goldman Sachs gradual baseline. Right = full self-reinforcing cascade." />
       </div>
-      <div style={{ position: 'relative' }}>
+      <div style={{ ...sliderWrapStyle, position: 'relative' }}>
         <input
           type="range" min="0" max="1" step="0.05"
           value={state.feedbackAggressiveness}
@@ -282,6 +284,10 @@ function ToggleControl({ label, checked, onChange }: {
       {label}
     </label>
   )
+}
+
+const sliderWrapStyle: React.CSSProperties = {
+  padding: '0 8px',
 }
 
 const labelStyle: React.CSSProperties = {

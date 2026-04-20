@@ -152,6 +152,15 @@ input[type="range"] {
   border-radius: 2px;
   outline: none;
   cursor: pointer;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -163,9 +172,16 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--accent);
   border: 2px solid var(--bg-primary);
   cursor: pointer;
+  margin-top: -5px;
   transition: transform var(--motion-fast);
 }
 input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  border: none;
+}
 input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 14px;
@@ -173,6 +189,7 @@ input[type="range"]::-moz-range-thumb {
   background: var(--accent);
   border: 2px solid var(--bg-primary);
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 input[type="checkbox"] {

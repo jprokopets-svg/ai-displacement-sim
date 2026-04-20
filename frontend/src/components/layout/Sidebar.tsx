@@ -22,7 +22,7 @@ export default function Sidebar({ children, width }: Props) {
       transition: 'width 0.2s ease',
       position: 'relative',
     }}>
-      {!collapsed && <div style={{ overflow: 'hidden', height: '100%', overflowY: 'auto' }}>{children}</div>}
+      {!collapsed && <div style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>{children}</div>}
       <button
         onClick={() => setCollapsed(c => !c)}
         style={{

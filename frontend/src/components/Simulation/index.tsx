@@ -320,12 +320,14 @@ function Slider({ label, hint, min, max, step, value, onChange, displayValue }: 
           {displayValue}
         </span>
       </div>
-      <input
-        type="range" min={min} max={max} step={step}
-        value={value}
-        onChange={e => onChange(Number(e.target.value))}
-        style={{ width: '100%' }}
-      />
+      <div style={{ padding: '0 8px' }}>
+        <input
+          type="range" min={min} max={max} step={step}
+          value={value}
+          onChange={e => onChange(Number(e.target.value))}
+          style={{ width: '100%' }}
+        />
+      </div>
       {hint && <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{hint}</div>}
     </div>
   )
@@ -344,7 +346,7 @@ function PinnedSlider(props: Parameters<typeof Slider>[0] & { pin: { at: number;
           {rest.displayValue}
         </span>
       </div>
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', padding: '0 8px' }}>
         <input
           type="range" min={rest.min} max={rest.max} step={rest.step}
           value={rest.value}
