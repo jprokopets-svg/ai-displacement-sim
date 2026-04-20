@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Analytics } from '@vercel/analytics/react'
 import App from './App'
 import EmbedPage from './components/EmbedPage'
 import StoryPage from './components/StoryPage'
@@ -25,5 +26,6 @@ function Root() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Root />
+    <Analytics />
   </StrictMode>,
 )
