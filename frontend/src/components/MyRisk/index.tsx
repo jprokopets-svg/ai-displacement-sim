@@ -407,7 +407,7 @@ function OutputScreen({ answers, risk }: {
     probability: risk.probability,
     timelineLabel: risk.timelineLabel,
     countyName: answers.countyName,
-    siteUrl: 'ai-displacement-sim-4x9g.vercel.app',
+    siteUrl: 'yourjobrisk.com',
   }
 
   const copyShare = async () => {
@@ -699,7 +699,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function EmbedSection() {
   const [show, setShow] = useState(false)
   const [embedCopied, setEmbedCopied] = useState(false)
-  const iframeCode = '<iframe src="https://ai-displacement-sim-4x9g.vercel.app/embed" width="600" height="800" frameborder="0"></iframe>'
+  const iframeCode = '<iframe src="https://yourjobrisk.com/embed" width="600" height="800" frameborder="0"></iframe>'
 
   const copyEmbed = async () => {
     try {

@@ -7,7 +7,7 @@ export default function EmbedPage() {
       <MyRisk companyData={[]} />
       <footer style={footerStyle}>
         <a
-          href="https://ai-displacement-sim-4x9g.vercel.app"
+          href="https://yourjobrisk.com"
           target="_blank"
           rel="noopener noreferrer"
           style={linkStyle}

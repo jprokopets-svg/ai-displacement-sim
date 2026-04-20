@@ -290,7 +290,7 @@ export default function CareerOutlook() {
           <div style={{ marginTop: 18, textAlign: 'center' }}>
             <button
               onClick={async () => {
-                const text = `I checked the job market for ${selected.occupation_title} in ${gradYear}. The outlook is ${temperature}. ${TEMP_META[temperature].label}. Check yours: https://ai-displacement-sim-4x9g.vercel.app`
+                const text = `I checked the job market for ${selected.occupation_title} in ${gradYear}. The outlook is ${temperature}. ${TEMP_META[temperature].label}. Check yours: https://yourjobrisk.com`
                 try {
                   await navigator.clipboard.writeText(text)
                   setCopied(true); setTimeout(() => setCopied(false), 2000)

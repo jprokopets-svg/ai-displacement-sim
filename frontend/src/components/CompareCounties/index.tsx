@@ -60,7 +60,7 @@ export default function CompareCounties({
     if (!a || !b) return
     const scoreA = Math.round(a.ai_exposure_score * 100)
     const scoreB = Math.round(b.ai_exposure_score * 100)
-    const txt = `I compared ${shortName(a)} vs ${shortName(b)} on the AI Displacement Simulator. ${scoreA}% vs ${scoreB}% displacement risk by ${scenario.year}. See the full comparison: https://ai-displacement-sim-4x9g.vercel.app`
+    const txt = `I compared ${shortName(a)} vs ${shortName(b)} on the AI Displacement Simulator. ${scoreA}% vs ${scoreB}% displacement risk by ${scenario.year}. See the full comparison: https://yourjobrisk.com`
     try {
       await navigator.clipboard.writeText(txt)
       setCopied(true)
