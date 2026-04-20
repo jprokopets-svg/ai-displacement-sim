@@ -283,7 +283,7 @@ function CountyPanel({
               {(county.ai_exposure_score * 100).toFixed(0)}
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-              p{Math.round(county.exposure_percentile)} · Confidence {uncertainty.confidencePct}% · {bandInfo.label}
+              p{Math.round(county.exposure_percentile)} · {bandInfo.label}
             </div>
           </div>
 

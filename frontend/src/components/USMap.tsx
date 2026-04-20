@@ -433,9 +433,8 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
           fontSize: 18, fontWeight: 700,
           color: bandInfo.color,
         }}>
-          {uncertainty.confidencePct}%
+          {bandInfo.label}
         </div>
-        <div style={{ color: bandInfo.color, fontSize: 10 }}>{bandInfo.label}</div>
       </div>
 
       <svg

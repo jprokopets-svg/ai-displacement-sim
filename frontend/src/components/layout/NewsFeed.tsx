@@ -227,6 +227,14 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
         </FilterGroup>
       </div>
 
+      {/* Methodology note */}
+      <div style={{ fontSize: 11, color: 'var(--text-dim)', fontStyle: 'italic', lineHeight: 1.5, marginBottom: 12 }}>
+        Inclusion criteria: workforce reductions where the employer or credible reporting explicitly attributes the reduction to AI automation, AI efficiency, or AI tool deployment. General restructuring without explicit AI attribution is excluded. Source links provided for every event.
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 16 }}>
+        Last verified: {new Date().toISOString().slice(0, 10)}. {items.length} events, {new Set(items.map(i => i.company)).size} companies, {totalRoles.toLocaleString()} jobs documented.
+      </div>
+
       {/* Verified events */}
       {items.length === 0 ? (
         <div style={emptyStyle}>No events match the current filter.</div>

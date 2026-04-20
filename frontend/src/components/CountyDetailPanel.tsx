@@ -91,7 +91,7 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
             <span>{formatExposure(ciLower)}</span>
             <span style={{ color: bandInfo.color }}>
-              {Math.round(uncertainty.confidencePct)}% CI
+              {bandInfo.label}
             </span>
             <span>{formatExposure(ciUpper)}</span>
           </div>

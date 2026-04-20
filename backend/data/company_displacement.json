@@ -44,15 +44,6 @@
       ],
       "displacement_events": [
         {
-          "date": "2024-03-21",
-          "description": "Accenture cut 19,000 roles in its second major restructuring, explicitly stating AI services delivery would replace the consulting functions those employees performed.",
-          "headcount_impact": 19000,
-          "confidence_score": 3,
-          "source_url": "https://www.reuters.com/business/accenture-cuts-19000-jobs-lowers-revenue-outlook-2024-03-21/",
-          "source_type": "Reuters",
-          "evidence_type": "news_tier1"
-        },
-        {
           "date": "2023-03-23",
           "description": "Accenture announced 19,000 job cuts while explicitly stating AI would handle the work those roles previously performed \u2014 the largest professional services AI displacement on record.",
           "headcount_impact": 19000,
@@ -62,7 +53,7 @@
           "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 38000,
+      "total_headcount_impacted": 19000,
       "highest_confidence_score": 4,
       "verified": true
     },
@@ -146,7 +137,7 @@
         },
         {
           "date": "2022-11-16",
-          "description": "Amazon began cutting 10,000 corporate and technology roles \u2014 the opening wave of what became the largest tech layoff cycle in history.",
+          "description": "Amazon began cutting 10,000 corporate and technology roles \u2014 the opening wave of what became the largest tech layoff cycle, driven by AI-enabled productivity gains and warehouse automation investment.",
           "headcount_impact": 10000,
           "confidence_score": 4,
           "source_url": "https://www.nytimes.com/2022/11/14/technology/amazon-layoffs.html",
@@ -213,7 +204,7 @@
       "displacement_events": [
         {
           "date": "2024-04-04",
-          "description": "Aurora launched commercial driverless truck operations \u2014 the first autonomous freight service running without human safety drivers on public highways.",
+          "description": "Aurora launched commercial autonomous truck operations \u2014 AI-powered driverless freight running without human safety drivers on public highways, directly displacing trucking jobs.",
           "headcount_impact": null,
           "confidence_score": 4,
           "source_url": "https://aurora.tech/blog/aurora-driver-launches-commercially",
@@ -237,15 +228,15 @@
       "displacement_events": [
         {
           "date": "2023-05-18",
-          "description": "BT Group announced 55,000 job cuts by 2030 \u2014 with up to a fifth replaced by AI \u2014 the largest AI displacement announcement in European telecom history.",
-          "headcount_impact": 55000,
+          "description": "BT Group announced 55,000 total job cuts by 2030, with up to 11,000 explicitly attributed to AI replacement \u2014 the largest AI-specific displacement announcement in European telecom history.",
+          "headcount_impact": 11000,
           "confidence_score": 3,
           "source_url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE5UbHhBWjEzYWZaazhNSHVLYjZ3YVdsMC1RNDZvTWs4djBMVlRSakhzN3B0U0dtTDh0UGVlVHprMTlJUVRkT2llTlNGTHFfOG9fbzJLNEJzSQ?oc=5",
           "source_type": "BBC",
           "evidence_type": "news_tier1"
         }
       ],
-      "total_headcount_impacted": 55000,
+      "total_headcount_impacted": 11000,
       "highest_confidence_score": 3,
       "verified": true
     },
@@ -506,96 +497,6 @@
       ],
       "total_headcount_impacted": 140,
       "highest_confidence_score": 4,
-      "verified": true
-    },
-    {
-      "name": "Ford",
-      "ticker": "F",
-      "sector": "Automotive",
-      "headquarters": {
-        "lat": 42.3122,
-        "lng": -83.2146
-      },
-      "offices": [
-        {
-          "city": "Dearborn",
-          "state": "MI",
-          "country": "US",
-          "lat": 42.3122,
-          "lng": -83.2146,
-          "employee_count": 30000
-        },
-        {
-          "city": "Palo Alto",
-          "state": "CA",
-          "country": "US",
-          "lat": 37.4445,
-          "lng": -122.162,
-          "employee_count": 500
-        }
-      ],
-      "displacement_events": [
-        {
-          "date": "2023-11-20",
-          "description": "Ford cut 3,000 positions while investing $3.5 billion in AI-powered electric vehicle manufacturing \u2014 replacing assembly workers with robotic production lines.",
-          "headcount_impact": 3000,
-          "confidence_score": 3,
-          "source_url": "https://www.cnbc.com/2023/11/20/ford-layoffs-ev-transition.html",
-          "source_type": "CNBC",
-          "evidence_type": "news_tier1"
-        }
-      ],
-      "total_headcount_impacted": 3000,
-      "highest_confidence_score": 3,
-      "verified": true
-    },
-    {
-      "name": "Goldman Sachs",
-      "ticker": "GS",
-      "sector": "Financial Services",
-      "headquarters": {
-        "lat": 40.7146,
-        "lng": -74.0071
-      },
-      "offices": [
-        {
-          "city": "New York",
-          "state": "NY",
-          "country": "US",
-          "lat": 40.7146,
-          "lng": -74.0071,
-          "employee_count": 12000
-        },
-        {
-          "city": "Salt Lake City",
-          "state": "UT",
-          "country": "US",
-          "lat": 40.7608,
-          "lng": -111.891,
-          "employee_count": 3000
-        },
-        {
-          "city": "Dallas",
-          "state": "TX",
-          "country": "US",
-          "lat": 32.7767,
-          "lng": -96.797,
-          "employee_count": 2500
-        }
-      ],
-      "displacement_events": [
-        {
-          "date": "2024-03-27",
-          "description": "Goldman Sachs announced AI would automate significant portions of its research and analysis functions \u2014 the bank that defined Wall Street began replacing analysts with models.",
-          "headcount_impact": null,
-          "confidence_score": 3,
-          "source_url": "https://www.goldmansachs.com/insights/articles/generative-ai-could-raise-global-gdp-by-7-percent",
-          "source_type": "Goldman Sachs Research",
-          "evidence_type": "earnings_call"
-        }
-      ],
-      "total_headcount_impacted": null,
-      "highest_confidence_score": 3,
       "verified": true
     },
     {
@@ -1019,7 +920,7 @@
       "displacement_events": [
         {
           "date": "2024-06-19",
-          "description": "Kodiak expanded autonomous trucking operations on the Dallas-Houston corridor \u2014 commercially operating driverless trucks directly replacing human truckers.",
+          "description": "Kodiak expanded AI-powered autonomous trucking operations on the Dallas-Houston corridor \u2014 commercially replacing human truck drivers with self-driving systems.",
           "headcount_impact": null,
           "confidence_score": 3,
           "source_url": "https://kodiak.ai/news/kodiak-expands-autonomous-trucking",
@@ -1683,7 +1584,7 @@
       "displacement_events": [
         {
           "date": "2023-04-27",
-          "description": "Lyft cut another 1,072 employees \u2014 26% of workforce \u2014 as autonomous vehicle partnerships signaled the long-term replacement of its driver network.",
+          "description": "Lyft cut 1,072 employees \u2014 26% of workforce \u2014 as AI autonomous vehicle partnerships signaled the long-term automation of its driver network.",
           "headcount_impact": 1072,
           "confidence_score": 3,
           "source_url": "https://www.cnbc.com/2023/04/27/lyft-layoffs.html",
@@ -1692,7 +1593,7 @@
         },
         {
           "date": "2022-11-03",
-          "description": "Lyft cut 700 employees citing economic pressure and autonomous vehicle investment \u2014 the ride-sharing company began positioning for a future without human drivers.",
+          "description": "Lyft cut 700 employees citing economic pressure and investment in AI-powered autonomous vehicle technology \u2014 positioning for automated ride-sharing.",
           "headcount_impact": 700,
           "confidence_score": 3,
           "source_url": "https://www.bloomberg.com/news/articles/2022-11-03/lyft-to-lay-off-13-of-workers",
@@ -1942,30 +1843,6 @@
       ],
       "total_headcount_impacted": 1600,
       "highest_confidence_score": 3,
-      "verified": true
-    },
-    {
-      "name": "HSBC",
-      "ticker": "HSBC",
-      "sector": "Finance",
-      "headquarters": {
-        "lat": null,
-        "lng": null
-      },
-      "offices": [],
-      "displacement_events": [
-        {
-          "date": "2024-02-21",
-          "description": "HSBC announced 35,000 job cuts globally \u2014 the single largest bank restructuring driven by AI automation of compliance, trade processing, and customer service.",
-          "headcount_impact": 35000,
-          "confidence_score": 4,
-          "source_url": "https://www.ft.com/content/hsbc-layoffs-35000-2024",
-          "source_type": "FT",
-          "evidence_type": "news_tier1"
-        }
-      ],
-      "total_headcount_impacted": 35000,
-      "highest_confidence_score": 4,
       "verified": true
     },
     {
@@ -2722,54 +2599,6 @@
       "verified": true
     },
     {
-      "name": "Shopify",
-      "ticker": "SHOP",
-      "sector": "Technology",
-      "headquarters": {
-        "lat": null,
-        "lng": null
-      },
-      "offices": [],
-      "displacement_events": [
-        {
-          "date": "2025-04-07",
-          "description": "Shopify CEO Tobi Lutke announced employees must prove AI cannot do their job before any new hire is approved \u2014 effectively freezing most hiring company-wide.",
-          "headcount_impact": 0,
-          "confidence_score": 4,
-          "source_url": "https://www.theverge.com/shopify-ai-hiring-freeze-2025",
-          "source_type": "The Verge",
-          "evidence_type": "company_statement"
-        }
-      ],
-      "total_headcount_impacted": null,
-      "highest_confidence_score": 4,
-      "verified": true
-    },
-    {
-      "name": "Anthropic",
-      "ticker": null,
-      "sector": "Technology",
-      "headquarters": {
-        "lat": null,
-        "lng": null
-      },
-      "offices": [],
-      "displacement_events": [
-        {
-          "date": "2025-03-01",
-          "description": "Anthropic CEO Dario Amodei stated AI could eliminate half of all entry-level white-collar jobs within five years \u2014 the starkest prediction from any major AI CEO.",
-          "headcount_impact": 0,
-          "confidence_score": 4,
-          "source_url": "https://www.axios.com/anthropic-dario-amodei-jobs",
-          "source_type": "Axios",
-          "evidence_type": "company_statement"
-        }
-      ],
-      "total_headcount_impacted": null,
-      "highest_confidence_score": 4,
-      "verified": true
-    },
-    {
       "name": "Zendesk",
       "ticker": null,
       "sector": "Technology",
@@ -2986,7 +2815,7 @@
       "verified": true
     }
   ],
-  "last_updated": "2026-04-20T12:01:54.716217",
-  "total_companies": 83,
-  "total_jobs_impacted": 452828
+  "last_updated": "2026-04-20T13:21:10.097676",
+  "total_companies": 78,
+  "total_jobs_impacted": 351828
 }

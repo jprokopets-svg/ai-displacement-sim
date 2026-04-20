@@ -105,8 +105,8 @@ export default function StoryPage() {
 
 // ---------- Section 1: The Opening ----------
 
-const ALL_TIME = { jobs: 452828, companies: 83, label: 'All time (2022–)' } as const
-const RECENT = { jobs: 79443, companies: 24, label: 'Last 18 months' } as const
+const ALL_TIME = { jobs: 351828, companies: 78, label: 'All time (2022–)' } as const
+const RECENT = { jobs: 79443, companies: 22, label: 'Last 18 months' } as const
 
 function Section1({ top10 }: { top10: CompanyEvent[] }) {
   const [view, setView] = useState<'all' | 'recent'>('all')
@@ -349,6 +349,9 @@ function Section3({ counties, top5 }: { counties: CountyData[]; top5: CountyData
               </span>
             </div>
           ))}
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', fontStyle: 'italic', marginTop: 12, maxWidth: 440, margin: '12px auto 0' }}>
+            Multiple other Northern Virginia and Maryland counties also score 59. The geographic pattern is consistent across the DC corridor.
+          </div>
         </div>
       </div>
     </section>
