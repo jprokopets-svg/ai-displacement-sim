@@ -105,7 +105,7 @@ export function runMonteCarlo(p: SimParams, seed = 20260101): SimulationResult {
   const curveMid = 2030 + (1 - p.aiAdoptionPace / 100) * 5  // 2030-2035
   const curveSteepness = 0.5 + (p.aiAdoptionPace / 100) * 1.1  // shallower → steeper
   const pressureMult = 1 + (p.businessPressure / 100 - 0.5) * 0.45
-  const wealthEffect = (p.wealthConcentration / 100 - 0.3) * 0.10
+  const wealthEffect = (p.wealthConcentration / 100 - 0.3) * 0.02
   const profitMod = p.corporateProfit === 'surge' ? 0.90
     : p.corporateProfit === 'decline' ? 1.18 : 1.0
   const fedOffset = p.fedResponse === 'cut' ? -0.025
@@ -128,14 +128,15 @@ export function runMonteCarlo(p: SimParams, seed = 20260101): SimulationResult {
       const year = YEAR_START + i
       const t = year - YEAR_START
 
-      // S-curve adoption
+      // S-curve adoption — logistic gives 0-1, scaled by 0.28 so the adoption
+      // channel alone maxes at ~28% displacement. Other channels add on top.
       const logistic = 1 / (1 + Math.exp(-(year - curveMid - adoptionOffset) * curveSteepness))
 
-      // Agentic emergence boost
-      const agentic = year >= p.agenticYear ? Math.min(0.35, (year - p.agenticYear) * 0.065) : 0
+      // Agentic emergence boost — additive, capped at +12% over ~7 years
+      const agentic = year >= p.agenticYear ? Math.min(0.12, (year - p.agenticYear) * 0.018) : 0
 
-      // Base displacement
-      let disp = logistic * 0.75 * pressureMult * profitMod + agentic + wealthEffect
+      // Base displacement — adoption + agentic + wealth, modulated by pressure and profit
+      let disp = logistic * 0.28 * pressureMult * profitMod + agentic + wealthEffect
 
       // Government response damping
       if (p.govtResponse === 'retraining' && year > 2026) {
@@ -150,7 +151,7 @@ export function runMonteCarlo(p: SimParams, seed = 20260101): SimulationResult {
       // Feedback cascade — ramps post-2026
       if (year > 2026) {
         const ramp = Math.min(1, (year - 2026) / 5)
-        disp += (p.feedbackAggressiveness / 100) * 0.40 * ramp * (1 + feedbackNoise)
+        disp += (p.feedbackAggressiveness / 100) * 0.15 * ramp * (1 + feedbackNoise)
       }
 
       // Rare shock
@@ -226,8 +227,8 @@ export function runMonteCarlo(p: SimParams, seed = 20260101): SimulationResult {
     { label: 'S-curve steepness', expr: `0.5 + ${p.aiAdoptionPace / 100} × 1.1 = ${curveSteepness.toFixed(2)}` },
     { label: 'Business-pressure multiplier', expr: `1 + (${p.businessPressure / 100} − 0.5) × 0.45 = ${pressureMult.toFixed(3)}` },
     { label: 'Corporate-profit modifier', expr: `${profitMod.toFixed(2)}× (${p.corporateProfit})` },
-    { label: 'Wealth-concentration effect', expr: `(${p.wealthConcentration / 100} − 0.3) × 0.10 = ${wealthEffect.toFixed(3)}` },
-    { label: 'Agentic ramp', expr: `from ${p.agenticYear}, max +0.35 over 5.4y` },
+    { label: 'Wealth-concentration effect', expr: `(${p.wealthConcentration / 100} − 0.3) × 0.02 = ${wealthEffect.toFixed(3)}` },
+    { label: 'Agentic ramp', expr: `from ${p.agenticYear}, max +0.12 over ~7y` },
     {
       label: 'Govt response',
       expr: p.govtResponse === 'retraining'
@@ -239,7 +240,7 @@ export function runMonteCarlo(p: SimParams, seed = 20260101): SimulationResult {
     { label: 'Fed response offset', expr: `${fedOffset >= 0 ? '+' : ''}${fedOffset.toFixed(3)} (${p.fedResponse})` },
     {
       label: 'Feedback cascade',
-      expr: `(${p.feedbackAggressiveness / 100}) × 0.40 × min(1, (y−2026)/5), post-2026`,
+      expr: `(${p.feedbackAggressiveness / 100}) × 0.15 × min(1, (y−2026)/5), post-2026`,
     },
     { label: 'Shock process', expr: 'Bernoulli(0.12) per path, |Normal|·0.18, onset 2027–2036' },
     { label: 'Year-to-year noise', expr: 'Normal(0, 0.025) added each year' },
