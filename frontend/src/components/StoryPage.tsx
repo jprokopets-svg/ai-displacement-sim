@@ -52,6 +52,7 @@ interface CompanyEvent {
 export default function StoryPage() {
   const [counties, setCounties] = useState<CountyData[]>([])
   const [companies, setCompanies] = useState<CompanyEvent[]>([])
+  const [apiTotals, setApiTotals] = useState<{ jobs: number; companies: number } | null>(null)
 
   useEffect(() => {
     fetchCounties()
@@ -64,6 +65,10 @@ export default function StoryPage() {
           name: (c.name as string) || '',
           total_headcount_impacted: (c.total_headcount_impacted as number) ?? null,
         })))
+        // Derive totals from API response
+        if (d.total_jobs && d.count) {
+          setApiTotals({ jobs: d.total_jobs as number, companies: d.count as number })
+        }
       })
       .catch(() => {})
   }, [])
@@ -94,7 +99,7 @@ export default function StoryPage() {
         </a>
       </nav>
 
-      <Section1 top10={top10Companies} />
+      <Section1 top10={top10Companies} apiTotals={apiTotals} />
       <Section2 counties={counties} />
       <Section3 counties={counties} top5={top5Counties} />
       <Section4 />
@@ -105,13 +110,16 @@ export default function StoryPage() {
 
 // ---------- Section 1: The Opening ----------
 
-const ALL_TIME = { jobs: 351828, companies: 78, label: 'All time (2022–)' } as const
+// Fallbacks used until API responds
+const FALLBACK = { jobs: 351828, companies: 78 }
 const RECENT = { jobs: 79443, companies: 22, label: 'Last 18 months' } as const
 
-function Section1({ top10 }: { top10: CompanyEvent[] }) {
+function Section1({ top10, apiTotals }: { top10: CompanyEvent[]; apiTotals: { jobs: number; companies: number } | null }) {
+  const allJobs = apiTotals?.jobs ?? FALLBACK.jobs
+  const allCompanies = apiTotals?.companies ?? FALLBACK.companies
   const [view, setView] = useState<'all' | 'recent'>('all')
-  const target = view === 'all' ? ALL_TIME.jobs : RECENT.jobs
-  const companiesCount = view === 'all' ? ALL_TIME.companies : RECENT.companies
+  const target = view === 'all' ? allJobs : RECENT.jobs
+  const companiesCount = view === 'all' ? allCompanies : RECENT.companies
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
@@ -141,7 +149,7 @@ function Section1({ top10 }: { top10: CompanyEvent[] }) {
     <section ref={ref} style={sectionStyle}>
       <div style={{ ...fadeStyle(visible), maxWidth: 800, width: '100%', textAlign: 'center' }}>
         <h1 style={heroTitleStyle}>
-          {count > 0 ? count.toLocaleString() : ALL_TIME.jobs.toLocaleString()} jobs. {companiesCount} companies. {view === 'all' ? '4 years' : '18 months'}.
+          {count > 0 ? count.toLocaleString() : allJobs.toLocaleString()} jobs. {companiesCount} companies. {view === 'all' ? '4 years' : '18 months'}.
         </h1>
         <p style={heroSubStyle}>
           AI displacement isn't a future event. It's happening now, county by county, job by job.
@@ -153,7 +161,7 @@ function Section1({ top10 }: { top10: CompanyEvent[] }) {
         )}
         {view === 'recent' && (
           <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 6 }}>
-            {ALL_TIME.jobs.toLocaleString()} total documented since 2022
+            {allJobs.toLocaleString()} total documented since 2022
           </p>
         )}
 
@@ -170,7 +178,7 @@ function Section1({ top10 }: { top10: CompanyEvent[] }) {
                 border: view === v ? '1px solid rgba(255,255,255,0.25)' : '1px solid transparent',
               }}
             >
-              {v === 'recent' ? RECENT.label : ALL_TIME.label}
+              {v === 'recent' ? RECENT.label : 'All time (2022–)'}
             </button>
           ))}
         </div>
