@@ -45,6 +45,22 @@ export default function MobilePage() {
   const [counties, setCounties] = useState<County[]>([])
 
   useEffect(() => {
+    // Override desktop dashboard layout constraints on html, body, and #root
+    // so the mobile page can scroll naturally. The desktop App uses
+    // overflow:hidden + fixed 100vh grid which traps MobilePage content.
+    document.documentElement.style.height = 'auto'
+    document.body.style.overflow = 'auto'
+    document.body.style.height = 'auto'
+    const root = document.getElementById('root')
+    if (root) {
+      root.style.display = 'block'
+      root.style.height = 'auto'
+      root.style.overflow = 'visible'
+      root.style.gridTemplateRows = 'none'
+    }
+  }, [])
+
+  useEffect(() => {
     fetchCounties()
       .then(d => setCounties((d.counties || []) as County[]))
       .catch(() => {})
@@ -299,9 +315,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 // ---------- Styles ----------
 
 const pageStyle: React.CSSProperties = {
-  minHeight: '100vh', background: '#0a0e1a', color: '#e6ebf5',
+  minHeight: '100dvh', background: '#0a0e1a', color: '#e6ebf5',
   fontFamily: 'Inter, -apple-system, sans-serif',
   padding: '0 0 40px',
+  // Ensure touch scrolling works on iOS
+  WebkitOverflowScrolling: 'touch' as never,
+  overflowY: 'auto',
 }
 
 const headerStyle: React.CSSProperties = {
