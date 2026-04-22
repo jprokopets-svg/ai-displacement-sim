@@ -44,6 +44,14 @@ export default function Header({ tab, onTabChange, ticker }: Props) {
             {TAB_LABELS[t]}
           </button>
         ))}
+        <a
+          href="https://jakeprokopets.substack.com/p/why-the-most-ai-exposed-counties"
+          target="_blank"
+          rel="noopener"
+          style={methodologyLinkStyle}
+        >
+          Methodology ↗
+        </a>
       </nav>
     </header>
   )
@@ -110,6 +118,21 @@ const navStyle: React.CSSProperties = {
   overflowX: 'auto',
   flexWrap: 'nowrap',
   scrollbarWidth: 'none',
+}
+
+const methodologyLinkStyle: React.CSSProperties = {
+  padding: '6px 12px',
+  fontSize: 12,
+  fontWeight: 500,
+  borderRadius: 4,
+  background: 'transparent',
+  color: 'var(--accent)',
+  border: 'none',
+  textDecoration: 'none',
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
+  borderLeft: '1px solid var(--border)',
+  marginLeft: 2,
 }
 
 function tabButtonStyle(active: boolean): React.CSSProperties {

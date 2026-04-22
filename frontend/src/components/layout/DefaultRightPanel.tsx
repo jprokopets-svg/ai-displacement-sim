@@ -201,6 +201,16 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
           Click any county on the map to see a full exposure breakdown.
           Adjust sliders in the left panel to run scenarios.
         </div>
+        <div style={{ fontSize: 12, marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+          <a
+            href="https://jakeprokopets.substack.com/p/why-the-most-ai-exposed-counties"
+            target="_blank"
+            rel="noopener"
+            style={{ color: 'var(--accent)', textDecoration: 'none', borderBottom: '1px dotted var(--accent)' }}
+          >
+            Read the full methodology →
+          </a>
+        </div>
       </Section>
     </div>
   )
