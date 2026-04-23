@@ -18,9 +18,9 @@ export const color = {
 
   // Text
   textPrimary: '#e6ebf5',
-  textSecondary: '#c6cfdf', // 10.9:1 on panel
-  textMuted: '#aab7cb',     //  8.4:1 on panel
-  textDim: '#8c9db6',       //  6.2:1 on panel
+  textSecondary: '#d0d8e4', // 11.9:1 on panel
+  textMuted: '#d0d8e4',     // 11.9:1 on panel — same as secondary, hierarchy via weight/size
+  textDim: '#c6cfdf',       // 10.9:1 on panel
 
   // Accents
   accent: '#3b82f6',

@@ -58,7 +58,7 @@ export function renderShareCard(input: CardInput): HTMLCanvasElement {
   ctx.stroke()
 
   // Main metric: probability
-  ctx.fillStyle = '#c6cfdf'
+  ctx.fillStyle = '#d0d8e4'
   ctx.font = '500 16px Inter, sans-serif'
   ctx.fillText('DISPLACEMENT PROBABILITY (10 YEAR HORIZON)', 60, 260)
 
@@ -70,7 +70,7 @@ export function renderShareCard(input: CardInput): HTMLCanvasElement {
 
   // Right-side stack
   const rightX = 760
-  ctx.fillStyle = '#c6cfdf'
+  ctx.fillStyle = '#d0d8e4'
   ctx.font = '500 14px Inter, sans-serif'
   ctx.fillText('TIMELINE', rightX, 260)
   ctx.fillStyle = '#e6ebf5'
@@ -78,7 +78,7 @@ export function renderShareCard(input: CardInput): HTMLCanvasElement {
   ctx.fillText(input.timelineLabel, rightX, 304)
 
   if (input.countyName) {
-    ctx.fillStyle = '#c6cfdf'
+    ctx.fillStyle = '#d0d8e4'
     ctx.font = '500 14px Inter, sans-serif'
     ctx.fillText('LOCATION', rightX, 360)
     ctx.fillStyle = '#e6ebf5'
@@ -93,7 +93,7 @@ export function renderShareCard(input: CardInput): HTMLCanvasElement {
   ctx.lineTo(W - 60, H - 90)
   ctx.stroke()
 
-  ctx.fillStyle = '#aab7cb'
+  ctx.fillStyle = '#d0d8e4'
   ctx.font = '500 14px "DM Mono", ui-monospace, monospace'
   ctx.fillText('CHECK YOURS', 60, H - 50)
   ctx.fillStyle = '#e6ebf5'
