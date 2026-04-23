@@ -178,7 +178,7 @@ function SectionHeader({ title }: { title: string }) {
       fontSize: 10,
       fontWeight: 600,
       textTransform: 'uppercase',
-      color: '#6b7794',
+      color: 'var(--text-muted)',
       letterSpacing: '0.12em',
       padding: '0 16px 6px',
       borderBottom: '1px solid var(--border)',

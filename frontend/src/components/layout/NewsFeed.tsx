@@ -720,7 +720,7 @@ function MarketSignals() {
   return (
     <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
       <div style={{ marginBottom: 14 }}>
-        <div className="eyebrow" style={{ color: '#8b5cf6' }}>Market Signals</div>
+        <div className="eyebrow" style={{ color: '#a78bfa' }}>Market Signals</div>
         <h3 style={{ fontSize: 16, fontWeight: 600, margin: '4px 0 2px', color: 'var(--text-primary)' }}>
           Prediction Markets &amp; Options Activity
         </h3>
