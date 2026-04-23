@@ -449,7 +449,7 @@ const selectStyle: React.CSSProperties = {
   ...inputStyle,
   appearance: 'none' as const,
   WebkitAppearance: 'none' as const,
-  backgroundImage: 'linear-gradient(45deg, transparent 50%, #9aa6be 50%), linear-gradient(135deg, #9aa6be 50%, transparent 50%)',
+  backgroundImage: 'linear-gradient(45deg, transparent 50%, #b0bcd4 50%), linear-gradient(135deg, #b0bcd4 50%, transparent 50%)',
   backgroundPosition: 'calc(100% - 14px) 50%, calc(100% - 9px) 50%',
   backgroundSize: '5px 5px, 5px 5px',
   backgroundRepeat: 'no-repeat',

@@ -127,7 +127,7 @@ export function drawSimulation(
   ctx.stroke()
 
   // ---- Axes ----
-  ctx.fillStyle = '#8294ad'
+  ctx.fillStyle = '#8fa0b8'
   ctx.font = '11px Inter, -apple-system, sans-serif'
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'right'

@@ -166,7 +166,7 @@ function CountyChecker({ counties }: { counties: County[] }) {
 
       {selected && (
         <div style={resultCardStyle}>
-          <div style={{ fontSize: 13, color: '#9aa6be', marginBottom: 4 }}>
+          <div style={{ fontSize: 13, color: '#b0bcd4', marginBottom: 4 }}>
             {selected.county_name}
           </div>
           <div style={{
@@ -175,21 +175,21 @@ function CountyChecker({ counties }: { counties: County[] }) {
           }}>
             {(selected.ai_exposure_score * 100).toFixed(0)}
           </div>
-          <div style={{ fontSize: 11, color: '#8294ad', marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: '#8fa0b8', marginTop: 4 }}>
             composite AI displacement score · p{Math.round(selected.exposure_percentile)}
           </div>
-          <div style={{ fontSize: 12, color: '#9aa6be', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: '#b0bcd4', marginTop: 4 }}>
             {selected.total_employment > 0 ? `${Math.round(selected.total_employment).toLocaleString()} workers` : ''}
           </div>
 
           {topOccs.length > 0 && (
             <div style={{ marginTop: 14, borderTop: '1px solid #1f2942', paddingTop: 10 }}>
-              <div style={{ fontSize: 11, color: '#8294ad', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: 11, color: '#8fa0b8', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
                 Most exposed occupations
               </div>
               {topOccs.slice(0, 3).map((o, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13, borderBottom: '1px solid #1f2942' }}>
-                  <span style={{ color: '#9aa6be', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.occupation_title}</span>
+                  <span style={{ color: '#b0bcd4', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.occupation_title}</span>
                   <span style={{ fontFamily: 'ui-monospace, monospace', color: getExposureColor(o.ai_exposure * 100), marginLeft: 8, flexShrink: 0 }}>
                     {(o.ai_exposure * 100).toFixed(0)}%
                   </span>
@@ -249,7 +249,7 @@ function JobChecker() {
           {results.map(o => (
             <div key={o.soc_code} onClick={() => setSelected(o)} style={resultRowStyle}>
               <span style={{ color: '#e6ebf5', fontSize: 13 }}>{o.occupation_title}</span>
-              <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#8294ad' }}>{o.soc_code}</span>
+              <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#8fa0b8' }}>{o.soc_code}</span>
             </div>
           ))}
         </div>
@@ -257,19 +257,19 @@ function JobChecker() {
 
       {selected && score != null && (
         <div style={resultCardStyle}>
-          <div style={{ fontSize: 13, color: '#9aa6be', marginBottom: 4 }}>{selected.occupation_title}</div>
+          <div style={{ fontSize: 13, color: '#b0bcd4', marginBottom: 4 }}>{selected.occupation_title}</div>
           <div style={{
             fontFamily: 'ui-monospace, monospace', fontSize: 40, fontWeight: 600,
             color: getExposureColor(score * 100), lineHeight: 1,
           }}>
             {(score * 100).toFixed(0)}%
           </div>
-          <div style={{ fontSize: 11, color: '#8294ad', marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: '#8fa0b8', marginTop: 4 }}>
             current AI displacement exposure
           </div>
 
           <div style={{ marginTop: 14, borderTop: '1px solid #1f2942', paddingTop: 10 }}>
-            <div style={{ fontSize: 11, color: '#8294ad', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
+            <div style={{ fontSize: 11, color: '#8fa0b8', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
               Projected trajectory
             </div>
             {[
@@ -279,7 +279,7 @@ function JobChecker() {
               { year: 2035, val: score2035! },
             ].map(p => (
               <div key={p.year} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0' }}>
-                <span style={{ fontSize: 13, color: '#9aa6be' }}>{p.year}</span>
+                <span style={{ fontSize: 13, color: '#b0bcd4' }}>{p.year}</span>
                 <div style={{ flex: 1, height: 6, margin: '0 10px', background: '#141b30', borderRadius: 3, overflow: 'hidden' }}>
                   <div style={{ width: `${p.val * 100}%`, height: '100%', background: getExposureColor(p.val * 100), borderRadius: 3 }} />
                 </div>
@@ -304,7 +304,7 @@ function JobChecker() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section style={sectionStyle}>
-      <div style={{ fontSize: 10, letterSpacing: '0.1em', color: '#8294ad', textTransform: 'uppercase' as const, fontWeight: 600, marginBottom: 10 }}>
+      <div style={{ fontSize: 10, letterSpacing: '0.1em', color: '#8fa0b8', textTransform: 'uppercase' as const, fontWeight: 600, marginBottom: 10 }}>
         {title}
       </div>
       {children}
@@ -337,11 +337,11 @@ const titleStyle: React.CSSProperties = {
 }
 
 const subStyle: React.CSSProperties = {
-  fontSize: 13, color: '#8294ad', margin: 0, lineHeight: 1.5,
+  fontSize: 13, color: '#8fa0b8', margin: 0, lineHeight: 1.5,
 }
 
 const bodyStyle: React.CSSProperties = {
-  fontSize: 14, color: '#9aa6be', margin: '0 0 12px', lineHeight: 1.5,
+  fontSize: 14, color: '#b0bcd4', margin: '0 0 12px', lineHeight: 1.5,
 }
 
 const sectionStyle: React.CSSProperties = {
@@ -384,7 +384,7 @@ const resultRowStyle: React.CSSProperties = {
 const footerStyle: React.CSSProperties = {
   padding: '24px 20px 0', marginTop: 24,
   borderTop: '1px solid #1f2942',
-  fontSize: 13, color: '#8294ad', textAlign: 'center',
+  fontSize: 13, color: '#8fa0b8', textAlign: 'center',
 }
 
 const linkStyle: React.CSSProperties = {

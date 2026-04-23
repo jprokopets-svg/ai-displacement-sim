@@ -18,9 +18,9 @@ export const color = {
 
   // Text
   textPrimary: '#e6ebf5',
-  textSecondary: '#9aa6be',
-  textMuted: '#8294ad',   // was #5e6a85 — bumped for WCAG AA (5.5:1 on panel)
-  textDim: '#5f7089',     // was #3e485f — bumped for WCAG AA (3.4:1, decorative only)
+  textSecondary: '#b0bcd4', // was #9aa6be — bumped to 8.9:1 for legibility at small sizes
+  textMuted: '#8fa0b8',     // was #5e6a85 → #8294ad → #8fa0b8 — now 6.4:1
+  textDim: '#7486a0',       // was #3e485f → #5f7089 → #7486a0 — now 4.6:1
 
   // Accents
   accent: '#3b82f6',
