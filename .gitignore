@@ -1,3 +1,6 @@
+# Exploration / analysis workspace (not part of the product)
+exploration/
+
 # Python
 __pycache__/
 *.py[cod]
