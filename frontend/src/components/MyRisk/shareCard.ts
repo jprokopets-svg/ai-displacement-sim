@@ -93,7 +93,7 @@ export function renderShareCard(input: CardInput): HTMLCanvasElement {
   ctx.lineTo(W - 60, H - 90)
   ctx.stroke()
 
-  ctx.fillStyle = '#5e6a85'
+  ctx.fillStyle = '#8294ad'
   ctx.font = '500 14px "DM Mono", ui-monospace, monospace'
   ctx.fillText('CHECK YOURS', 60, H - 50)
   ctx.fillStyle = '#e6ebf5'

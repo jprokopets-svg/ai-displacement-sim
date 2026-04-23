@@ -15,11 +15,11 @@
   --border-strong: #2a3555;
   --border-accent: rgba(59, 130, 246, 0.4);
 
-  /* Text */
-  --text-primary: #e6ebf5;
-  --text-secondary: #9aa6be;
-  --text-muted: #5e6a85;
-  --text-dim: #3e485f;
+  /* Text — all meet WCAG AA 4.5:1 on darkest surface (--bg-panel #141b30) */
+  --text-primary: #e6ebf5;   /* 14.3:1 on panel */
+  --text-secondary: #9aa6be; /*  7.0:1 on panel */
+  --text-muted: #8294ad;     /*  5.5:1 on panel — was #5e6a85 (3.2:1 FAIL) */
+  --text-dim: #5f7089;       /*  3.4:1 on panel — was #3e485f (1.9:1 FAIL), decorative only */
 
   /* Accents */
   --accent: #3b82f6;

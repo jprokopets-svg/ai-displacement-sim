@@ -175,7 +175,7 @@ function CountyChecker({ counties }: { counties: County[] }) {
           }}>
             {(selected.ai_exposure_score * 100).toFixed(0)}
           </div>
-          <div style={{ fontSize: 11, color: '#5e6a85', marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: '#8294ad', marginTop: 4 }}>
             composite AI displacement score · p{Math.round(selected.exposure_percentile)}
           </div>
           <div style={{ fontSize: 12, color: '#9aa6be', marginTop: 4 }}>
@@ -184,7 +184,7 @@ function CountyChecker({ counties }: { counties: County[] }) {
 
           {topOccs.length > 0 && (
             <div style={{ marginTop: 14, borderTop: '1px solid #1f2942', paddingTop: 10 }}>
-              <div style={{ fontSize: 11, color: '#5e6a85', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: 11, color: '#8294ad', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
                 Most exposed occupations
               </div>
               {topOccs.slice(0, 3).map((o, i) => (
@@ -249,7 +249,7 @@ function JobChecker() {
           {results.map(o => (
             <div key={o.soc_code} onClick={() => setSelected(o)} style={resultRowStyle}>
               <span style={{ color: '#e6ebf5', fontSize: 13 }}>{o.occupation_title}</span>
-              <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#5e6a85' }}>{o.soc_code}</span>
+              <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#8294ad' }}>{o.soc_code}</span>
             </div>
           ))}
         </div>
@@ -264,12 +264,12 @@ function JobChecker() {
           }}>
             {(score * 100).toFixed(0)}%
           </div>
-          <div style={{ fontSize: 11, color: '#5e6a85', marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: '#8294ad', marginTop: 4 }}>
             current AI displacement exposure
           </div>
 
           <div style={{ marginTop: 14, borderTop: '1px solid #1f2942', paddingTop: 10 }}>
-            <div style={{ fontSize: 11, color: '#5e6a85', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
+            <div style={{ fontSize: 11, color: '#8294ad', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
               Projected trajectory
             </div>
             {[
@@ -304,7 +304,7 @@ function JobChecker() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section style={sectionStyle}>
-      <div style={{ fontSize: 10, letterSpacing: '0.1em', color: '#5e6a85', textTransform: 'uppercase' as const, fontWeight: 600, marginBottom: 10 }}>
+      <div style={{ fontSize: 10, letterSpacing: '0.1em', color: '#8294ad', textTransform: 'uppercase' as const, fontWeight: 600, marginBottom: 10 }}>
         {title}
       </div>
       {children}
@@ -337,7 +337,7 @@ const titleStyle: React.CSSProperties = {
 }
 
 const subStyle: React.CSSProperties = {
-  fontSize: 13, color: '#5e6a85', margin: 0, lineHeight: 1.5,
+  fontSize: 13, color: '#8294ad', margin: 0, lineHeight: 1.5,
 }
 
 const bodyStyle: React.CSSProperties = {
@@ -384,7 +384,7 @@ const resultRowStyle: React.CSSProperties = {
 const footerStyle: React.CSSProperties = {
   padding: '24px 20px 0', marginTop: 24,
   borderTop: '1px solid #1f2942',
-  fontSize: 13, color: '#5e6a85', textAlign: 'center',
+  fontSize: 13, color: '#8294ad', textAlign: 'center',
 }
 
 const linkStyle: React.CSSProperties = {
