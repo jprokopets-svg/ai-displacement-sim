@@ -15,13 +15,13 @@
   --border-strong: #2a3555;
   --border-accent: rgba(59, 130, 246, 0.4);
 
-  /* Text — legibility-first: all tiers comfortably readable, not just AA floor.
-     Hierarchy: primary (14:1) → secondary (9:1) → muted (6:1) → dim (5:1).
+  /* Text — legibility-first, visible comfort, not spec compliance.
+     Hierarchy: primary (14:1) → secondary (11:1) → muted (8.4:1) → dim (6.2:1).
      Ratios measured against darkest surface --bg-panel #141b30. */
   --text-primary: #e6ebf5;   /* 14.3:1 */
-  --text-secondary: #b0bcd4; /*  8.9:1 — was #9aa6be (7.0:1) */
-  --text-muted: #8fa0b8;     /*  6.4:1 — was #5e6a85 (3.2:1) */
-  --text-dim: #7486a0;       /*  4.6:1 — was #3e485f (1.9:1) */
+  --text-secondary: #c6cfdf; /* 10.9:1 */
+  --text-muted: #aab7cb;     /*  8.4:1 */
+  --text-dim: #8c9db6;       /*  6.2:1 */
 
   /* Accents */
   --accent: #3b82f6;
