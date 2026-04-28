@@ -54,15 +54,23 @@ export default function SimulationTab() {
       {/* Header */}
       <div style={{ marginBottom: 18 }}>
         <div className="eyebrow" style={{ color: 'var(--amber)', marginBottom: 4 }}>
-          Probabilistic forecast
+          Displacement from current AI capabilities
         </div>
         <h2 style={{ fontSize: 24, fontWeight: 600, margin: 0, letterSpacing: '-0.01em' }}>
           Monte Carlo Simulation — {N_SIMS.toLocaleString()} configurations
         </h2>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, maxWidth: 860 }}>
-          Results show probability distributions across parameter space, not point predictions.
-          Confidence intervals widen with time horizon. Each paint
-          {computeMs > 0 ? ` (last run ${Math.round(computeMs)}ms)` : ''}.
+        <div style={{
+          fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, maxWidth: 860,
+          padding: '8px 12px', background: 'rgba(245, 158, 11, 0.06)',
+          border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: 4, lineHeight: 1.5,
+        }}>
+          Models displacement from <strong>adoption of current AI capabilities</strong> (Eloundou GPT-4 task exposure) at varying paces.
+          Does not model future capability improvements — if AI capabilities grow beyond 2024 levels, actual displacement will be higher than shown.
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6, maxWidth: 860 }}>
+          Results show probability distributions, not point predictions.
+          Confidence intervals widen with time horizon.
+          {computeMs > 0 ? ` Last compute: ${Math.round(computeMs)}ms.` : ''}
         </div>
       </div>
 
@@ -240,7 +248,7 @@ export default function SimulationTab() {
               marginTop: 10, fontSize: 11, color: 'var(--text-muted)',
               display: 'flex', justifyContent: 'space-between',
             }}>
-              <span>{YEAR_START}–{YEAR_END} horizon · share of workforce displaced</span>
+              <span>{YEAR_START}–{YEAR_END} horizon · displacement from current AI capabilities</span>
               <span>{computeMs > 0 ? `${Math.round(computeMs)}ms compute` : ''}</span>
             </div>
           </div>
@@ -249,16 +257,16 @@ export default function SimulationTab() {
         {/* Right: results */}
         <aside style={resultsColStyle}>
           <MetricCard
-            label="Median displacement"
+            label="Median displacement (current capabilities)"
             value={`${Math.round(result.medianFinal * 100)}%`}
             color="var(--amber)"
-            sub={`at ${YEAR_END} · 50th percentile outcome`}
+            sub={`at ${YEAR_END} · 50th percentile · adoption only`}
           />
           <MetricCard
             label="90th percentile scenario"
             value={`${Math.round(result.p90Final * 100)}%`}
             color="var(--danger)"
-            sub={`at ${YEAR_END} · the tail-risk world`}
+            sub={`at ${YEAR_END} · fast adoption + adverse shocks`}
           />
           <MetricCard
             label="Years to threshold"

@@ -230,6 +230,24 @@ Both scenarios are plausible. The model shows both with honest uncertainty bands
 
 ---
 
+## What the Simulation Does and Doesn't Model
+
+<!-- TODO: Draft full copy for this section. Key points to cover:
+  - The Monte Carlo models displacement from ADOPTION of current AI capabilities
+    (Eloundou GPT-4 task exposure scores, frozen at 2024 levels)
+  - It does NOT model future capability improvements — if LLMs improve beyond
+    GPT-4 levels, actual displacement will exceed the simulation's output
+  - The S-curve represents deployment pace, not capability growth
+  - The feedback cascade represents economic self-reinforcement (displacement
+    causing more displacement via demand reduction), which is distinct from
+    capability growth
+  - Why we chose not to add a capability-growth parameter: avoids creating
+    unfounded confidence in a speculative multiplier
+  - Honest framing: "floor estimate under current capabilities" not "forecast"
+-->
+
+---
+
 ## Known Limitations
 
 1. **Temporal mismatch**: Employment data (2024), O*NET (29.1), AI capability scores (2021). AI has advanced significantly since 2021 benchmarks.

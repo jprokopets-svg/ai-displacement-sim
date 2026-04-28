@@ -275,4 +275,14 @@ def assumptions():
             "Monte Carlo engine uses empirically-sourced elasticities with stochastic variation",
             "All outputs are probability distributions with explicit confidence intervals",
         ],
+        "simulation_assumptions": {
+            "framing": (
+                "Models displacement from adoption of current AI capabilities. "
+                "Does not model future capability improvements."
+            ),
+            "exposure_source": "Eloundou et al. 2024 GPT-4 task exposure scores (frozen at 2024 capability levels)",
+            "s_curve": "Represents deployment/adoption pace of existing capabilities, not capability growth",
+            "feedback_cascade": "Economic self-reinforcement (displacement causing more displacement via demand reduction). Distinct from capability growth.",
+            "capability_growth": "Not modeled. If AI capabilities improve beyond GPT-4 levels, actual displacement will exceed simulation output.",
+        },
     }
