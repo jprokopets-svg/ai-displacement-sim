@@ -11,12 +11,12 @@ export const BUCKET_LABELS: Record<number, string> = {
   4: 'Higher',
 }
 
-// Sequential 4-color scheme: cool → warm
+// Sequential single-hue progression: light → dark blue
 export const BUCKET_COLORS: Record<number, string> = {
-  1: '#2ecc71',  // green
-  2: '#f1c40f',  // yellow
-  3: '#e67e22',  // orange
-  4: '#c0392b',  // red
+  1: '#bfdbfe',  // blue-200
+  2: '#60a5fa',  // blue-400
+  3: '#2563eb',  // blue-600
+  4: '#1e3a8a',  // blue-900
 }
 
 export function bucketLabel(bucket: number | undefined): string {

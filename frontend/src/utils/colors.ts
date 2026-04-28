@@ -1,21 +1,14 @@
 import * as d3 from 'd3'
 
 /**
- * Perceptually uniform color scale with extra separation at the top 25%.
- *
- *   p0-p25:    green → yellow-green
- *   p25-p50:   yellow-green → yellow
- *   p50-p75:   yellow → orange
- *   p75-p90:   orange → red
- *   p90-p97:   red → deep red
- *   p97-p100:  deep red → near-black dark red
- *
- * Three distinct steps in the top 10% so high, very-high, and extreme
- * counties are visually distinguishable.
+ * Single-hue blue progression for continuous exposure display.
+ * Light blue (low exposure) → dark blue (high exposure).
+ * Not red/orange — high exposure means high LLM task overlap,
+ * not "danger."
  */
 export const exposureColorScale = d3.scaleLinear<string>()
-  .domain([0, 25, 50, 75, 90, 97, 100])
-  .range(['#2ecc71', '#a3d977', '#f1c40f', '#e67e22', '#e74c3c', '#c0392b', '#7b241c'])
+  .domain([0, 25, 50, 75, 100])
+  .range(['#eff6ff', '#93c5fd', '#3b82f6', '#1d4ed8', '#1e3a8a'])
   .clamp(true)
 
 /**

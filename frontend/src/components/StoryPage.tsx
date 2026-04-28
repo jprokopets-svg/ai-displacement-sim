@@ -459,7 +459,7 @@ function Section5() {
           </a>
         </div>
         <p style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 32, lineHeight: 1.6 }}>
-          Built on BLS OEWS 2024, O*NET 29.1, Felten-Raj-Rock 2021 AI Exposure Index, IFR robotics data.
+          Built on BLS OEWS 2024, O*NET 29.1, Eloundou et al. 2024 GPT-4 task exposure.
         </p>
       </div>
     </section>

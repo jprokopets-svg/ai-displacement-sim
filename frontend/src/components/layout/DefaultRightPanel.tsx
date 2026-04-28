@@ -6,11 +6,10 @@ import { bucketLabel, bucketColor } from '../../utils/buckets'
 
 const MIN_EMPLOYMENT_FOR_RANKING = 100_000
 
-// Composite-score cutoff for "elevated risk." County scores in the current
-// backend distribute 0.0–~0.64, so a 0.5 threshold partitions the workforce
-// into roughly the top third by exposure. Scenario modifiers push scores up,
-// so more counties cross this line at later projection years.
-const ELEVATED_RISK_SCORE_THRESHOLD = 0.5
+// Exposure-score cutoff for "higher exposure" county tally.
+// 0.34 is the Q4 (top quartile) boundary in the Eloundou + Fay-Herriot
+// shrunk distribution. Counties above this are in the "Higher" bucket.
+const ELEVATED_EXPOSURE_THRESHOLD = 0.34
 
 type CountyScore = {
   county_fips: string
@@ -43,14 +42,9 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
     if (counties.length === 0) return null
     const totalExposed = counties.reduce((s, c) => s + (c.exposed_employment || 0), 0)
     const totalEmp = counties.reduce((s, c) => s + (c.total_employment || 0), 0)
-    // AI-exposed workers in counties where the composite score clears the
-    // elevated-risk threshold. Drives the Projected Impact card — shifts live
-    // as scenario modifiers move scores. Uses `exposed_employment` (pre-
-    // computed AI-exposed headcount per county) rather than raw
-    // `total_employment` so the projection reflects at-risk workers, not
-    // everyone in a high-score county.
+    // AI-exposed workers in counties in the top exposure quartile.
     const elevatedRiskJobs = counties.reduce(
-      (s, c) => s + (c.ai_exposure_score > ELEVATED_RISK_SCORE_THRESHOLD
+      (s, c) => s + (c.ai_exposure_score > ELEVATED_EXPOSURE_THRESHOLD
         ? (c.exposed_employment || 0)
         : 0),
       0,
@@ -124,10 +118,10 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               {fmtNum(stats.elevatedRiskJobs)}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-              jobs at elevated risk by {scenario.year}
+              workers in higher-exposure counties
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-              AI-exposed workers in counties with composite score above {ELEVATED_RISK_SCORE_THRESHOLD}
+              AI-exposed employment in top-quartile counties (exposure above {Math.round(ELEVATED_EXPOSURE_THRESHOLD * 100)}%)
             </div>
           </div>
         ) : (
@@ -166,8 +160,8 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               borderTop: '1px solid var(--border)',
               lineHeight: 1.4,
             }}>
-              Counties under 100,000 workers excluded from rankings due to
-              small-sample score volatility. All counties appear on the map.
+              Ranked by Eloundou LLM exposure. Counties with limited employment
+              data are regularized via Fay-Herriot shrinkage.
             </div>
           </>
         ) : (

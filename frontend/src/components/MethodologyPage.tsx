@@ -3,7 +3,28 @@
  * Content is pre-converted from markdown to JSX (no runtime markdown dep).
  */
 
+import { useEffect } from 'react'
+
 export default function MethodologyPage() {
+  // Override #root's overflow:hidden so the prose page can scroll.
+  useEffect(() => {
+    const root = document.getElementById('root')
+    if (root) {
+      root.style.overflow = 'auto'
+      root.style.height = 'auto'
+      root.style.minHeight = '100vh'
+      root.style.display = 'block'
+    }
+    return () => {
+      if (root) {
+        root.style.overflow = ''
+        root.style.height = ''
+        root.style.minHeight = ''
+        root.style.display = ''
+      }
+    }
+  }, [])
+
   return (
     <div style={wrapStyle}>
       <article style={articleStyle}>

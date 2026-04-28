@@ -212,7 +212,7 @@ export default function App() {
               <div style={mapAreaStyle}>
                 {mapView === 'us' ? (
                   <USMap
-                    counties={counties}
+                    counties={baseCounties}
                     onCountyClick={handleCountyClick}
                     year={scenario.year}
                     selectedCounty={selectedCounty}

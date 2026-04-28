@@ -82,7 +82,7 @@ export default function CountyPanel({ countyFips, onClose }: CountyPanelProps) {
       </div>
 
       <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 16 }}>
-        Source: BLS OEWS May 2023, Felten-Raj-Rock 2021.
+        Source: BLS OEWS May 2024, Eloundou et al. 2024.
         County estimates via MSA-QCEW crosswalk (see methodology).
       </div>
     </div>
