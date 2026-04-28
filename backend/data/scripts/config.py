@@ -8,8 +8,21 @@ URL Verification Status (2026-04-07):
     Census Delineation:  VERIFIED via NBER mirror (200, original Census URL 404)
     BLS OEWS:            REQUIRES MANUAL DOWNLOAD (BLS blocks all programmatic access)
     Felten-Raj-Rock:     COMPUTED FROM O*NET (no reliable external download found)
+    Eloundou 2024:       VERIFIED (GitHub, direct download)
+
+Exposure Source (v2):
+    Set EXPOSURE_SOURCE to select the primary AI exposure measure:
+    - "frs"      : Felten-Raj-Seamans 2021 (v1 default, general AI)
+    - "eloundou" : Eloundou et al. 2024 GPT-4 β (v2 default, LLM-specific)
 """
+import os
 from pathlib import Path
+
+# ============================================================================
+# Exposure source toggle — controls which AI exposure measure the pipeline uses
+# ============================================================================
+# Override via environment variable: EXPOSURE_SOURCE=frs or EXPOSURE_SOURCE=eloundou
+EXPOSURE_SOURCE = os.environ.get("EXPOSURE_SOURCE", "eloundou")
 
 # Directory structure
 DATA_DIR = Path(__file__).parent.parent
@@ -116,6 +129,16 @@ CENSUS_MSA_DELINEATION_URL = (
 TOPOJSON_US_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json"
 
 # ============================================================================
+# Eloundou et al. 2024 — GPT-4 β occupation exposure scores
+# Source: "GPTs are GPTs" (Science 384, 1306-1308, 2024; arXiv:2303.10130)
+# Data repo: https://github.com/openai/GPTs-are-GPTs
+# Verified working 2026-04-28 (raw GitHub URL, direct download)
+# ============================================================================
+ELOUNDOU_CSV_URL = (
+    "https://raw.githubusercontent.com/openai/GPTs-are-GPTs/main/data/occ_level.csv"
+)
+
+# ============================================================================
 # AI Exposure (AIOE) — Computed from O*NET, not downloaded
 # ============================================================================
 # The Felten-Raj-Rock (2021) AI Exposure Index is computed from O*NET ability
@@ -211,16 +234,19 @@ ASSUMPTIONS = {
         "understates specialization in smaller counties."
     ),
     "ai_exposure_source": (
-        "AI exposure scores computed using the Felten, Raj, and Seamans (2021) "
-        "methodology applied to O*NET 29.1 Abilities data. Each occupation's "
-        "AIOE is the ability-importance-weighted average of AI capability scores "
-        "for the 52 O*NET abilities. See compute_aioe.py for implementation."
+        "AI exposure scores use Eloundou et al. 2024 GPT-4 β measure by default. "
+        "GPT-4 β = E1 + 0.5×E2, where E1 is direct LLM task exposure and E2 is "
+        "exposure via LLM-powered tools. Scores from GPT-4 ratings of O*NET tasks. "
+        "Source: 'GPTs are GPTs' (Science 384, 1306-1308, 2024; arXiv:2303.10130). "
+        "The pipeline also supports Felten-Raj-Seamans 2021 (FRS) as an alternative "
+        "via the EXPOSURE_SOURCE config. See compute_eloundou.py and compute_aioe.py."
     ),
-    "ai_ability_scores": (
-        "AI capability scores per O*NET ability are from Felten, Raj, Seamans "
-        "(2021) Table 1. These scores reflect 2021-era AI application prevalence "
-        "and may underestimate current AI capabilities, particularly in language "
-        "and reasoning tasks where LLMs have advanced substantially since 2021."
+    "ai_exposure_source_change": (
+        "v2 replaced Felten-Raj-Seamans (2021) with Eloundou et al. (2024) as the "
+        "primary exposure measure. FRS used pre-LLM AI application benchmarks from "
+        "~2020. Eloundou uses GPT-4 task-level ratings, capturing post-2020 LLM "
+        "capabilities. The Eloundou measure is purely cognitive/language — it does "
+        "not measure physical automation potential."
     ),
     "displacement_not_elimination": (
         "High AI exposure does not mean full job elimination. The model treats "

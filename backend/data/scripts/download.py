@@ -26,6 +26,7 @@ from .config import (
     BLS_QCEW_URL,
     CENSUS_MSA_DELINEATION_URL,
     TOPOJSON_US_URL,
+    ELOUNDOU_CSV_URL,
 )
 
 
@@ -137,6 +138,16 @@ def download_topojson():
     _download_file(TOPOJSON_US_URL, dest, "US counties TopoJSON")
 
 
+def download_eloundou():
+    """Download Eloundou et al. 2024 occupation-level exposure CSV."""
+    print("\n=== Eloundou et al. 2024 GPT-4 β Scores ===")
+    eloundou_dir = RAW_DIR / "eloundou"
+    eloundou_dir.mkdir(parents=True, exist_ok=True)
+
+    dest = eloundou_dir / "occ_level.csv"
+    _download_file(ELOUNDOU_CSV_URL, dest, "Eloundou occupation exposure (GPT-4 β)")
+
+
 def download_all():
     """
     Download all raw data sources.
@@ -151,6 +162,7 @@ def download_all():
     download_bls_qcew()
     download_census_crosswalk()
     download_topojson()
+    download_eloundou()
 
     print("\n" + "=" * 60)
     if oews_ok:
