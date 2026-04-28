@@ -13,7 +13,6 @@ export type CorporateProfit = 'baseline' | 'surge' | 'decline'
 
 export interface SimParams {
   aiAdoptionPace: number         // 0-100: 0 = 20y S-curve, 100 = 5y S-curve
-  agenticYear: number            // 2026-2032: year agentic AI mainstreams
   corporateProfit: CorporateProfit
   wealthConcentration: number    // 0-100: GDP buffer effect
   businessPressure: number       // 0-100: competitive automation pressure
@@ -26,7 +25,6 @@ export interface SimParams {
 
 export const DEFAULT_PARAMS: SimParams = {
   aiAdoptionPace: 55,
-  agenticYear: 2028,
   corporateProfit: 'baseline',
   wealthConcentration: 35,
   businessPressure: 55,
@@ -132,11 +130,8 @@ export function runMonteCarlo(p: SimParams, seed = 20260101): SimulationResult {
       // channel alone maxes at ~28% displacement. Other channels add on top.
       const logistic = 1 / (1 + Math.exp(-(year - curveMid - adoptionOffset) * curveSteepness))
 
-      // Agentic emergence boost — additive, capped at +12% over ~7 years
-      const agentic = year >= p.agenticYear ? Math.min(0.12, (year - p.agenticYear) * 0.018) : 0
-
-      // Base displacement — adoption + agentic + wealth, modulated by pressure and profit
-      let disp = logistic * 0.28 * pressureMult * profitMod + agentic + wealthEffect
+      // Base displacement — adoption + wealth, modulated by pressure and profit
+      let disp = logistic * 0.28 * pressureMult * profitMod + wealthEffect
 
       // Government response damping
       if (p.govtResponse === 'retraining' && year > 2026) {
@@ -228,7 +223,6 @@ export function runMonteCarlo(p: SimParams, seed = 20260101): SimulationResult {
     { label: 'Business-pressure multiplier', expr: `1 + (${p.businessPressure / 100} − 0.5) × 0.45 = ${pressureMult.toFixed(3)}` },
     { label: 'Corporate-profit modifier', expr: `${profitMod.toFixed(2)}× (${p.corporateProfit})` },
     { label: 'Wealth-concentration effect', expr: `(${p.wealthConcentration / 100} − 0.3) × 0.02 = ${wealthEffect.toFixed(3)}` },
-    { label: 'Agentic ramp', expr: `from ${p.agenticYear}, max +0.12 over ~7y` },
     {
       label: 'Govt response',
       expr: p.govtResponse === 'retraining'

@@ -241,22 +241,20 @@ ASSUMPTIONS = {
         "The pipeline also supports Felten-Raj-Seamans 2021 (FRS) as an alternative "
         "via the EXPOSURE_SOURCE config. See compute_eloundou.py and compute_aioe.py."
     ),
-    "ai_exposure_source_change": (
-        "v2 replaced Felten-Raj-Seamans (2021) with Eloundou et al. (2024) as the "
-        "primary exposure measure. FRS used pre-LLM AI application benchmarks from "
-        "~2020. Eloundou uses GPT-4 task-level ratings, capturing post-2020 LLM "
-        "capabilities. The Eloundou measure is purely cognitive/language — it does "
-        "not measure physical automation potential."
+    "single_track": (
+        "v2 uses a single Eloundou-based LLM exposure score. Prior versions "
+        "included multi-track scores (robotics, agentic, offshoring) derived "
+        "by multiplying the LLM score — those were dropped because the "
+        "underlying Eloundou methodology does not measure non-LLM exposure."
     ),
     "displacement_not_elimination": (
         "High AI exposure does not mean full job elimination. The model treats "
         "exposure as the fraction of tasks within an occupation susceptible to "
-        "AI automation, not a binary displaced/not-displaced classification."
+        "LLM automation, not a binary displaced/not-displaced classification."
     ),
     "temporal_lag": (
         "BLS employment data is from May 2024. O*NET task data reflects the "
-        "29.1 release. AI capability scores reflect 2021 benchmarks. "
-        "Actual AI capability growth since these benchmarks may cause the model "
-        "to underestimate current exposure."
+        "29.1 release. LLM capability growth since these benchmarks may cause "
+        "the model to underestimate current exposure."
     ),
 }

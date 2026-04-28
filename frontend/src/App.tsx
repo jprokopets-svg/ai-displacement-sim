@@ -5,7 +5,6 @@ import CountyDetailPanel from './components/CountyDetailPanel'
 import SimulationTab from './components/Simulation'
 import JobSearch from './components/JobSearch'
 import ControlPanel from './components/ControlPanel'
-import MarketImplications from './components/MarketImplications'
 import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
@@ -54,7 +53,6 @@ export default function App() {
     fedResponse: 'hold',
     mapLayer: 'composite',
     showCompanyDots: false,
-    showReshoringParadox: false,
     showTransferDependency: false,
     showKshapeDivergence: false,
   })
@@ -221,14 +219,6 @@ export default function App() {
           )}
           {!loading && !error && tab === 'job' && (
             <div style={scrollTabStyle}><JobSearch /></div>
-          )}
-          {!loading && !error && tab === 'market' && (
-            <div style={scrollTabStyle}>
-              <MarketImplications
-                companyData={companyData as unknown as Parameters<typeof MarketImplications>[0]['companyData']}
-                onShowCompanyInNews={(name) => { setNewsFilter(name); setTab('news') }}
-              />
-            </div>
           )}
           {!loading && !error && tab === 'news' && (
             <NewsFeed

@@ -311,14 +311,6 @@ function CountyPanel({
             />
           </div>
 
-          {/* Track breakdown */}
-          <Section title="Track breakdown">
-            <TrackBar label="Cognitive AI" value={trackScore(county, 'cognitive')} />
-            <TrackBar label="Industrial Robotics" value={trackScore(county, 'robotics')} />
-            <TrackBar label="Agentic AI" value={trackScore(county, 'agentic', scenario.year)} />
-            <TrackBar label="Offshoring" value={trackScore(county, 'offshoring')} />
-          </Section>
-
           {/* Top 5 exposed occupations */}
           <Section title="Most exposed occupations">
             {topOccs.length === 0 ? (
@@ -384,27 +376,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
         {title}
       </div>
       {children}
-    </div>
-  )
-}
-
-function TrackBar({ label, value }: { label: string; value: number }) {
-  const pct = Math.max(0, Math.min(1, value)) * 100
-  return (
-    <div style={{ marginBottom: 6 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
-        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-        <span className="data-value" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
-          {pct.toFixed(0)}
-        </span>
-      </div>
-      <div style={{ height: 4, background: 'var(--bg-inset)', borderRadius: 2, overflow: 'hidden' }}>
-        <div style={{
-          width: `${pct}%`, height: '100%',
-          background: getExposureColor(pct),
-          transition: 'width var(--motion-normal, 200ms) ease',
-        }} />
-      </div>
     </div>
   )
 }
@@ -558,16 +529,6 @@ function fragilityScore(overlays: Props['overlays'], fips: string): number | nul
   const cascade = (row.cascade_score as number) ?? 0
   const smallBiz = (row.small_biz_concentration as number) ?? 0
   return cascade * 0.5 + smallBiz * 0.5
-}
-
-// Approximate track scores per county — same fallback pattern as USMap.tsx
-// (multi_track is empty in prod so this is the actual active path).
-function trackScore(county: CountyScore, track: 'cognitive' | 'robotics' | 'agentic' | 'offshoring', year?: number): number {
-  const s = county.ai_exposure_score
-  if (track === 'cognitive') return s * 1.10
-  if (track === 'robotics') return s * 0.60
-  if (track === 'agentic') return (year && year > 2026) ? s * 0.90 : s * 0.20
-  return s * 0.70
 }
 
 // ---------- Styles ----------

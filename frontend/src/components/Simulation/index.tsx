@@ -78,15 +78,6 @@ export default function SimulationTab() {
             onChange={v => update('aiAdoptionPace', v)}
             displayValue={`${params.aiAdoptionPace}`}
           />
-          <Slider
-            label="Agentic AI emergence"
-            hint="Year autonomous agents become mainstream"
-            min={2026} max={2032} step={1}
-            value={params.agenticYear}
-            onChange={v => update('agenticYear', v)}
-            displayValue={String(params.agenticYear)}
-          />
-
           <SectionHeader title="Economy" />
           <SelectField
             label="Corporate profit scenario"

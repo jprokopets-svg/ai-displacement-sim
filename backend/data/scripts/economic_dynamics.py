@@ -1,5 +1,5 @@
 """
-Economic Dynamics 1 and 2 for the displacement model.
+Economic Dynamics for the displacement model.
 
 Dynamic 1 — Competitive Cascade
     Large company automates → reduces prices → small competitor loses share →
@@ -11,14 +11,10 @@ Dynamic 1 — Competitive Cascade
     - Sector AI competitive pressure: which sectors have large players deploying AI aggressively
     - Consumer-facing concentration: what % of employment is in consumer-facing small businesses
 
-Dynamic 2 — Trade Policy and Capital Allocation
-    Three scenarios affecting robotics and offshoring track weights:
-    - Current tariffs: robotics +30%, offshoring baseline
-    - Free trade: offshoring +30%, robotics -15%
-    - Escalating tariffs: robotics +50%, reshoring paradox visible
-
-    Reshoring paradox: manufacturing activity returns but employment doesn't.
-    Measured by manufacturing establishment count trend vs employment trend divergence.
+Dynamic 2 — Manufacturing and Trade Policy
+    Manufacturing employment share and establishment density are computed
+    per county. Reshoring paradox score measures divergence between
+    establishment count (activity) and employment (jobs).
 
 Both dynamics are computed per county from QCEW data.
 """
@@ -272,80 +268,6 @@ def show_county_detail(fips, df, trade_policy="current"):
     print(f"  Manufacturing employment:      {r['manufacturing_emp_pct']*100:.1f}%")
     print(f"  Manufacturing establishments:  {r['manufacturing_estab_count']:,.0f}")
     print(f"  Reshoring paradox score:       {r['reshoring_paradox_score']:.3f}")
-
-
-def show_trade_policy_comparison(fips, year=2030):
-    """Show same county under 3 trade policy scenarios."""
-    from .multi_track import compute_multi_track_scores
-
-    print(f"\n  {'=' * 70}")
-    print(f"  TRADE POLICY COMPARISON — Year {year}")
-    print(f"  {'=' * 70}")
-
-    policies = ["current", "free_trade", "escalating_tariffs"]
-    labels = ["Current Tariffs", "Free Trade", "Escalating Tariffs"]
-
-    # Get county name
-    conn = sqlite3.connect(DB_PATH)
-    county = conn.execute(
-        "SELECT county_name FROM county_scores WHERE county_fips = ?", (fips,)
-    ).fetchone()
-    county_name = county[0] if county else fips
-    conn.close()
-
-    print(f"  County: {county_name} ({fips})\n")
-
-    # Get top occupations in this county
-    conn = sqlite3.connect(DB_PATH)
-    top_occs = conn.execute(
-        """SELECT soc_code, occupation_title, employment
-           FROM county_occupations WHERE county_fips = ?
-           ORDER BY employment DESC LIMIT 5""",
-        (fips,),
-    ).fetchall()
-    conn.close()
-
-    if not top_occs:
-        print("  No occupation data for this county")
-        return
-
-    # Print header
-    print(f"  {'Occupation':<30} ", end="")
-    for label in labels:
-        print(f"{'':>4}{label:<20}", end="")
-    print()
-    print(f"  {'-'*90}")
-
-    for soc, title, emp in top_occs:
-        short_title = title[:28] if title else soc
-        print(f"  {short_title:<30} ", end="")
-        for policy in policies:
-            df = compute_multi_track_scores(year=year, trade_policy=policy)
-            r = df[df["soc_code"] == soc]
-            if r.empty:
-                print(f"{'N/A':>24}", end="")
-            else:
-                r = r.iloc[0]
-                print(f"  {r['composite_normalized']:.3f} "
-                      f"(R:{r['track2_robotics']:.2f} O:{r['track4_offshoring']:.2f})", end="")
-        print()
-
-    # Show aggregate manufacturing impact
-    print(f"\n  --- Manufacturing County Impact ---")
-    conn = sqlite3.connect(DB_PATH)
-    dynamics = pd.read_sql(
-        "SELECT * FROM county_dynamics WHERE county_fips = ?",
-        conn, params=(fips,),
-    )
-    conn.close()
-    if not dynamics.empty:
-        d = dynamics.iloc[0]
-        print(f"  Manufacturing employment: {d['manufacturing_emp_pct']*100:.1f}%")
-        print(f"  Reshoring paradox score: {d['reshoring_paradox_score']:.3f}")
-        if d['manufacturing_emp_pct'] > 0.10:
-            print(f"  Under ESCALATING TARIFFS: Manufacturing activity may increase")
-            print(f"  but employment gains are captured by robotics, not workers.")
-            print(f"  This is the reshoring paradox — jobs return to America but not to Americans.")
 
 
 if __name__ == "__main__":

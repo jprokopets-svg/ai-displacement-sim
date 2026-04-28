@@ -11,7 +11,6 @@ export interface ScenarioState {
   fedResponse: 'hold' | 'cut' | 'zero'
   mapLayer: string
   showCompanyDots: boolean
-  showReshoringParadox: boolean
   showTransferDependency: boolean
   showKshapeDivergence: boolean
 }
@@ -81,7 +80,7 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
 
       <SelectControl label="Trade Policy" value={state.tradePolicy}
         onChange={v => onChange({ tradePolicy: v as ScenarioState['tradePolicy'] })}
-        info="Current tariffs boost manufacturing robotics ROI. Free trade increases offshoring risk. Escalating tariffs amplify reshoring paradox."
+        info="Trade policy affects labor market dynamics. Tariff escalation can reshape local employment patterns. Free trade alters competitive pressure on exposed occupations."
         options={[
           { value: 'current', label: 'Current tariffs' },
           { value: 'free_trade', label: 'Free trade' },
@@ -132,11 +131,7 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
           <SelectControl label="Color by" value={state.mapLayer}
             onChange={v => onChange({ mapLayer: v })}
             options={[
-              { value: 'composite', label: 'Composite displacement' },
-              { value: 'cognitive', label: 'Cognitive AI only' },
-              { value: 'robotics', label: 'Robotics only' },
-              { value: 'agentic', label: 'Agentic AI' },
-              { value: 'offshoring', label: 'Offshoring risk' },
+              { value: 'composite', label: 'AI exposure' },
               { value: 'fragility', label: 'Local economy fragility' },
               { value: 'govt_floor', label: 'Government floor strength' },
               { value: 'cascade', label: 'Competitive cascade' },
@@ -150,11 +145,6 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
             checked={state.showCompanyDots}
             onChange={v => onChange({ showCompanyDots: v })}
             info="Shows verified AI-driven layoff events from 22 companies. Dot size = headcount impact. Red = high confidence, orange = moderate."
-          />
-          <OverlayToggle label="Reshoring paradox (mfg counties)"
-            checked={state.showReshoringParadox}
-            onChange={v => onChange({ showReshoringParadox: v })}
-            info="Manufacturing counties that benefit from reshoring but face accelerated robotics automation. Tariffs boost factory returns but also fund robot deployment."
           />
           <OverlayToggle label="Transfer payment dependency"
             checked={state.showTransferDependency}

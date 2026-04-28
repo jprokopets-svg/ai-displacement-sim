@@ -225,24 +225,10 @@ def get_county_overlays() -> Dict:
         except Exception:
             pass
 
-        # Multi-track scores (cognitive, robotics, agentic, offshoring per county)
-        multi_track = {}
-        try:
-            for r in conn.execute(
-                """SELECT county_fips, cognitive_score, robotics_score,
-                          agentic_score, offshoring_score, regulatory_friction,
-                          fragility_score
-                   FROM multi_track_scores"""
-            ):
-                multi_track[r["county_fips"]] = dict(r)
-        except Exception:
-            pass
-
     return {
         "dynamics": dynamics,
         "govt_floor": govt,
         "kshape": kshape,
-        "multi_track": multi_track,
     }
 
 

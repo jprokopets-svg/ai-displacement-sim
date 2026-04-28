@@ -1,13 +1,12 @@
 import type { ReactNode } from 'react'
 import { SITE_CONFIG } from '../../config/site'
 
-export type Tab = 'map' | 'simulate' | 'job' | 'market' | 'news' | 'my_risk' | 'outlook'
+export type Tab = 'map' | 'simulate' | 'job' | 'news' | 'my_risk' | 'outlook'
 
 const TAB_LABELS: Record<Tab, string> = {
   map: 'Map',
   simulate: 'Simulate',
   job: 'Check My Job',
-  market: 'Market',
   news: 'News',
   my_risk: 'My Risk',
   outlook: 'Career Outlook',

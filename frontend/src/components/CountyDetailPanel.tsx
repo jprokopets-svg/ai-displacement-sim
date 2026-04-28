@@ -98,18 +98,6 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
         </div>
       </div>
 
-      {/* Track Breakdown */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <SectionTitle>Displacement Track Breakdown</SectionTitle>
-        <InfoBtn text="Four independent tracks of AI displacement risk. Cognitive AI = digital task automation. Robotics = physical task automation. Agentic AI = autonomous multi-step workflows (forward-looking). Offshoring = AI-enabled remote labor arbitrage." />
-      </div>
-      <TrackBar label="Cognitive AI" value={0.65} color="#4a9eff" />
-      <TrackBar label="Robotics" value={0.25} color="#ff8a4a"
-        note={year > 2025 ? `${Math.round(year <= 2027 ? 40 : year <= 2030 ? 68 : year <= 2035 ? 91 : 100)}% deployed` : undefined} />
-      <TrackBar label="Agentic AI" value={year > 2026 ? 0.45 : 0} color="#b44aff"
-        note={year <= 2026 ? 'Not yet deployed' : 'Forward-looking'} />
-      <TrackBar label="Offshoring" value={0.35} color="#4aff8a" />
-
       {/* Economic Context */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <SectionTitle>Economic Context</SectionTitle>
@@ -250,29 +238,6 @@ function InfoBtn({ text }: { text: string }) {
         </div>
       )}
     </span>
-  )
-}
-
-function TrackBar({ label, value, color, note }: {
-  label: string; value: number; color: string; note?: string
-}) {
-  return (
-    <div style={{ marginBottom: 4 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-        <span>
-          <span style={{ color, fontWeight: 600 }}>{(value * 100).toFixed(0)}%</span>
-          {note && <span style={{ color: 'var(--text-muted)', fontSize: 9, marginLeft: 4 }}>{note}</span>}
-        </span>
-      </div>
-      <div style={{ height: 4, background: '#1a1a25', borderRadius: 2, marginTop: 2 }}>
-        <div style={{
-          height: '100%', width: `${value * 100}%`,
-          background: color, borderRadius: 2,
-          opacity: value === 0 ? 0.2 : 1,
-        }} />
-      </div>
-    </div>
   )
 }
 

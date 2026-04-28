@@ -75,6 +75,8 @@ export const DEFAULT_ANSWERS: FormAnswers = {
 }
 
 // SOC major-group → replacement mechanism description.
+// Eloundou-based exposure measures LLM/cognitive displacement only.
+// For groups with low LLM exposure, describe honestly rather than reaching for a non-LLM narrative.
 const REPLACEMENT_MAP: Record<string, string> = {
   '11': 'AI strategic-planning tools and automated KPI dashboards are taking over routine management decisions; roles that survive shift toward cross-functional coordination.',
   '13': 'Financial AI agents like Bloomberg GPT and Kensho, plus automated audit and tax platforms, are already handling the analytical work.',
@@ -85,19 +87,19 @@ const REPLACEMENT_MAP: Record<string, string> = {
   '23': 'Legal AI agents (Harvey, CoCounsel) handle document review, discovery, and first-draft contracts at a fraction of associate hours.',
   '25': 'AI tutoring platforms (Khanmigo, adaptive curriculum) and automated grading are restructuring classroom economics.',
   '27': 'Generative AI (DALL-E, Sora, Suno) is producing content at volume that a human artist cannot match on throughput.',
-  '29': 'Diagnostic AI (PathAI, Viz.ai) and clinical decision support are augmenting (and displacing) clinical decision-making.',
-  '31': 'Companion robots, remote patient monitoring, and automated care scheduling are absorbing the routine portions of healthcare support.',
-  '33': 'Surveillance AI, predictive policing, and autonomous patrol drones are reshaping protective services.',
-  '35': 'Kitchen robotics (Miso, Flippy) and automated ordering absorb routine food-prep and front-of-house functions.',
-  '37': 'Autonomous cleaning robots and facility-management AI are replacing standardized cleaning routes.',
-  '39': 'Service robots and AI personal assistants absorb routine concierge and attendant work.',
+  '29': 'Diagnostic AI (PathAI, Viz.ai) and clinical decision support are augmenting clinical decision-making, though most clinical work requires physical presence.',
+  '31': 'Limited current AI exposure; most tasks involve physical patient care and interpersonal support that LLMs cannot perform.',
+  '33': 'Limited current AI exposure; most tasks require physical presence, public trust mandates, and real-time judgment.',
+  '35': 'Limited current AI exposure; most tasks involve physical food preparation and in-person service.',
+  '37': 'Limited current AI exposure; most tasks involve physical cleaning and facility maintenance.',
+  '39': 'Limited current AI exposure; most tasks require personal presence and human interaction.',
   '41': 'AI sales agents (Regie.ai, Outreach) and recommendation engines automate prospecting and first-touch selling.',
   '43': 'RPA (UiPath, Automation Anywhere), AI document processing, and chatbots dissolve traditional office-support roles quickly.',
-  '45': 'Agricultural robotics (John Deere See & Spray) and autonomous harvesters are replacing field labor.',
-  '47': 'Construction robotics (Built Robotics), prefabrication automation, and drone surveys compress site labor.',
-  '49': 'Predictive-maintenance AI, diagnostic robots, and AR-guided repair tools are squeezing field-service roles.',
-  '51': 'Industrial robotics (Fanuc, ABB), lights-out manufacturing, and cobot assembly replace production-line labor.',
-  '53': 'Autonomous vehicles (Waymo, Aurora), drone delivery, and warehouse AGVs reshape transportation and logistics.',
+  '45': 'Limited current AI exposure; most tasks involve physical outdoor labor that LLMs cannot perform.',
+  '47': 'Limited current AI exposure; most tasks involve physical on-site construction work.',
+  '49': 'Predictive-maintenance AI and AR-guided repair diagnostics augment field-service roles, though most work is physical.',
+  '51': 'Limited current AI exposure; most tasks involve physical production-line work.',
+  '53': 'Limited current AI exposure; most tasks involve physical vehicle operation and material handling.',
 }
 
 function getReplacementMechanism(socCode: string | null): string {

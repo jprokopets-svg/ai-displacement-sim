@@ -83,10 +83,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
   const countyMap = new Map(counties.map(c => [c.county_fips, c]))
 
   // Raw layer score lookup — returns the unranked value (0-1 typically) so
-  // we can rank across all counties and color by percentile. This keeps each
-  // layer visually distinct: if a layer's raw values cluster in a narrow
-  // band (e.g. score * 60 for robotics sits mostly in 0.12-0.36), ranking
-  // by percentile spreads the colors across the full low→high gradient.
+  // we can rank across all counties and color by percentile.
   function getRawLayerScore(fips: string, layer: string): number | null {
     if (layer === 'composite') return null // use default percentile
     if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
@@ -101,23 +98,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       const smallBiz = (d.small_biz_concentration as number) || 0
       return cascade * 0.5 + smallBiz * 0.5
     }
-    // Multi-track (backend-provided) — preferred when available.
-    const mt = overlays?.multi_track?.[fips] as Record<string, number> | undefined
-    if (mt) {
-      if (layer === 'cognitive') return mt.cognitive_score ?? null
-      if (layer === 'robotics') return mt.robotics_score ?? null
-      if (layer === 'agentic') return mt.agentic_score ?? null
-      if (layer === 'offshoring') return mt.offshoring_score ?? null
-    }
-    // Fallback: approximate tracks from composite score (multi_track is
-    // empty in the current backend, so this path actually runs in prod).
-    const county = countyMap.get(fips)
-    if (!county) return null
-    const score = county.ai_exposure_score
-    if (layer === 'cognitive') return score * 1.10
-    if (layer === 'robotics') return score * 0.60
-    if (layer === 'agentic') return year > 2026 ? score * 0.90 : score * 0.20
-    if (layer === 'offshoring') return score * 0.70
     return null
   }
 
@@ -345,39 +325,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       }
     }
 
-    // Reshoring paradox indicators
-    if (scenario?.showReshoringParadox && overlays?.dynamics) {
-      const mfgGroup = g.append('g').attr('class', 'reshoring')
-      for (const [fips, data] of Object.entries(overlays.dynamics)) {
-        const mfgPct = (data.manufacturing_emp_pct as number) || 0
-        const paradox = (data.reshoring_paradox_score as number) || 0
-        if (mfgPct < 0.10 || paradox < 0.1) continue
-        const feature = countyFeatures.features.find(f => String(f.id).padStart(5, '0') === fips)
-        if (!feature) continue
-        const centroid = path.centroid(feature)
-        if (!centroid || isNaN(centroid[0])) continue
-        mfgGroup.append('circle')
-          .attr('cx', centroid[0])
-          .attr('cy', centroid[1])
-          .attr('r', 5)
-          .attr('fill', '#f97316')
-          .attr('fill-opacity', 0.9)
-          .attr('stroke', '#fff')
-          .attr('stroke-width', 0.8)
-          .attr('pointer-events', 'none')
-        mfgGroup.append('text')
-          .attr('x', centroid[0])
-          .attr('y', centroid[1])
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'central')
-          .attr('font-size', 7)
-          .attr('font-weight', 'bold')
-          .attr('fill', '#fff')
-          .attr('pointer-events', 'none')
-          .text('R')
-      }
-    }
-
     // Zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 12])
@@ -395,10 +342,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
   const layerName = scenario?.mapLayer || 'composite'
   const LAYER_NAMES: Record<string, string> = {
     composite: 'AI Exposure',
-    cognitive: 'Cognitive AI',
-    robotics: 'Industrial Robotics',
-    agentic: 'Agentic AI',
-    offshoring: 'Offshoring Risk',
     fragility: 'Local Economy Fragility',
     govt_floor: 'Govt Floor Strength',
     cascade: 'Competitive Cascade',
