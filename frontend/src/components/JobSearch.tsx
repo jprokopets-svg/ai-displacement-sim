@@ -326,7 +326,7 @@ function OccupationDetail({ occ, onBack }: { occ: Record<string, unknown>; onBac
           }}>
             {formatExposure(exposure)}
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Composite Displacement</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>AI Exposure</div>
         </div>
       </div>
 

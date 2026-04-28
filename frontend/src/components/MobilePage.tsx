@@ -175,7 +175,7 @@ function CountyChecker({ counties }: { counties: County[] }) {
             {(selected.ai_exposure_score * 100).toFixed(0)}
           </div>
           <div style={{ fontSize: 11, color: '#d0d8e4', marginTop: 4 }}>
-            composite AI displacement score · p{Math.round(selected.exposure_percentile)}
+            AI exposure score · p{Math.round(selected.exposure_percentile)}
           </div>
           <div style={{ fontSize: 12, color: '#d0d8e4', marginTop: 4 }}>
             {selected.total_employment > 0 ? `${Math.round(selected.total_employment).toLocaleString()} workers` : ''}

@@ -47,16 +47,16 @@ export default function CountyDetailPanel({ countyFips, year, onClose }: CountyD
         FIPS: {countyFips} | Year: {year} | {bandInfo.label}
       </div>
 
-      {/* Composite Score with CI */}
+      {/* AI Exposure Score with CI */}
       <div style={{
         background: 'var(--bg-secondary)', borderRadius: 6, padding: 10,
         border: '1px solid var(--border)', marginBottom: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-            Composite Displacement Score
+            AI Exposure
           </div>
-          <InfoBtn text="Employment-weighted AI exposure across all occupations in this county. Combines cognitive AI, robotics, agentic AI, and offshoring tracks." />
+          <InfoBtn text="Employment-weighted Eloundou GPT-4 LLM exposure across all occupations in this county. Regularized via Fay-Herriot shrinkage." />
         </div>
         <div style={{
           fontSize: 24, fontWeight: 700,
