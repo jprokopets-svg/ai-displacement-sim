@@ -3,6 +3,7 @@ import Section from './Section'
 import type { ScenarioState } from '../ControlPanel'
 import { countyLabel } from '../../utils/countyLabel'
 import { bucketLabel, bucketColor } from '../../utils/buckets'
+import { getUncertaintyState, BAND_LABELS } from '../../utils/uncertainty'
 
 const MIN_EMPLOYMENT_FOR_RANKING = 100_000
 
@@ -90,11 +91,24 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
               large
             />
             <Divider />
-            <Stat
-              label="Projection year"
-              value={String(scenario.year)}
-              sub={yearConfidenceLabel(scenario.year)}
-            />
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                Projection year
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <span className="data-value" style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-primary)' }}>
+                  {scenario.year}
+                </span>
+                <span style={{
+                  fontSize: 10, fontWeight: 600, letterSpacing: '0.04em',
+                  padding: '2px 6px', borderRadius: 3,
+                  color: BAND_LABELS[getUncertaintyState(scenario.year).band].color,
+                  border: `1px solid ${BAND_LABELS[getUncertaintyState(scenario.year).band].color}`,
+                }}>
+                  {BAND_LABELS[getUncertaintyState(scenario.year).band].label}
+                </span>
+              </div>
+            </div>
             <Stat
               label="Feedback aggressiveness"
               value={scenario.feedbackAggressiveness.toFixed(2)}
@@ -244,12 +258,6 @@ function fmtNum(n: number | null | undefined): string {
   if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'
   if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'
   return n.toLocaleString()
-}
-
-function yearConfidenceLabel(year: number): string {
-  if (year <= 2027) return 'High confidence band'
-  if (year <= 2032) return 'Medium confidence band'
-  return 'Low confidence — scenario modeling'
 }
 
 function feedbackLabel(v: number): string {

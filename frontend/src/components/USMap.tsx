@@ -4,7 +4,7 @@ import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
 import { getExposureColor, getDeltaColor, formatNumber } from '../utils/colors'
 import { bucketColor, bucketLabel, formatExposureWhole } from '../utils/buckets'
-import { getUncertaintyState, getHatchPatternDef, BAND_LABELS } from '../utils/uncertainty'
+// uncertainty.ts still used by right panel — not imported here
 import { countyLabel } from '../utils/countyLabel'
 import type { ScenarioState } from './ControlPanel'
 
@@ -69,7 +69,7 @@ function rankOverlay(
   return out
 }
 
-export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025, overlays, companyData, scenario, scenarioActive = false }: USMapProps) {
+export default function USMap({ counties, onCountyClick, selectedCounty, year: _year, overlays, companyData, scenario, scenarioActive = false }: USMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, data: null,
@@ -139,20 +139,12 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
 
-    const uncertainty = getUncertaintyState(year)
-
     const width = 960
     const height = 600
     const projection = d3.geoAlbersUsa().fitSize([width, height],
       topojson.feature(topoData, topoData.objects.nation) as unknown as d3.GeoPermissibleObjects
     )
     const path = d3.geoPath().projection(projection)
-
-    // Add hatch pattern definition if needed
-    const defs = svg.append('defs')
-    if (uncertainty.hatchDensity > 0) {
-      defs.html(getHatchPatternDef(uncertainty.hatchDensity))
-    }
 
     // County shapes
     const countyFeatures = topojson.feature(
@@ -206,7 +198,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         // Continuous mode: composite displacement percentile gradient
         return getExposureColor(county.exposure_percentile)
       })
-      .attr('opacity', uncertainty.opacity)
       .attr('stroke', d => {
         const fips = String(d.id).padStart(5, '0')
         return fips === selectedCounty ? '#fff' : '#2a2a3a'
@@ -293,19 +284,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         .attr('stroke', 'none')
     }
 
-    // Hatch pattern overlay (uncertainty visualization)
-    if (uncertainty.hatchDensity > 0) {
-      const nationFeature = topojson.feature(
-        topoData,
-        topoData.objects.nation,
-      ) as unknown as GeoJSON.FeatureCollection
-      g.append('path')
-        .datum(nationFeature.features[0])
-        .attr('d', d => path(d) || '')
-        .attr('fill', 'url(#hatch)')
-        .attr('pointer-events', 'none')
-    }
-
     // Company displacement dots
     if (scenario?.showCompanyDots && companyData && companyData.length > 0) {
       const dotsGroup = g.append('g').attr('class', 'company-dots')
@@ -359,10 +337,8 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
     svg.call(zoom)
 
-  }, [topoData, counties, selectedCounty, onCountyClick, year, overlays, companyData, scenario, scenarioActive])
-
-  const uncertainty = getUncertaintyState(year)
-  const bandInfo = BAND_LABELS[uncertainty.band]
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- year intentionally excluded: map is year-independent
+  }, [topoData, counties, selectedCounty, onCountyClick, overlays, companyData, scenario, scenarioActive])
 
   const layerName = scenario?.mapLayer || 'composite'
   const LAYER_NAMES: Record<string, string> = {
@@ -374,37 +350,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-      {/* Uncertainty banner */}
-      {uncertainty.bannerText && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 60,
-          background: uncertainty.bannerColor,
-          padding: '6px 16px',
-          textAlign: 'center',
-          fontSize: 12,
-          color: '#e8e8ed',
-          borderBottom: '1px solid var(--border)',
-        }}>
-          {uncertainty.bannerText}
-        </div>
-      )}
-
-      {/* Confidence indicator (top right) */}
-      <div style={{
-        position: 'absolute', top: uncertainty.bannerText ? 36 : 12, right: 12,
-        zIndex: 55, background: 'var(--bg-panel)', padding: '6px 10px',
-        borderRadius: 6, border: '1px solid var(--border)',
-        fontSize: 11, textAlign: 'center', minWidth: 80,
-      }}>
-        <div style={{ color: 'var(--text-muted)' }}>Confidence</div>
-        <div style={{
-          fontSize: 18, fontWeight: 700,
-          color: bandInfo.color,
-        }}>
-          {bandInfo.label}
-        </div>
-      </div>
-
       <svg
         ref={svgRef}
         viewBox="0 0 960 600"
