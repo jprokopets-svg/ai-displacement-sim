@@ -194,7 +194,15 @@ def _load_county_naics_shares() -> pd.DataFrame:
 def compute_bartik_adjustments() -> pd.DataFrame:
     """
     Compute Bartik shift-share adjustments for all counties under all
-    scenario combinations.
+    scenario combinations, with Fay-Herriot shrinkage applied to the
+    deltas to match the base-score shrinkage methodology.
+
+    For each county:
+        shrunk_delta_i = w_i × raw_delta_i + (1 - w_i) × state_avg_delta_i
+
+    where w_i is the same shrinkage weight used for base scores and
+    state_avg_delta_i is the employment-weighted mean raw delta across
+    MSA-based counties in the same state.
 
     Returns DataFrame with columns:
         county_fips,
@@ -206,41 +214,138 @@ def compute_bartik_adjustments() -> pd.DataFrame:
     shares = _load_county_naics_shares()
     print(f"  Loaded NAICS shares for {shares['county_fips'].nunique()} counties")
 
-    results = {}
-
+    # Compute raw (unshrunk) deltas per county per scenario
+    raw_results = {}
     for scenario_name, coeffs in [
         ("trade_free_trade", TRADE_POLICY_COEFFICIENTS["free_trade"]),
         ("trade_escalating_tariffs", TRADE_POLICY_COEFFICIENTS["escalating_tariffs"]),
         ("fed_cut", FED_RESPONSE_COEFFICIENTS["cut"]),
         ("fed_zero", FED_RESPONSE_COEFFICIENTS["zero"]),
     ]:
-        # Map coefficients to each county-sector row
         shares_copy = shares.copy()
         shares_copy["coeff"] = shares_copy["naics_2"].map(coeffs).fillna(0)
         shares_copy["contribution"] = (
             shares_copy["employment_share"] * shares_copy["coeff"]
         )
-
-        # Sum across sectors per county
         county_delta = (
             shares_copy.groupby("county_fips")["contribution"]
             .sum()
             .rename(scenario_name)
         )
-        results[scenario_name] = county_delta
+        raw_results[scenario_name] = county_delta
 
-    result_df = pd.DataFrame(results).reset_index()
-    result_df = result_df.rename(columns={"index": "county_fips"})
+    raw_df = pd.DataFrame(raw_results).reset_index()
+    raw_df = raw_df.rename(columns={"index": "county_fips"})
+    raw_df = raw_df.fillna(0)
 
-    # Fill missing counties with 0
-    result_df = result_df.fillna(0)
+    # Load shrinkage weights from the county_scores table
+    conn = sqlite3.connect(DB_PATH)
+    county_meta = pd.read_sql(
+        "SELECT county_fips, shrinkage_weight, total_employment, is_estimated "
+        "FROM county_scores",
+        conn,
+    )
+    conn.close()
 
-    print(f"  Computed adjustments for {len(result_df)} counties")
-    for col in ["trade_free_trade", "trade_escalating_tariffs", "fed_cut", "fed_zero"]:
+    raw_df = raw_df.merge(county_meta, on="county_fips", how="left")
+    raw_df["shrinkage_weight"] = raw_df["shrinkage_weight"].fillna(0)
+    raw_df["state_fips"] = raw_df["county_fips"].str[:2]
+
+    # Compute state-anchor deltas from MSA-based counties only
+    msa = raw_df[raw_df["is_estimated"] == 0].copy()
+    scenario_cols = [
+        "trade_free_trade", "trade_escalating_tariffs", "fed_cut", "fed_zero",
+    ]
+
+    # Employment-weighted mean delta per state, per scenario
+    state_anchors = {}
+    for col in scenario_cols:
+        weighted = (msa.groupby("state_fips")
+                    .apply(lambda g: (g[col] * g["total_employment"]).sum()
+                           / g["total_employment"].sum()
+                           if g["total_employment"].sum() > 0 else 0,
+                           include_groups=False))
+        state_anchors[col] = weighted
+
+    state_anchor_df = pd.DataFrame(state_anchors)
+
+    # BEA region fallback for states with <3 MSA counties
+    # (same logic as fill_rural.py _compute_anchors)
+    from .fill_rural import BEA_REGIONS, STATE_TO_REGION
+
+    msa_counts_by_state = msa.groupby("state_fips").size()
+    all_states = raw_df["state_fips"].unique()
+
+    # Compute region-level anchors
+    region_anchors = {}
+    for region, state_list in BEA_REGIONS.items():
+        region_msa = msa[msa["state_fips"].isin(state_list)]
+        total_emp = region_msa["total_employment"].sum()
+        if total_emp > 0:
+            region_row = {}
+            for col in scenario_cols:
+                region_row[col] = (
+                    (region_msa[col] * region_msa["total_employment"]).sum()
+                    / total_emp
+                )
+            region_anchors[region] = region_row
+
+    # National fallback
+    national_total = msa["total_employment"].sum()
+    national_anchors = {}
+    for col in scenario_cols:
+        national_anchors[col] = (
+            (msa[col] * msa["total_employment"]).sum() / national_total
+            if national_total > 0 else 0
+        )
+
+    # Build per-state anchor lookup with fallback
+    def get_state_anchor(state, col):
+        msa_n = msa_counts_by_state.get(state, 0)
+        if msa_n >= 3 and state in state_anchor_df.index:
+            return state_anchor_df.loc[state, col]
+        region = STATE_TO_REGION.get(state)
+        if region and region in region_anchors:
+            return region_anchors[region][col]
+        return national_anchors[col]
+
+    # Apply shrinkage to each scenario delta
+    print("\n  Applying Fay-Herriot shrinkage to Bartik deltas...")
+    for col in scenario_cols:
+        raw_delta = raw_df[col].values
+        w = raw_df["shrinkage_weight"].values
+        anchor = raw_df["state_fips"].apply(
+            lambda s, c=col: get_state_anchor(s, c)
+        ).values
+        raw_df[col] = w * raw_delta + (1 - w) * anchor
+
+    result_df = raw_df[["county_fips"] + scenario_cols].copy()
+
+    print(f"  Computed shrunk adjustments for {len(result_df)} counties")
+    for col in scenario_cols:
         vals = result_df[col]
         print(
             f"    {col:>30s}: [{vals.min():+.5f}, {vals.max():+.5f}]  "
             f"mean={vals.mean():+.5f}"
+        )
+
+    # Show shrinkage effect on extremes
+    print("\n  Shrinkage effect on most-affected counties (free trade):")
+    check = raw_df.nsmallest(5, "trade_free_trade")[
+        ["county_fips", "shrinkage_weight", "trade_free_trade"]
+    ]
+    # Recompute unshrunk for comparison
+    raw_unshrunk = pd.DataFrame(raw_results).reset_index().rename(
+        columns={"index": "county_fips"}
+    )
+    for _, row in check.iterrows():
+        fips = row["county_fips"]
+        unshrunk = raw_unshrunk.loc[
+            raw_unshrunk["county_fips"] == fips, "trade_free_trade"
+        ].values[0]
+        print(
+            f"    {fips}  w={row['shrinkage_weight']:.3f}  "
+            f"raw_delta={unshrunk:+.5f}  shrunk_delta={row['trade_free_trade']:+.5f}"
         )
 
     return result_df
