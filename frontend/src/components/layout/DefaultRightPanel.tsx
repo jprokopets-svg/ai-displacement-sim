@@ -211,9 +211,7 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
         </div>
         <div style={{ fontSize: 12, marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
           <a
-            href="https://jakeprokopets.substack.com/p/why-the-most-ai-exposed-counties"
-            target="_blank"
-            rel="noopener"
+            href="/methodology"
             style={{ color: 'var(--accent)', textDecoration: 'none', borderBottom: '1px dotted var(--accent)' }}
           >
             Read the full methodology →

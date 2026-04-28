@@ -108,8 +108,7 @@ export default function MobilePage() {
           Full interactive tool (Monte Carlo, 50K simulations, every US county):{' '}
           <strong>yourjobrisk.com on desktop</strong>
         </p>
-        <a href="https://jakeprokopets.substack.com/p/why-the-most-ai-exposed-counties"
-          target="_blank" rel="noopener noreferrer" style={linkStyle}>
+        <a href="/methodology" style={linkStyle}>
           Read the full methodology →
         </a>
         <p style={{ margin: '12px 0 0', fontSize: 12 }}>

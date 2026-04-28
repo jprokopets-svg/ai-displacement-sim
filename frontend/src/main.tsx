@@ -5,6 +5,7 @@ import App from './App'
 import EmbedPage from './components/EmbedPage'
 import StoryPage from './components/StoryPage'
 import MobilePage from './components/MobilePage'
+import MethodologyPage from './components/MethodologyPage'
 import { SITE_CONFIG } from './config/site'
 import './index.css'
 
@@ -18,6 +19,7 @@ const path = window.location.pathname.replace(/\/$/, '')
 const isMobile = window.innerWidth < 768
 
 function Root() {
+  if (path === '/methodology') return <MethodologyPage />
   if (isMobile && (path === '/tool' || path === '')) return <MobilePage />
   if (path === '/tool') return <App />
   if (path === '/embed') return <EmbedPage />

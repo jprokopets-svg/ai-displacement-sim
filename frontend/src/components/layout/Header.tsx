@@ -44,12 +44,10 @@ export default function Header({ tab, onTabChange, ticker }: Props) {
           </button>
         ))}
         <a
-          href="https://jakeprokopets.substack.com/p/why-the-most-ai-exposed-counties"
-          target="_blank"
-          rel="noopener"
+          href="/methodology"
           style={methodologyLinkStyle}
         >
-          Methodology ↗
+          Methodology
         </a>
       </nav>
     </header>
