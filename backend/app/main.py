@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .database import (
     get_all_county_scores,
+    get_bartik_adjustments,
     get_bucket_boundaries,
     get_county_detail,
     search_occupation,
@@ -79,6 +80,7 @@ def list_counties():
         "counties": scores,
         "count": len(scores),
         "bucket_boundaries": get_bucket_boundaries(),
+        "bartik": get_bartik_adjustments(),
     }
 
 

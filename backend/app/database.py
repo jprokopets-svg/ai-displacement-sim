@@ -246,6 +246,24 @@ def get_county_overlays() -> Dict:
     }
 
 
+def get_bartik_adjustments() -> Dict[str, Dict[str, float]]:
+    """Get pre-computed Bartik shift-share adjustments keyed by county FIPS.
+
+    Returns: { county_fips: { trade_free_trade, trade_escalating_tariffs,
+                               fed_cut, fed_zero } }
+    """
+    with get_db() as conn:
+        try:
+            rows = conn.execute(
+                """SELECT county_fips, trade_free_trade, trade_escalating_tariffs,
+                          fed_cut, fed_zero
+                   FROM county_bartik"""
+            ).fetchall()
+        except Exception:
+            return {}
+    return {r["county_fips"]: dict(r) for r in rows}
+
+
 def get_company_displacement() -> List[Dict]:
     """Load company displacement data from the scraper export."""
     import json as _json
