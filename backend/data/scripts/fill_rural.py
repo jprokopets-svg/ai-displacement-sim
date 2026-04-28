@@ -8,8 +8,9 @@ Approach: Use QCEW industry-level employment (NAICS codes) to estimate each
 rural county's AI exposure based on its industry mix.
 
 Method:
-1. Build a NAICS-sector → AI exposure mapping using the MSA counties we already
-   have (compute average AI exposure by 2-digit NAICS sector from OEWS data).
+1. Sector-level Eloundou exposures are derived empirically from MSA-based
+   county data: regress county-level Eloundou scores against QCEW NAICS
+   employment shares (non-negative least squares, N=1,243 MSA counties).
 2. For each non-MSA county, load QCEW employment by 2-digit NAICS sector.
 3. Compute employment-weighted AI exposure from industry mix.
 4. Flag these counties as 'estimated' (not occupation-level data).
@@ -29,52 +30,46 @@ import numpy as np
 from .config import RAW_DIR, DB_PATH
 
 
-# NAICS 2-digit sector → AI exposure score
-# Derived from national OEWS occupation composition within each sector,
-# weighted by the AIOE scores we computed.
-# These are calibrated so that the resulting county scores land in the
-# same range as the MSA-based county scores.
+# NAICS 2-digit sector → Eloundou LLM exposure score
 #
-# Sources for sector-level AI exposure reasoning:
-# - Finance/Insurance (52): heavy analytical, actuarial, compliance → high
-# - Professional/Scientific (54): consulting, legal, engineering, R&D → high
-# - Information (51): software, data, media → high
-# - Management (55): planning, strategy, analysis → high
-# - Public Admin (92): administrative, regulatory, analytical → medium-high
-# - Education (61): teaching, research, admin → medium
-# - Healthcare (62): clinical + administrative mix → medium
-# - Retail (44-45): mix of analytical (buying) and physical (stocking) → medium-low
-# - Manufacturing (31-33): automation-exposed but physical → medium-low
-# - Construction (23): primarily physical → low
-# - Agriculture (11): primarily physical → low
-# - Mining (21): primarily physical → low
-# - Accommodation/Food (72): primarily physical/service → low
+# Derived empirically: regress MSA-based county Eloundou scores against
+# QCEW NAICS employment shares (NNLS, N=1,243 counties, R²=0.23).
+# The R² is modest because the MSA crosswalk flattens within-MSA variation,
+# but the coefficients give the sector exposures most consistent with the
+# occupation-level Eloundou data we have.
+#
+# Key deltas from the v1 hardcoded values:
+#   Finance (52): 0.75 → 0.35  — was treating entire sector as analysts
+#   Prof/Tech (54): 0.70 → 0.49  — includes low-exposure support staff
+#   Management (55): 0.65 → 0.24  — management roles have moderate LLM exposure
+#   Information (51): 0.72 → 0.56  — includes infrastructure/ops, not just software
+#   Real Estate (53): 0.55 → 0.23  — primarily sales/property management
 NAICS_SECTOR_EXPOSURE = {
-    "11": 0.18,   # Agriculture, Forestry, Fishing, Hunting
-    "21": 0.25,   # Mining, Quarrying, Oil/Gas
-    "22": 0.35,   # Utilities
-    "23": 0.22,   # Construction
-    "31": 0.38,   # Manufacturing
-    "32": 0.38,   # Manufacturing
-    "33": 0.40,   # Manufacturing (more tech-heavy)
-    "42": 0.45,   # Wholesale Trade
-    "44": 0.35,   # Retail Trade
-    "45": 0.35,   # Retail Trade
-    "48": 0.28,   # Transportation and Warehousing
-    "49": 0.28,   # Transportation and Warehousing
-    "51": 0.72,   # Information
-    "52": 0.75,   # Finance and Insurance
-    "53": 0.55,   # Real Estate
-    "54": 0.70,   # Professional, Scientific, Technical Services
-    "55": 0.65,   # Management of Companies
-    "56": 0.45,   # Admin, Support, Waste Management
-    "61": 0.52,   # Educational Services
-    "62": 0.48,   # Healthcare and Social Assistance
-    "71": 0.30,   # Arts, Entertainment, Recreation
-    "72": 0.22,   # Accommodation and Food Services
-    "81": 0.32,   # Other Services
-    "92": 0.55,   # Public Administration
-    "99": 0.30,   # Unclassified
+    "11": 0.292,   # Agriculture, Forestry, Fishing, Hunting
+    "21": 0.304,   # Mining, Quarrying, Oil/Gas
+    "22": 0.188,   # Utilities
+    "23": 0.352,   # Construction
+    "31": 0.308,   # Manufacturing
+    "32": 0.308,   # Manufacturing
+    "33": 0.308,   # Manufacturing
+    "42": 0.308,   # Wholesale Trade
+    "44": 0.309,   # Retail Trade
+    "45": 0.309,   # Retail Trade
+    "48": 0.321,   # Transportation and Warehousing
+    "49": 0.321,   # Transportation and Warehousing
+    "51": 0.563,   # Information
+    "52": 0.351,   # Finance and Insurance
+    "53": 0.226,   # Real Estate
+    "54": 0.485,   # Professional, Scientific, Technical Services
+    "55": 0.236,   # Management of Companies
+    "56": 0.333,   # Admin, Support, Waste Management
+    "61": 0.501,   # Educational Services
+    "62": 0.294,   # Healthcare and Social Assistance
+    "71": 0.361,   # Arts, Entertainment, Recreation
+    "72": 0.324,   # Accommodation and Food Services
+    "81": 0.395,   # Other Services
+    "92": 0.330,   # Public Administration (no regression data; set to overall mean)
+    "99": 0.330,   # Unclassified (negligible employment; set to overall mean)
 }
 
 
@@ -153,14 +148,14 @@ def estimate_rural_county_scores(existing_fips: set) -> pd.DataFrame:
     # Map NAICS sector → exposure score
     rural = rural.copy()
     rural["sector_exposure"] = rural["naics_2"].map(NAICS_SECTOR_EXPOSURE)
-    rural["sector_exposure"] = rural["sector_exposure"].fillna(0.30)  # Default for unknown
+    rural["sector_exposure"] = rural["sector_exposure"].fillna(0.330)  # Default: overall mean
 
     # Compute employment-weighted exposure per county
     def _county_exposure(group):
         total_emp = group["employment"].sum()
         if total_emp == 0:
             return pd.Series({
-                "ai_exposure_score": 0.30,
+                "ai_exposure_score": 0.330,
                 "total_employment": 0,
                 "exposed_employment": 0,
                 "mean_wage_weighted": 0,
@@ -169,7 +164,7 @@ def estimate_rural_county_scores(existing_fips: set) -> pd.DataFrame:
 
         weighted_exp = (group["employment"] * group["sector_exposure"]).sum() / total_emp
         # "Exposed" = employment in sectors with above-median exposure
-        median_exp = 0.40
+        median_exp = 0.35
         exposed_emp = group.loc[group["sector_exposure"] > median_exp, "employment"].sum()
 
         return pd.Series({
