@@ -155,6 +155,128 @@ export default function MethodologyPage() {
           our levels of uncertainty, and the inputs do not support a tenth of a percentage point.
         </p>
 
+        <h2 style={h2Style}>Scenario response: how the map changes when you adjust the controls</h2>
+
+        <p style={pStyle}>
+          The default map shows current AI exposure, which doesn't change with year or any other input. The simulation panel
+          on the right propagates that exposure forward in time under varying adoption-pace assumptions. Two of the sidebar
+          controls — Trade Policy and Fed Response — also reach back into the map itself, redistributing exposure across counties
+          to reflect how a particular policy shock would change the picture. This section explains how that redistribution is computed.
+        </p>
+
+        <h3 style={h3Style}>Bartik shift-share decomposition</h3>
+
+        <p style={pStyle}>
+          The standard tool for this problem in regional economics is Bartik shift-share decomposition, named after Tim Bartik's
+          1991 monograph <em>Who Benefits from State and Local Economic Development Policies?</em> The method has been the
+          workhorse of regional impact analysis for over thirty years. Autor, Dorn, and Hanson used it to measure the China
+          Shock's county-level effects. The Census Bureau and Federal Reserve use variants for fiscal-policy work.
+          Goldsmith-Pinkham, Sorkin, and Swift (2020, <em>American Economic Review</em>) gave it a formal identification treatment.
+        </p>
+
+        <p style={pStyle}>
+          The mechanic is one line: a county's response to a scenario equals the sum, across industries, of the county's
+          employment share in industry <em>k</em> multiplied by the national-level employment effect of that scenario
+          on industry <em>k</em>.
+        </p>
+
+        <p style={pStyle}>
+          The local share comes from QCEW employment data — the same source already used elsewhere in the pipeline. The national
+          shifts come from two places, depending on which sector we're talking about: published academic literature for the
+          directly-affected sectors, and BEA's national input-output tables for everything else.
+        </p>
+
+        <h3 style={h3Style}>Where the numbers come from</h3>
+
+        <p style={pStyle}>
+          For each scenario, only a small number of sectors are directly shocked by the policy itself. A tariff on Chinese imports
+          directly shocks manufacturing employment; the rest of the economy is affected indirectly through supply-chain linkages.
+          A federal funds rate cut directly shocks construction, real estate, and durable-goods manufacturing — the rate-sensitive
+          sectors — and propagates outward from there.
+        </p>
+
+        <p style={pStyle}>
+          The direct shocks come from peer-reviewed estimates:
+        </p>
+
+        <ul style={ulStyle}>
+          <li style={liStyle}>
+            <strong>Trade Policy.</strong> Manufacturing employment effects under a free-trade scenario use the elasticities
+            Autor, Dorn, and Hanson estimated in their 2013 <em>AER</em> paper, table 3 column 6. The asymmetry between
+            competitive shocks (trade liberalization) and protective shocks (escalating tariffs) follows their 2021 follow-up:
+            protection is less efficient at creating manufacturing employment than competition is at destroying it. Agricultural
+            retaliation effects come from USDA Economic Research Service estimates of the 2018-19 trade war.
+          </li>
+          <li style={liStyle}>
+            <strong>Fed Response.</strong> Sectoral employment elasticities to the federal funds rate come from Carlino and
+            DeFina's 1998 paper in the <em>Review of Economics and Statistics</em>, table 2. Construction and real estate are the
+            most rate-sensitive sectors, with durable manufacturing close behind. Their estimates are still the standard reference
+            for this question.
+          </li>
+        </ul>
+
+        <p style={pStyle}>
+          The indirect effects — how a manufacturing shock propagates through wholesale, transportation, professional services,
+          and so on — are computed from BEA's national Input-Output Use Table for 2024. The Use Table records, in dollars, how
+          much output each industry buys from every other industry. The Leontief inverse of this matrix turns a vector of direct
+          shocks into a vector of total effects, capturing the full chain of supply-side dependencies. This is the same structural
+          data underlying the Federal Reserve's regional impact analyses and BEA's RIMS II commercial multiplier product.
+        </p>
+
+        <p style={pStyle}>
+          The output is one coefficient per NAICS 2-digit sector per scenario. Every coefficient traces to either ADH 2013,
+          Carlino-DeFina 1998, USDA ERS, or BEA's published Input-Output tables. None are calibrated by judgment.
+        </p>
+
+        <h3 style={h3Style}>What this looks like on the map</h3>
+
+        <p style={pStyle}>
+          When you activate a scenario, the choropleth recomputes each county's exposure score by adding the Bartik adjustment
+          to the baseline. Counties whose industry mix concentrates them in directly-shocked sectors shift the most.
+          A manufacturing-heavy county like Elkhart, Indiana drops about six percentage points under a free-trade scenario and
+          rises about three under escalating tariffs. A diversified service-economy metro like Manhattan barely moves under either,
+          because Manhattan has very little manufacturing exposure. This is the pattern the literature predicts.
+        </p>
+
+        <p style={pStyle}>
+          The bucket boundaries on the map are computed once from the baseline distribution and don't move when scenarios activate.
+          A county that crosses a boundary under a scenario — say, Elkhart shifting from upper-middle to lower under free trade —
+          is meaningfully affected by that scenario. The boundary-crossing is the signal. We could have rebased the buckets every
+          time a scenario activates, which would make the map always look like a clean four-band gradient, but that would have
+          hidden the response.
+        </p>
+
+        <h3 style={h3Style}>Limitations of the scenario model</h3>
+
+        <p style={pStyle}>
+          Three caveats worth being explicit about.
+        </p>
+
+        <p style={pStyle}>
+          First, Bartik is reduced-form and approximately linear. When you combine multiple scenarios — tariffs <em>and</em> loose
+          monetary policy, say — the model adds the per-scenario adjustments together. Real economies have interactions that simple
+          addition misses. The combined effect is approximately right for directional questions ("which counties are vulnerable to
+          this policy mix") and approximately wrong for precise magnitude questions ("how many jobs does this combination cost").
+        </p>
+
+        <p style={pStyle}>
+          Second, Bartik responses are also shrunk via Fay-Herriot. The same employment-weighted shrinkage that pulls small-county
+          base scores toward state means is applied to scenario deltas. A county with limited employment data gets a regularized
+          scenario response, not a high-variance one. This is the right call statistically, but it means microcounty scenario
+          responses are dampened toward state averages.
+        </p>
+
+        <p style={pStyle}>
+          Third, the BEA Input-Output table we use is the 2024 advance release. BEA's comprehensive benchmark revisions typically
+          lag two to three years. Coefficients may shift somewhat when the 2024 benchmark is finalized.
+        </p>
+
+        <p style={pStyle}>
+          The other three sidebar controls — Government Response, Corporate Profits, AI Equity Loop — currently affect only the
+          simulation panel, not the map. v3 will extend Bartik response to these scenarios as the underlying coefficient sources
+          are sourced and validated. Implementing them honestly requires research that hasn't been done in v2.
+        </p>
+
         <h2 style={h2Style}>What the Monte Carlo does and does not model</h2>
 
         <p style={pStyle}>
@@ -189,12 +311,20 @@ export default function MethodologyPage() {
         <h2 style={h2Style}>Sources</h2>
 
         <ul style={ulStyle}>
-          <li style={liStyle}>Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2024). <em>GPTs are GPTs: Labor market impact potential of LLMs</em>. arXiv:2303.10130.</li>
-          <li style={liStyle}>Felten, E. W., Raj, M., & Seamans, R. (2021). <em>Occupational, industry, and geographic exposure to artificial intelligence: A novel dataset and its potential uses</em>. Strategic Management Journal, 42(12), 2195–2217.</li>
-          <li style={liStyle}>Brynjolfsson, E., Chandar, B., & Chen, R. (2025). <em>Canaries in the coal mine? Six facts about the recent employment effects of artificial intelligence</em>. Stanford Digital Economy Lab.</li>
-          <li style={liStyle}>U.S. Bureau of Labor Statistics. (2024). <em>Occupational Employment and Wage Statistics, May 2024</em>. bls.gov/oes.</li>
           <li style={liStyle}>Fay, R. E., & Herriot, R. A. (1979). <em>Estimates of income for small places: An application of James-Stein procedures to census data</em>. Journal of the American Statistical Association, 74(366), 269–277.</li>
+          <li style={liStyle}>Bartik, T. J. (1991). <em>Who Benefits from State and Local Economic Development Policies?</em> W. E. Upjohn Institute.</li>
+          <li style={liStyle}>Carlino, G., & DeFina, R. (1998). <em>The differential regional effects of monetary policy</em>. Review of Economics and Statistics, 80(4), 572–587.</li>
+          <li style={liStyle}>Autor, D., Dorn, D., & Hanson, G. (2013). <em>The China syndrome: Local labor market effects of import competition in the United States</em>. American Economic Review, 103(6), 2121–2168.</li>
+          <li style={liStyle}>Acemoglu, D., Akcigit, U., & Kerr, W. (2016). <em>Networks and the macroeconomy: An empirical exploration</em>. NBER Macroeconomics Annual, 30.</li>
+          <li style={liStyle}>Goldsmith-Pinkham, P., Sorkin, I., & Swift, H. (2020). <em>Bartik instruments: What, when, why, and how</em>. American Economic Review, 110(8), 2586–2624.</li>
+          <li style={liStyle}>Felten, E. W., Raj, M., & Seamans, R. (2021). <em>Occupational, industry, and geographic exposure to artificial intelligence: A novel dataset and its potential uses</em>. Strategic Management Journal, 42(12), 2195–2217.</li>
+          <li style={liStyle}>Autor, D., Dorn, D., & Hanson, G. (2021). <em>On the persistence of the China shock</em>. Brookings Papers on Economic Activity, Fall.</li>
+          <li style={liStyle}>Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2024). <em>GPTs are GPTs: Labor market impact potential of LLMs</em>. arXiv:2303.10130.</li>
+          <li style={liStyle}>U.S. Bureau of Labor Statistics. (2024). <em>Occupational Employment and Wage Statistics, May 2024</em>. bls.gov/oes.</li>
+          <li style={liStyle}>U.S. Bureau of Economic Analysis. (2024). <em>Input-Output Accounts: Use Tables</em>. bea.gov/industry/input-output-accounts-data.</li>
+          <li style={liStyle}>Brynjolfsson, E., Chandar, B., & Chen, R. (2025). <em>Canaries in the coal mine? Six facts about the recent employment effects of artificial intelligence</em>. Stanford Digital Economy Lab.</li>
           <li style={liStyle}>U.S. Census Bureau. <em>Small Area Income and Poverty Estimates Program (SAIPE)</em>: methodology. census.gov/programs-surveys/saipe.</li>
+          <li style={liStyle}>U.S. Department of Agriculture, Economic Research Service. (2019). <em>Effects of Trade on the U.S. Agricultural Sector</em>. ers.usda.gov.</li>
         </ul>
 
         <h2 style={h2Style}>Limitations</h2>
@@ -264,6 +394,15 @@ const h2Style: React.CSSProperties = {
   color: 'var(--text-primary)',
   paddingBottom: 6,
   borderBottom: '1px solid var(--border)',
+}
+
+const h3Style: React.CSSProperties = {
+  fontSize: 16,
+  fontWeight: 600,
+  letterSpacing: '-0.01em',
+  marginTop: 28,
+  marginBottom: 8,
+  color: 'var(--text-primary)',
 }
 
 const pStyle: React.CSSProperties = {
