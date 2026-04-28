@@ -214,7 +214,16 @@ def fill_rural_counties():
     # Combine
     combined = pd.concat([existing, rural], ignore_index=True)
 
-    # Recompute percentiles across ALL counties
+    # Population floor: counties below this employment threshold are excluded
+    # from the choropleth (too few workers for stable occupation estimates).
+    # They remain in the DB for search/detail but render as grey on the map.
+    DISPLAY_FLOOR = 10_000
+    combined["displayed_on_map"] = combined["total_employment"] >= DISPLAY_FLOOR
+    n_displayed = combined["displayed_on_map"].sum()
+    n_excluded = len(combined) - n_displayed
+
+    # Recompute percentiles across ALL counties (including excluded — their
+    # scores are still valid, just low-confidence at this resolution)
     combined["exposure_percentile"] = (
         combined["ai_exposure_score"].rank(pct=True) * 100
     ).round(1)
@@ -223,6 +232,8 @@ def fill_rural_counties():
     print(f"  Total counties: {len(combined)}")
     print(f"  MSA-based: {len(existing)}")
     print(f"  Estimated (rural): {len(rural)}")
+    print(f"  Displayed on map (emp >= {DISPLAY_FLOOR:,}): {n_displayed}")
+    print(f"  Excluded from map (emp < {DISPLAY_FLOOR:,}): {n_excluded}")
     print(f"  Exposure range: [{combined['ai_exposure_score'].min():.3f}, "
           f"{combined['ai_exposure_score'].max():.3f}]")
 
