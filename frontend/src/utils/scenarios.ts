@@ -21,7 +21,6 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
-  displayed_on_map?: boolean
 }
 
 // Cached baseline percentile thresholds (computed once from unmodified data)

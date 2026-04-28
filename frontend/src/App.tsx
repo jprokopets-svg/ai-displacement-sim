@@ -32,7 +32,6 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
-  displayed_on_map?: boolean
 }
 
 export default function App() {

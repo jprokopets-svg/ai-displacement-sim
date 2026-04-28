@@ -27,7 +27,7 @@ def get_all_county_scores() -> List[Dict]:
                    total_employment, exposed_employment,
                    mean_wage_weighted, exposure_percentile, n_occupations,
                    CASE WHEN is_estimated = 1 THEN 1 ELSE 0 END as is_estimated,
-                   CASE WHEN displayed_on_map = 1 THEN 1 ELSE 0 END as displayed_on_map
+                   raw_exposure_score, shrinkage_weight, state_anchor
             FROM county_scores
             ORDER BY ai_exposure_score DESC
             """
@@ -36,7 +36,6 @@ def get_all_county_scores() -> List[Dict]:
     for r in rows:
         d = dict(r)
         d["is_estimated"] = bool(d.get("is_estimated", 0))
-        d["displayed_on_map"] = bool(d.get("displayed_on_map", 1))
         results.append(d)
     return results
 

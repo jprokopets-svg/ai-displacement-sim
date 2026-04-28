@@ -15,7 +15,6 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
-  displayed_on_map?: boolean
 }
 
 interface USMapProps {
@@ -170,9 +169,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         const fips = String(d.id).padStart(5, '0')
         const county = countyMap.get(fips)
         if (!county) return '#1a1a25'
-
-        // Below population floor — grey, not colored
-        if (county.displayed_on_map === false) return '#2a2a35'
 
         // Non-composite layer: color by percentile rank within the layer's
         // distribution so every layer uses the full low→high color range.
@@ -433,39 +429,31 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         }}>
           <div style={{ fontWeight: 600 }}>
             {countyLabel(tooltip.data)}
-            {tooltip.data.is_estimated && tooltip.data.displayed_on_map !== false && (
+            {tooltip.data.is_estimated && (
               <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 6, fontWeight: 400 }}>
                 ESTIMATED
               </span>
             )}
           </div>
-          {tooltip.data.displayed_on_map === false ? (
-            <div style={{ color: 'var(--text-muted)', marginTop: 4, fontSize: 12 }}>
-              Insufficient employment data at this resolution
+          <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
+            Exposure: <span style={{ color: getExposureColor(tooltip.data.exposure_percentile) }}>
+              {formatExposure(tooltip.data.ai_exposure_score)}
+            </span>
+          </div>
+          <div style={{ color: 'var(--text-secondary)' }}>
+            Percentile: p{tooltip.data.exposure_percentile.toFixed(0)}
+          </div>
+          <div style={{ color: 'var(--text-secondary)' }}>
+            Employment: {formatNumber(tooltip.data.total_employment)}
+          </div>
+          {tooltip.data.is_estimated && (
+            <div style={{ color: 'var(--warning)', fontSize: 10, marginTop: 4 }}>
+              Based on industry mix (no occupation-level data)
             </div>
-          ) : (
-            <>
-              <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-                Exposure: <span style={{ color: getExposureColor(tooltip.data.exposure_percentile) }}>
-                  {formatExposure(tooltip.data.ai_exposure_score)}
-                </span>
-              </div>
-              <div style={{ color: 'var(--text-secondary)' }}>
-                Percentile: p{tooltip.data.exposure_percentile.toFixed(0)}
-              </div>
-              <div style={{ color: 'var(--text-secondary)' }}>
-                Employment: {formatNumber(tooltip.data.total_employment)}
-              </div>
-              {tooltip.data.is_estimated && (
-                <div style={{ color: 'var(--warning)', fontSize: 10, marginTop: 4 }}>
-                  Based on industry mix (no occupation-level data)
-                </div>
-              )}
-              <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
-                Click for details
-              </div>
-            </>
           )}
+          <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
+            Click for details
+          </div>
         </div>
       )}
     </div>

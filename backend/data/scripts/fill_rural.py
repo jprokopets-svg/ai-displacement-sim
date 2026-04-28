@@ -191,13 +191,170 @@ def estimate_rural_county_scores(existing_fips: set) -> pd.DataFrame:
     return county_scores
 
 
+# BEA economic regions — fallback anchors for states with < 3 MSA counties.
+BEA_REGIONS = {
+    "Northeast": [
+        "09", "23", "25", "33", "34", "36", "42", "44", "50",
+    ],
+    "Midwest": [
+        "17", "18", "19", "20", "26", "27", "29", "31", "38", "39", "46", "55",
+    ],
+    "South": [
+        "01", "05", "10", "11", "12", "13", "21", "22", "24", "28",
+        "37", "40", "45", "47", "48", "51", "54",
+    ],
+    "West": [
+        "02", "04", "06", "08", "15", "16", "30", "32", "35", "41", "49", "53", "56",
+    ],
+}
+
+STATE_TO_REGION = {}
+for _region, _fips_list in BEA_REGIONS.items():
+    for _fips in _fips_list:
+        STATE_TO_REGION[_fips] = _region
+
+
+def _compute_anchors(combined: pd.DataFrame) -> tuple:
+    """
+    Compute state-level and BEA-region-level exposure anchors from
+    MSA-based counties only (higher-resolution occupation-level data).
+
+    Returns (state_anchors, region_anchors, national_anchor, fallback_states).
+    """
+    msa = combined[combined["is_estimated"] == False].copy()
+    msa["state_fips"] = msa["county_fips"].str[:2]
+
+    # State-level anchors: employment-weighted mean Eloundou score
+    state_anchors = {}
+    state_msa_counts = {}
+    for state, group in msa.groupby("state_fips"):
+        total_emp = group["total_employment"].sum()
+        if total_emp > 0:
+            state_anchors[state] = (
+                (group["total_employment"] * group["ai_exposure_score"]).sum()
+                / total_emp
+            )
+        state_msa_counts[state] = len(group)
+
+    # BEA region anchors for fallback
+    region_anchors = {}
+    for region, state_list in BEA_REGIONS.items():
+        region_msa = msa[msa["state_fips"].isin(state_list)]
+        total_emp = region_msa["total_employment"].sum()
+        if total_emp > 0:
+            region_anchors[region] = (
+                (region_msa["total_employment"] * region_msa["ai_exposure_score"]).sum()
+                / total_emp
+            )
+
+    # National anchor (all MSA counties)
+    national_total = msa["total_employment"].sum()
+    national_anchor = (
+        (msa["total_employment"] * msa["ai_exposure_score"]).sum() / national_total
+        if national_total > 0 else 0.33
+    )
+
+    # Identify states needing fallback (< 3 MSA counties)
+    all_states = set(combined["county_fips"].str[:2])
+    fallback_states = {}
+    for state in all_states:
+        msa_count = state_msa_counts.get(state, 0)
+        if msa_count < 3:
+            region = STATE_TO_REGION.get(state)
+            if region and region in region_anchors:
+                fallback_states[state] = ("region", region, region_anchors[region])
+            else:
+                fallback_states[state] = ("national", "US", national_anchor)
+
+    return state_anchors, region_anchors, national_anchor, fallback_states
+
+
+def _apply_shrinkage(combined: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply Fay-Herriot style shrinkage to all county exposure scores.
+
+    final_score_i = w_i × raw_score_i + (1 - w_i) × anchor_i
+    w_i = N_i / (N_i + k)
+    k = median total_employment across all counties
+
+    Reference: Fay & Herriot 1979, JASA 74(366):269-277.
+    """
+    print("\n=== Applying Fay-Herriot Shrinkage ===")
+
+    state_anchors, region_anchors, national_anchor, fallback_states = (
+        _compute_anchors(combined)
+    )
+
+    # k = median employment across all counties
+    k = combined["total_employment"].median()
+    print(f"  k (median employment): {k:,.0f}")
+
+    # Show shrinkage weight at key percentiles
+    emp_sorted = combined["total_employment"].sort_values()
+    for pct_label, pct in [("p10", 0.10), ("p25", 0.25), ("p50", 0.50),
+                           ("p75", 0.75), ("p90", 0.90)]:
+        emp_at_pct = emp_sorted.iloc[int(pct * len(emp_sorted))]
+        w = emp_at_pct / (emp_at_pct + k)
+        print(f"  {pct_label} emp={emp_at_pct:>10,.0f}  w={w:.3f}")
+
+    # Log fallback states
+    if fallback_states:
+        print(f"\n  States using fallback anchors ({len(fallback_states)}):")
+        for state, (kind, name, anchor) in sorted(fallback_states.items()):
+            msa_n = len(combined[
+                (combined["county_fips"].str[:2] == state) &
+                (combined["is_estimated"] == False)
+            ])
+            print(f"    {state} ({kind}: {name})  anchor={anchor:.4f}  MSA_counties={msa_n}")
+
+    # Store raw scores and apply shrinkage
+    combined["raw_exposure_score"] = combined["ai_exposure_score"].copy()
+    combined["state_fips"] = combined["county_fips"].str[:2]
+
+    def _get_anchor(state):
+        if state in fallback_states:
+            return fallback_states[state][2]
+        if state in state_anchors:
+            return state_anchors[state]
+        # Should not happen, but safety fallback
+        return national_anchor
+
+    combined["state_anchor"] = combined["state_fips"].apply(_get_anchor)
+    combined["shrinkage_weight"] = combined["total_employment"] / (
+        combined["total_employment"] + k
+    )
+    # Handle 0 employment: full shrinkage
+    combined.loc[combined["total_employment"] <= 0, "shrinkage_weight"] = 0.0
+
+    combined["ai_exposure_score"] = (
+        combined["shrinkage_weight"] * combined["raw_exposure_score"]
+        + (1 - combined["shrinkage_weight"]) * combined["state_anchor"]
+    )
+
+    # Clean up temp column
+    combined.drop(columns=["state_fips"], inplace=True)
+
+    # Round for storage
+    combined["shrinkage_weight"] = combined["shrinkage_weight"].round(4)
+    combined["state_anchor"] = combined["state_anchor"].round(4)
+    combined["raw_exposure_score"] = combined["raw_exposure_score"].round(6)
+
+    print(f"\n  Post-shrinkage exposure range: "
+          f"[{combined['ai_exposure_score'].min():.4f}, "
+          f"{combined['ai_exposure_score'].max():.4f}]")
+    print(f"  Post-shrinkage mean: {combined['ai_exposure_score'].mean():.4f}")
+
+    return combined
+
+
 def fill_rural_counties():
     """
-    Add estimated rural county scores to the SQLite database.
-    Merges with existing MSA-based scores and recomputes percentiles.
+    Add estimated rural county scores to the SQLite database, then apply
+    Fay-Herriot shrinkage to all counties (MSA-based and estimated alike).
+    Recomputes percentiles on the final shrunk scores.
     """
     print("=" * 60)
-    print("  Filling Rural County Exposure Scores")
+    print("  Filling Rural County Exposure Scores + Fay-Herriot Shrinkage")
     print("=" * 60)
 
     conn = sqlite3.connect(DB_PATH)
@@ -214,16 +371,10 @@ def fill_rural_counties():
     # Combine
     combined = pd.concat([existing, rural], ignore_index=True)
 
-    # Population floor: counties below this employment threshold are excluded
-    # from the choropleth (too few workers for stable occupation estimates).
-    # They remain in the DB for search/detail but render as grey on the map.
-    DISPLAY_FLOOR = 10_000
-    combined["displayed_on_map"] = combined["total_employment"] >= DISPLAY_FLOOR
-    n_displayed = combined["displayed_on_map"].sum()
-    n_excluded = len(combined) - n_displayed
+    # Apply Fay-Herriot shrinkage
+    combined = _apply_shrinkage(combined)
 
-    # Recompute percentiles across ALL counties (including excluded — their
-    # scores are still valid, just low-confidence at this resolution)
+    # Recompute percentiles on shrunk scores
     combined["exposure_percentile"] = (
         combined["ai_exposure_score"].rank(pct=True) * 100
     ).round(1)
@@ -232,10 +383,8 @@ def fill_rural_counties():
     print(f"  Total counties: {len(combined)}")
     print(f"  MSA-based: {len(existing)}")
     print(f"  Estimated (rural): {len(rural)}")
-    print(f"  Displayed on map (emp >= {DISPLAY_FLOOR:,}): {n_displayed}")
-    print(f"  Excluded from map (emp < {DISPLAY_FLOOR:,}): {n_excluded}")
-    print(f"  Exposure range: [{combined['ai_exposure_score'].min():.3f}, "
-          f"{combined['ai_exposure_score'].max():.3f}]")
+    print(f"  Final exposure range: [{combined['ai_exposure_score'].min():.4f}, "
+          f"{combined['ai_exposure_score'].max():.4f}]")
 
     # Write back
     combined.to_sql("county_scores", conn, if_exists="replace", index=False)
