@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import Section from './Section'
 import type { ScenarioState } from '../ControlPanel'
 import { countyLabel } from '../../utils/countyLabel'
+import { bucketLabel, bucketColor } from '../../utils/buckets'
 
 const MIN_EMPLOYMENT_FOR_RANKING = 100_000
 
@@ -18,6 +19,7 @@ type CountyScore = {
   total_employment: number
   exposed_employment: number
   exposure_percentile: number
+  bucket?: number
 }
 
 type Company = {
@@ -143,8 +145,14 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
                     <span style={rankStyle}>{i + 1}</span>
                     <span style={countyNameStyle}>{countyLabel(c)}</span>
                   </div>
-                  <span className="data-value" style={scoreStyle}>
-                    {(c.ai_exposure_score * 100).toFixed(0)}
+                  <span className="data-value" style={{
+                    ...scoreStyle,
+                    color: scenario.displayMode === 'bucket' && c.bucket
+                      ? bucketColor(c.bucket) : scoreStyle.color,
+                  }}>
+                    {scenario.displayMode === 'bucket' && c.bucket
+                      ? bucketLabel(c.bucket)
+                      : `${Math.round(c.ai_exposure_score * 100)}%`}
                   </span>
                 </div>
               ))}

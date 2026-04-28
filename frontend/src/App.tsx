@@ -8,6 +8,7 @@ import ControlPanel from './components/ControlPanel'
 import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
+import { getStoredDisplayMode, setStoredDisplayMode } from './utils/buckets'
 
 import Header from './components/layout/Header'
 import type { Tab } from './components/layout/Header'
@@ -32,6 +33,7 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
+  bucket?: number
 }
 
 export default function App() {
@@ -52,11 +54,13 @@ export default function App() {
     equityLoop: 'intact',
     fedResponse: 'hold',
     mapLayer: 'composite',
+    displayMode: getStoredDisplayMode(),
     showCompanyDots: false,
     showTransferDependency: false,
     showKshapeDivergence: false,
   })
   const updateScenario = useCallback((updates: Partial<ScenarioState>) => {
+    if (updates.displayMode) setStoredDisplayMode(updates.displayMode)
     setScenario(prev => ({ ...prev, ...updates }))
   }, [])
 
@@ -165,6 +169,26 @@ export default function App() {
                       }}
                     >
                       {v === 'us' ? 'US Counties' : 'World'}
+                    </button>
+                  ))}
+                </div>
+                <div style={{
+                  display: 'flex', gap: 2, marginLeft: 10,
+                  background: 'var(--bg-inset)', border: '1px solid var(--border-strong)',
+                  borderRadius: 6, padding: 2,
+                }}>
+                  {(['bucket', 'continuous'] as const).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => updateScenario({ displayMode: m })}
+                      style={{
+                        padding: '5px 10px', borderRadius: 4, border: 'none',
+                        background: scenario.displayMode === m ? 'var(--bg-panel-hover)' : 'transparent',
+                        color: scenario.displayMode === m ? 'var(--text-primary)' : 'var(--text-muted)',
+                        fontSize: 11, fontWeight: 500, cursor: 'pointer',
+                      }}
+                    >
+                      {m === 'bucket' ? 'Buckets' : 'Continuous'}
                     </button>
                   ))}
                 </div>

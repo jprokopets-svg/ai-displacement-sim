@@ -379,6 +379,32 @@ def fill_rural_counties():
         combined["ai_exposure_score"].rank(pct=True) * 100
     ).round(1)
 
+    # Assign exposure quartile buckets (1-4)
+    combined["bucket"] = pd.qcut(
+        combined["ai_exposure_score"], q=4, labels=[1, 2, 3, 4],
+    ).astype(int)
+
+    # Compute and store bucket boundary values
+    sorted_scores = combined["ai_exposure_score"].sort_values().values
+    n_total = len(sorted_scores)
+    bucket_boundaries = {
+        "q1_max": float(sorted_scores[n_total // 4 - 1]),
+        "q2_max": float(sorted_scores[n_total // 2 - 1]),
+        "q3_max": float(sorted_scores[3 * n_total // 4 - 1]),
+        "q4_max": float(sorted_scores[-1]),
+        "q1_min": float(sorted_scores[0]),
+    }
+
+    BUCKET_LABELS = {1: "Lower", 2: "Lower-mid", 3: "Upper-mid", 4: "Higher"}
+    print(f"\n  === Bucket Boundaries ===")
+    prev = bucket_boundaries["q1_min"]
+    for b in range(1, 5):
+        key = f"q{b}_max"
+        hi = bucket_boundaries[key]
+        count_b = (combined["bucket"] == b).sum()
+        print(f"  {BUCKET_LABELS[b]:>10} (Q{b}): [{prev:.4f}, {hi:.4f}]  n={count_b}")
+        prev = hi
+
     print(f"\n  === Combined Results ===")
     print(f"  Total counties: {len(combined)}")
     print(f"  MSA-based: {len(existing)}")
@@ -386,8 +412,16 @@ def fill_rural_counties():
     print(f"  Final exposure range: [{combined['ai_exposure_score'].min():.4f}, "
           f"{combined['ai_exposure_score'].max():.4f}]")
 
-    # Write back
+    # Write county scores
     combined.to_sql("county_scores", conn, if_exists="replace", index=False)
+
+    # Write bucket boundaries as metadata
+    import json as _json
+    conn.execute("DELETE FROM model_assumptions WHERE key = 'bucket_boundaries'")
+    conn.execute(
+        "INSERT INTO model_assumptions (key, description) VALUES (?, ?)",
+        ("bucket_boundaries", _json.dumps(bucket_boundaries)),
+    )
 
     # Recreate index
     conn.execute("CREATE INDEX IF NOT EXISTS idx_county_fips ON county_scores(county_fips)")

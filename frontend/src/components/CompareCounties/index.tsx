@@ -5,6 +5,7 @@ import { applyScenarioModifiers } from '../../utils/scenarios'
 import { getExposureColor } from '../../utils/colors'
 import { getUncertaintyState, BAND_LABELS } from '../../utils/uncertainty'
 import { countyLabel } from '../../utils/countyLabel'
+import { bucketLabel, bucketColor } from '../../utils/buckets'
 import type { ScenarioState } from '../ControlPanel'
 
 interface CountyScore {
@@ -15,6 +16,7 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
+  bucket?: number
 }
 
 interface Props {
@@ -274,14 +276,31 @@ function CountyPanel({
           {/* Composite score + confidence */}
           <div style={compositeCardStyle}>
             <div style={{ fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 4 }}>
-              Composite Displacement Score
+              {scenario.displayMode === 'bucket' ? 'Exposure Bucket' : 'AI Exposure Score'}
             </div>
-            <div className="data-value" style={{
-              fontFamily: 'var(--font-mono)', fontSize: 44, fontWeight: 500, lineHeight: 1,
-              color: getExposureColor(county.exposure_percentile),
-            }}>
-              {(county.ai_exposure_score * 100).toFixed(0)}
-            </div>
+            {scenario.displayMode === 'bucket' && county.bucket ? (
+              <>
+                <div style={{
+                  fontSize: 20, fontWeight: 600, lineHeight: 1,
+                  color: bucketColor(county.bucket),
+                }}>
+                  {bucketLabel(county.bucket)}
+                </div>
+                <div className="data-value" style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 28, fontWeight: 500, lineHeight: 1, marginTop: 4,
+                  color: getExposureColor(county.exposure_percentile),
+                }}>
+                  {Math.round(county.ai_exposure_score * 100)}%
+                </div>
+              </>
+            ) : (
+              <div className="data-value" style={{
+                fontFamily: 'var(--font-mono)', fontSize: 44, fontWeight: 500, lineHeight: 1,
+                color: getExposureColor(county.exposure_percentile),
+              }}>
+                {Math.round(county.ai_exposure_score * 100)}%
+              </div>
+            )}
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
               p{Math.round(county.exposure_percentile)} · {bandInfo.label}
             </div>

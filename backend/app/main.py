@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .database import (
     get_all_county_scores,
+    get_bucket_boundaries,
     get_county_detail,
     search_occupation,
     get_occupation_detail,
@@ -74,7 +75,11 @@ def list_counties():
     scores = get_all_county_scores()
     if not scores:
         raise HTTPException(status_code=503, detail="No data loaded. Run the data pipeline first.")
-    return {"counties": scores, "count": len(scores)}
+    return {
+        "counties": scores,
+        "count": len(scores),
+        "bucket_boundaries": get_bucket_boundaries(),
+    }
 
 
 @app.get("/api/counties/{county_fips}")

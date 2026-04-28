@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
-import { getExposureColor, formatExposure, formatNumber } from '../utils/colors'
+import { getExposureColor, formatNumber } from '../utils/colors'
+import { bucketColor, bucketLabel, formatExposureWhole } from '../utils/buckets'
 import { getUncertaintyState, getHatchPatternDef, BAND_LABELS } from '../utils/uncertainty'
 import { countyLabel } from '../utils/countyLabel'
 import type { ScenarioState } from './ControlPanel'
@@ -15,6 +16,7 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
+  bucket?: number
 }
 
 interface USMapProps {
@@ -159,6 +161,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     const g = svg.append('g')
 
     const layer = scenario?.mapLayer || 'composite'
+    const displayMode = scenario?.displayMode || 'bucket'
     const layerPercentiles = getLayerPercentiles(layer)
 
     g.selectAll('path')
@@ -170,6 +173,11 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         const county = countyMap.get(fips)
         if (!county) return '#1a1a25'
 
+        // Bucket mode: 4 discrete colors
+        if (displayMode === 'bucket' && layer === 'composite') {
+          return bucketColor(county.bucket)
+        }
+
         // Non-composite layer: color by percentile rank within the layer's
         // distribution so every layer uses the full low→high color range.
         if (layerPercentiles) {
@@ -178,7 +186,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
           return '#1a1a25' // county has no data for this layer
         }
 
-        // Default: composite displacement percentile
+        // Continuous mode: composite displacement percentile gradient
         return getExposureColor(county.exposure_percentile)
       })
       .attr('opacity', uncertainty.opacity)
@@ -402,14 +410,25 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         <div style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>
           {LAYER_NAMES[layerName] || 'AI Exposure'}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ color: 'var(--text-muted)' }}>Low</span>
-          <div style={{
-            width: 120, height: 10, borderRadius: 2,
-            background: 'linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
-          }} />
-          <span style={{ color: 'var(--text-muted)' }}>High</span>
-        </div>
+        {scenario?.displayMode === 'bucket' && layerName === 'composite' ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {[1, 2, 3, 4].map(b => (
+              <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <div style={{ width: 12, height: 10, borderRadius: 2, background: bucketColor(b) }} />
+                <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{bucketLabel(b)}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: 'var(--text-muted)' }}>Low</span>
+            <div style={{
+              width: 120, height: 10, borderRadius: 2,
+              background: 'linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
+            }} />
+            <span style={{ color: 'var(--text-muted)' }}>High</span>
+          </div>
+        )}
       </div>
 
       {/* Tooltip */}
@@ -435,10 +454,13 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
               </span>
             )}
           </div>
-          <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-            Exposure: <span style={{ color: getExposureColor(tooltip.data.exposure_percentile) }}>
-              {formatExposure(tooltip.data.ai_exposure_score)}
-            </span>
+          {scenario?.displayMode === 'bucket' && tooltip.data.bucket ? (
+            <div style={{ color: bucketColor(tooltip.data.bucket), marginTop: 4, fontWeight: 600, fontSize: 13 }}>
+              {bucketLabel(tooltip.data.bucket)} exposure
+            </div>
+          ) : null}
+          <div style={{ color: 'var(--text-secondary)', marginTop: scenario?.displayMode === 'bucket' ? 2 : 4 }}>
+            Exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
           </div>
           <div style={{ color: 'var(--text-secondary)' }}>
             Percentile: p{tooltip.data.exposure_percentile.toFixed(0)}

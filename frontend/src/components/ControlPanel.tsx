@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getUncertaintyState, BAND_LABELS } from '../utils/uncertainty'
+import type { DisplayMode } from '../utils/buckets'
 
 export interface ScenarioState {
   year: number
@@ -10,6 +11,7 @@ export interface ScenarioState {
   equityLoop: 'intact' | 'breaks'
   fedResponse: 'hold' | 'cut' | 'zero'
   mapLayer: string
+  displayMode: DisplayMode
   showCompanyDots: boolean
   showTransferDependency: boolean
   showKshapeDivergence: boolean

@@ -27,7 +27,8 @@ def get_all_county_scores() -> List[Dict]:
                    total_employment, exposed_employment,
                    mean_wage_weighted, exposure_percentile, n_occupations,
                    CASE WHEN is_estimated = 1 THEN 1 ELSE 0 END as is_estimated,
-                   raw_exposure_score, shrinkage_weight, state_anchor
+                   raw_exposure_score, shrinkage_weight, state_anchor,
+                   bucket
             FROM county_scores
             ORDER BY ai_exposure_score DESC
             """
@@ -38,6 +39,18 @@ def get_all_county_scores() -> List[Dict]:
         d["is_estimated"] = bool(d.get("is_estimated", 0))
         results.append(d)
     return results
+
+
+def get_bucket_boundaries() -> Dict:
+    """Get quartile bucket boundary values for methodology reference."""
+    import json as _json
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT description FROM model_assumptions WHERE key = 'bucket_boundaries'"
+        ).fetchone()
+    if row:
+        return _json.loads(row[0])
+    return {}
 
 
 def get_county_detail(county_fips: str) -> Optional[Dict]:
