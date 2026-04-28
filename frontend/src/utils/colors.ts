@@ -19,6 +19,25 @@ export function getExposureColor(percentile: number): string {
 }
 
 /**
+ * Diverging color scale for scenario deltas.
+ * Negative delta (cool/teal) → zero (neutral gray) → positive delta (warm/amber).
+ * Domain: -maxDelta to +maxDelta, centered on 0.
+ */
+export const deltaColorScale = d3.scaleLinear<string>()
+  .domain([-1, -0.5, 0, 0.5, 1])
+  .range(['#0d9488', '#5eead4', '#d4d4d8', '#fbbf24', '#d97706'])
+  .clamp(true)
+
+/**
+ * Get color for a scenario delta value, scaled to ±maxDelta.
+ */
+export function getDeltaColor(delta: number, maxDelta: number): string {
+  if (maxDelta <= 0) return '#d4d4d8'
+  const normalized = delta / maxDelta
+  return deltaColorScale(normalized)
+}
+
+/**
  * Get color for an individual occupation's exposure score (0-1 range).
  */
 export function getOccupationExposureColor(score: number): string {

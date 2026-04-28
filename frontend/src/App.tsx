@@ -34,6 +34,7 @@ interface CountyScore {
   exposure_percentile: number
   is_estimated?: boolean
   bucket?: number
+  _bartik_delta?: number
 }
 
 export default function App() {
@@ -69,6 +70,7 @@ export default function App() {
   const [compareMode, setCompareMode] = useState(false)
 
   const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
+  const [bartikData, setBartikData] = useState<Record<string, Record<string, number>>>({})
   const [countries, setCountries] = useState<Record<string, unknown>[]>([])
   const [overlays, setOverlays] = useState<Record<string, Record<string, Record<string, unknown>>>>({})
   const [companyData, setCompanyData] = useState<Record<string, unknown>[]>([])
@@ -78,7 +80,10 @@ export default function App() {
 
   useEffect(() => {
     Promise.all([
-      fetchCounties().then(data => setBaseCounties(data.counties)),
+      fetchCounties().then(data => {
+        setBaseCounties(data.counties)
+        setBartikData(data.bartik || {})
+      }),
       fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
       fetchOverlays().then(data => setOverlays(data)).catch(e => console.error('[Overlays] failed:', e)),
       fetchCompanyDisplacement().then(data => setCompanyData(data.companies || []))
@@ -87,6 +92,28 @@ export default function App() {
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
+
+  // Whether any Bartik scenario is active
+  const scenarioActive = scenario.tradePolicy !== 'current' || scenario.fedResponse !== 'hold'
+
+  // Counties with Bartik adjustments applied (for map rendering when scenario active)
+  const scenarioCounties = useMemo(() => {
+    if (!scenarioActive) return baseCounties
+    return baseCounties.map(c => {
+      const b = bartikData[c.county_fips]
+      if (!b) return c
+      let delta = 0
+      if (scenario.tradePolicy === 'free_trade') delta += b.trade_free_trade || 0
+      if (scenario.tradePolicy === 'escalating_tariffs') delta += b.trade_escalating_tariffs || 0
+      if (scenario.fedResponse === 'cut') delta += b.fed_cut || 0
+      if (scenario.fedResponse === 'zero') delta += b.fed_zero || 0
+      return {
+        ...c,
+        ai_exposure_score: Math.max(0, Math.min(1, c.ai_exposure_score + delta)),
+        _bartik_delta: delta,
+      }
+    })
+  }, [baseCounties, bartikData, scenario.tradePolicy, scenario.fedResponse, scenarioActive])
 
   const counties = useMemo(
     () => applyScenarioModifiers(baseCounties, scenario),
@@ -212,13 +239,14 @@ export default function App() {
               <div style={mapAreaStyle}>
                 {mapView === 'us' ? (
                   <USMap
-                    counties={baseCounties}
+                    counties={scenarioCounties}
                     onCountyClick={handleCountyClick}
                     year={scenario.year}
                     selectedCounty={selectedCounty}
                     overlays={overlays}
                     companyData={companyData}
                     scenario={scenario}
+                    scenarioActive={scenarioActive}
                   />
                 ) : (
                   <WorldMap countries={countries as never[]} scenario={scenario} />

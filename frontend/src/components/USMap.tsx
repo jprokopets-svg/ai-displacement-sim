@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
-import { getExposureColor, formatNumber } from '../utils/colors'
+import { getExposureColor, getDeltaColor, formatNumber } from '../utils/colors'
 import { bucketColor, bucketLabel, formatExposureWhole } from '../utils/buckets'
 import { getUncertaintyState, getHatchPatternDef, BAND_LABELS } from '../utils/uncertainty'
 import { countyLabel } from '../utils/countyLabel'
@@ -17,6 +17,7 @@ interface CountyScore {
   exposure_percentile: number
   is_estimated?: boolean
   bucket?: number
+  _bartik_delta?: number
 }
 
 interface USMapProps {
@@ -27,6 +28,7 @@ interface USMapProps {
   overlays?: Record<string, Record<string, Record<string, unknown>>>
   companyData?: Record<string, unknown>[]
   scenario?: ScenarioState
+  scenarioActive?: boolean
 }
 
 interface TooltipState {
@@ -67,7 +69,7 @@ function rankOverlay(
   return out
 }
 
-export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025, overlays, companyData, scenario }: USMapProps) {
+export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025, overlays, companyData, scenario, scenarioActive = false }: USMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, data: null,
@@ -164,6 +166,15 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     const displayMode = scenario?.displayMode || 'bucket'
     const layerPercentiles = getLayerPercentiles(layer)
 
+    // For scenario delta view: compute max absolute delta for color normalization
+    let maxDelta = 0
+    if (scenarioActive) {
+      for (const c of counties) {
+        const d = c._bartik_delta
+        if (d != null) maxDelta = Math.max(maxDelta, Math.abs(d))
+      }
+    }
+
     g.selectAll('path')
       .data(countyFeatures.features)
       .join('path')
@@ -173,7 +184,13 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         const county = countyMap.get(fips)
         if (!county) return '#1a1a25'
 
-        // Bucket mode: 4 discrete colors
+        // Scenario active: show delta-from-baseline with diverging palette
+        if (scenarioActive && layer === 'composite') {
+          const delta = county._bartik_delta
+          return getDeltaColor(delta ?? 0, maxDelta)
+        }
+
+        // Bucket mode: 4 discrete colors (no scenario)
         if (displayMode === 'bucket' && layer === 'composite') {
           return bucketColor(county.bucket)
         }
@@ -342,7 +359,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
     svg.call(zoom)
 
-  }, [topoData, counties, selectedCounty, onCountyClick, year, overlays, companyData, scenario])
+  }, [topoData, counties, selectedCounty, onCountyClick, year, overlays, companyData, scenario, scenarioActive])
 
   const uncertainty = getUncertaintyState(year)
   const bandInfo = BAND_LABELS[uncertainty.band]
@@ -408,9 +425,18 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         fontSize: 12,
       }}>
         <div style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>
-          {LAYER_NAMES[layerName] || 'AI Exposure'}
+          {scenarioActive ? 'Scenario Impact' : (LAYER_NAMES[layerName] || 'AI Exposure')}
         </div>
-        {scenario?.displayMode === 'bucket' && layerName === 'composite' ? (
+        {scenarioActive && layerName === 'composite' ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#0d9488', fontSize: 10 }}>Less exposed</span>
+            <div style={{
+              width: 120, height: 10, borderRadius: 2,
+              background: 'linear-gradient(to right, #0d9488, #5eead4, #d4d4d8, #fbbf24, #d97706)',
+            }} />
+            <span style={{ color: '#d97706', fontSize: 10 }}>More exposed</span>
+          </div>
+        ) : scenario?.displayMode === 'bucket' && layerName === 'composite' ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {[1, 2, 3, 4].map(b => (
               <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -427,6 +453,11 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
               background: 'linear-gradient(to right, #eff6ff, #93c5fd, #3b82f6, #1d4ed8, #1e3a8a)',
             }} />
             <span style={{ color: 'var(--text-muted)' }}>High</span>
+          </div>
+        )}
+        {!scenarioActive && (
+          <div style={{ color: 'var(--text-dim)', fontSize: 9, marginTop: 4 }}>
+            Activate Trade Policy or Fed Response to see scenario impact
           </div>
         )}
       </div>
@@ -454,14 +485,33 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
               </span>
             )}
           </div>
-          {scenario?.displayMode === 'bucket' && tooltip.data.bucket ? (
-            <div style={{ color: bucketColor(tooltip.data.bucket), marginTop: 4, fontWeight: 600, fontSize: 13 }}>
-              {bucketLabel(tooltip.data.bucket)} exposure
+          {scenarioActive ? (
+            <div style={{ marginTop: 4 }}>
+              <div style={{ color: 'var(--text-secondary)' }}>
+                Adjusted exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
+              </div>
+              {tooltip.data._bartik_delta != null && (
+                <div style={{
+                  color: (tooltip.data._bartik_delta as number) >= 0 ? '#d97706' : '#0d9488',
+                  fontSize: 12, fontWeight: 600,
+                }}>
+                  Scenario shift: {(tooltip.data._bartik_delta as number) >= 0 ? '+' : ''}
+                  {((tooltip.data._bartik_delta as number) * 100).toFixed(1)} pp
+                </div>
+              )}
             </div>
-          ) : null}
-          <div style={{ color: 'var(--text-secondary)', marginTop: scenario?.displayMode === 'bucket' ? 2 : 4 }}>
-            Exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
-          </div>
+          ) : (
+            <>
+              {scenario?.displayMode === 'bucket' && tooltip.data.bucket ? (
+                <div style={{ color: bucketColor(tooltip.data.bucket), marginTop: 4, fontWeight: 600, fontSize: 13 }}>
+                  {bucketLabel(tooltip.data.bucket)} exposure
+                </div>
+              ) : null}
+              <div style={{ color: 'var(--text-secondary)', marginTop: scenario?.displayMode === 'bucket' ? 2 : 4 }}>
+                Exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
+              </div>
+            </>
+          )}
           <div style={{ color: 'var(--text-secondary)' }}>
             Percentile: p{tooltip.data.exposure_percentile.toFixed(0)}
           </div>
