@@ -6,9 +6,10 @@
 import { useEffect } from 'react'
 
 export default function MethodologyPage() {
-  // Override #root's overflow:hidden so the prose page can scroll.
+  // Override body and #root overflow:hidden so the prose page can scroll.
   useEffect(() => {
     const root = document.getElementById('root')
+    document.body.style.overflow = 'auto'
     if (root) {
       root.style.overflow = 'auto'
       root.style.height = 'auto'
@@ -16,6 +17,7 @@ export default function MethodologyPage() {
       root.style.display = 'block'
     }
     return () => {
+      document.body.style.overflow = ''
       if (root) {
         root.style.overflow = ''
         root.style.height = ''
@@ -348,8 +350,7 @@ export default function MethodologyPage() {
         </p>
 
         <p style={pStyle}>
-          If you find a specific issue with the methodology,{' '}
-          <a href="mailto:jprokopets@gmail.com" style={linkStyle}>my email is here</a>. I want the critiques.
+          If you find a specific issue with the methodology, my email is jprokopets@gmail.com. I want the critiques.
         </p>
 
         <div style={footerStyle}>

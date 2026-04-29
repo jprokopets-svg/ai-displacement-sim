@@ -75,6 +75,12 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
           Author prediction
         </div>
       </div>
+      <div style={{
+        fontSize: 11, color: 'var(--text-dim)', fontStyle: 'italic',
+        marginTop: 4, lineHeight: 1.4,
+      }}>
+        Year affects the projection panel on the right. The map shows current AI exposure (static).
+      </div>
       <div style={{ height: 16 }} />
 
       {/* Section 2: Economic Scenario */}

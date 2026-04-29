@@ -120,7 +120,7 @@ export default function DefaultRightPanel({ counties, companies, scenario }: Pro
         )}
       </Section>
 
-      <Section title="Projected Impact">
+      <Section title="Employment in Top-Quartile Counties">
         {stats ? (
           <div>
             <div className="data-value" style={{

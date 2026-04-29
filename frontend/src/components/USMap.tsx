@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
-import { getExposureColor, getDeltaColor, formatNumber } from '../utils/colors'
+import { getExposureColor, getDeltaColor, formatNumber, MAGMA_GRADIENT_CSS } from '../utils/colors'
 import { bucketColor, bucketLabel, formatExposureWhole } from '../utils/buckets'
 // uncertainty.ts still used by right panel — not imported here
 import { countyLabel } from '../utils/countyLabel'
@@ -395,7 +395,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year: _
             <span style={{ color: 'var(--text-muted)' }}>Low</span>
             <div style={{
               width: 120, height: 10, borderRadius: 2,
-              background: 'linear-gradient(to right, #eff6ff, #93c5fd, #3b82f6, #1d4ed8, #1e3a8a)',
+              background: MAGMA_GRADIENT_CSS,
             }} />
             <span style={{ color: 'var(--text-muted)' }}>High</span>
           </div>
