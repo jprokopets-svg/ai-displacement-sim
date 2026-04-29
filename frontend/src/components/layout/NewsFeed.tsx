@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchSignals } from '../../utils/api'
-import { trackForSector, colorForTrack } from '../../utils/trackClassifier'
 
 const API_BASE = `${import.meta.env.VITE_API_URL || ''}/api`
 const POLL_INTERVAL = 300_000 // 5 minutes
@@ -58,7 +57,6 @@ interface Props {
 
 type SortBy = 'recent' | 'impactful' | 'confidence'
 type ConfFilter = 'all' | 'high' | 'medium' | 'lower'
-type TrackFilter = 'all' | 'cognitive' | 'robotics' | 'agentic' | 'offshoring'
 
 interface Signal {
   id: number
@@ -73,7 +71,6 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<SortBy>('recent')
   const [confFilter, setConfFilter] = useState<ConfFilter>('all')
-  const [trackFilter, setTrackFilter] = useState<TrackFilter>('all')
   const [signals, setSignals] = useState<Signal[]>([])
   const [signalsFetchedAt, setSignalsFetchedAt] = useState<string>('')
 
@@ -113,14 +110,6 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
       )
     }
 
-    // Track filter
-    if (trackFilter !== 'all') {
-      filtered = filtered.filter(it => {
-        const t = trackForSector(it.sector).toLowerCase()
-        return t.includes(trackFilter)
-      })
-    }
-
     // Confidence filter
     if (confFilter === 'high') filtered = filtered.filter(it => it.confidence_score >= 4)
     else if (confFilter === 'medium') filtered = filtered.filter(it => it.confidence_score === 3)
@@ -132,7 +121,7 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
     else filtered.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))
 
     return filtered
-  }, [companies, filterCompany, search, sortBy, confFilter, trackFilter])
+  }, [companies, filterCompany, search, sortBy, confFilter])
 
   const totalRoles = items.reduce((s, it) => s + (it.headcount_impact || 0), 0)
   const displayedTotal = useAnimatedCounter(totalRoles)
@@ -215,11 +204,6 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
             <Pill key={k} active={sortBy === k} onClick={() => setSortBy(k)}>{l}</Pill>
           ))}
         </FilterGroup>
-        <FilterGroup label="Track">
-          {([['all', 'All'], ['cognitive', 'Cognitive AI'], ['robotics', 'Industrial Robotics'], ['agentic', 'Agentic AI'], ['offshoring', 'Offshoring']] as const).map(([k, l]) => (
-            <Pill key={k} active={trackFilter === k} onClick={() => setTrackFilter(k)}>{l}</Pill>
-          ))}
-        </FilterGroup>
         <FilterGroup label="Confidence">
           {([['all', 'All'], ['high', 'High (C4-C5)'], ['medium', 'Medium (C3)'], ['lower', 'Lower (C1-C2)']] as const).map(([k, l]) => (
             <Pill key={k} active={confFilter === k} onClick={() => setConfFilter(k)}>{l}</Pill>
@@ -274,8 +258,6 @@ export default function NewsFeed({ companies, filterCompany, onClearFilter }: Pr
 }
 
 function Card({ item }: { item: FeedItem }) {
-  const track = trackForSector(item.sector)
-  const trackColor = colorForTrack(track)
   const conf = item.confidence_score
   const confLabel =
     conf >= 4 ? 'High confidence' :
@@ -321,12 +303,12 @@ function Card({ item }: { item: FeedItem }) {
         </div>
         <div style={{
           padding: '4px 8px', borderRadius: 3,
-          background: `${trackColor}22`,
-          border: `1px solid ${trackColor}55`,
-          fontSize: 11, fontWeight: 500, color: trackColor,
+          background: 'rgba(59, 130, 246, 0.13)',
+          border: '1px solid rgba(59, 130, 246, 0.33)',
+          fontSize: 11, fontWeight: 500, color: '#3b82f6',
           alignSelf: 'flex-start',
         }}>
-          {track}
+          {item.sector}
         </div>
       </div>
 

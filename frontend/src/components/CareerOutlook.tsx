@@ -24,12 +24,9 @@ interface OccMatch {
 function futureScore(base: number, year: number): number {
   if (year <= 2025) return base
   const yearsOut = year - 2025
-  const agenticRamp = year > 2026 ? Math.min(1, (year - 2026) / 4) : 0
-  const highBoost = base > 0.5 ? agenticRamp * 0.25 : 0
-  const roboticsRamp = Math.min(1, yearsOut / 10)
-  const midBoost = (base > 0.25 && base < 0.55) ? roboticsRamp * 0.20 : 0
   const timeBoost = yearsOut * 0.008
-  const mod = 1.0 + timeBoost + highBoost + midBoost
+  const highBoost = base > 0.5 ? Math.min(1, yearsOut / 8) * 0.15 : 0
+  const mod = 1.0 + timeBoost + highBoost
   return Math.min(1, Math.max(0, base * mod))
 }
 
@@ -62,16 +59,16 @@ const OUTLOOK_TEMPLATES: Record<string, (title: string, year: number, temp: Temp
   '29': (t, y) => `Healthcare roles like ${t} remain among the most displacement-resistant fields through ${y}. Demand is projected to increase as the population ages faster than AI can replace clinical judgment. Entry conditions look favorable.`,
   '31': (t, y) => `Healthcare support roles like ${t} face limited AI displacement through ${y}. Physical patient care, emotional support, and clinical presence remain irreplaceable. Demand grows with an aging population.`,
   '33': (t, y) => `Protective service roles like ${t} benefit from physical presence requirements and public trust mandates. AI surveillance tools augment but do not replace these roles through ${y}.`,
-  '35': (t, y) => `Food service roles face growing automation pressure from kitchen robotics and automated ordering. By ${y} ${t} roles in standardized environments contract, while positions requiring creativity, customer relationships, and complex preparation hold value.`,
-  '37': (t, y) => `Building and maintenance roles like ${t} face moderate robotic automation through ${y}. Routine standardized cleaning contracts, but complex facilities management and specialized maintenance retain human demand.`,
+  '35': (t, y) => `Food service roles like ${t} have limited current AI exposure — most tasks involve physical preparation and in-person service. Through ${y} the primary pressure comes from ordering automation and inventory AI, not LLMs. Positions requiring creativity and customer relationships hold value.`,
+  '37': (t, y) => `Building and maintenance roles like ${t} have limited current AI exposure — most tasks involve physical work that LLMs cannot perform. Through ${y} demand remains steady for roles requiring on-site presence and hands-on skills.`,
   '39': (t, y) => `Personal service roles like ${t} depend on human interaction and trust. Through ${y} demand remains steady for roles requiring personal presence, though administrative booking and scheduling tasks move to AI.`,
   '41': (t, y) => `Sales roles face AI compression in prospecting and inside sales through ${y}. ${t} positions that depend on relationship-building, complex deal negotiation, and consultative selling remain strong. Pure transactional sales roles contract.`,
   '43': (t, y, temp) => temp === 'COLD' ? `Office and administrative support is among the most directly automatable categories. By ${y} ${t} roles face substantial compression from RPA, AI document processing, and chatbot customer service. Consider pivoting to roles with more judgment and less routine process.` : `Administrative roles face growing AI pressure. By ${y} ${t} positions emphasizing coordination, judgment, and human interaction fare better than routine process work.`,
-  '45': (t, y) => `Agricultural roles like ${t} face growing robotics pressure through ${y}. Autonomous harvesters and precision agriculture compress field labor, but roles requiring complex judgment, equipment management, and land stewardship retain demand.`,
-  '47': (t, y) => `Construction trades like ${t} face gradual robotics adoption through ${y}. Prefabrication automation and drone surveys change the field, but skilled trades requiring on-site judgment and physical dexterity remain in strong demand.`,
+  '45': (t, y) => `Agricultural roles like ${t} have limited current AI exposure — most tasks involve physical outdoor labor. Through ${y} roles requiring complex judgment, equipment management, and land stewardship retain strong demand.`,
+  '47': (t, y) => `Construction trades like ${t} have limited current AI exposure — most tasks require on-site physical work. Through ${y} skilled trades requiring judgment and physical dexterity remain in strong demand. AI pressure is concentrated in planning and design, not field execution.`,
   '49': (t, y) => `Installation and repair roles like ${t} benefit from physical presence and diagnostic complexity. Predictive maintenance AI changes how problems are identified but not who fixes them. Demand through ${y} remains solid.`,
-  '51': (t, y) => `Production and manufacturing roles face significant robotics pressure. By ${y} ${t} roles in repetitive assembly contract, but roles in quality control, complex fabrication, and equipment supervision adapt rather than disappear.`,
-  '53': (t, y) => `Transportation roles face the most concentrated automation wave. Autonomous vehicles are commercially operating on select corridors. By ${y} ${t} roles in long-haul and warehousing face substantial pressure. Last-mile and complex-route roles hold longer.`,
+  '51': (t, y) => `Production and manufacturing roles like ${t} have limited current AI exposure — most tasks involve physical production-line work. Through ${y} quality control, complex fabrication, and equipment supervision roles adapt and retain demand.`,
+  '53': (t, y) => `Transportation roles like ${t} have limited current AI exposure from LLMs — most tasks involve physical vehicle operation. Through ${y} the primary pressure comes from logistics optimization AI and route planning, not direct LLM displacement.`,
 }
 
 function getOutlook(socCode: string, title: string, year: number, temp: Temperature): string {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getUncertaintyState, BAND_LABELS } from '../utils/uncertainty'
+import type { DisplayMode } from '../utils/buckets'
 
 export interface ScenarioState {
   year: number
@@ -10,8 +11,8 @@ export interface ScenarioState {
   equityLoop: 'intact' | 'breaks'
   fedResponse: 'hold' | 'cut' | 'zero'
   mapLayer: string
+  displayMode: DisplayMode
   showCompanyDots: boolean
-  showReshoringParadox: boolean
   showTransferDependency: boolean
   showKshapeDivergence: boolean
 }
@@ -74,6 +75,12 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
           Author prediction
         </div>
       </div>
+      <div style={{
+        fontSize: 11, color: 'var(--text-dim)', fontStyle: 'italic',
+        marginTop: 4, lineHeight: 1.4,
+      }}>
+        Year affects the projection panel on the right. The map shows current AI exposure (static).
+      </div>
       <div style={{ height: 16 }} />
 
       {/* Section 2: Economic Scenario */}
@@ -81,48 +88,29 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
 
       <SelectControl label="Trade Policy" value={state.tradePolicy}
         onChange={v => onChange({ tradePolicy: v as ScenarioState['tradePolicy'] })}
-        info="Current tariffs boost manufacturing robotics ROI. Free trade increases offshoring risk. Escalating tariffs amplify reshoring paradox."
+        info="Bartik shift-share response using BEA Input-Output Leontief-propagated coefficients. Manufacturing-heavy counties shift most. Source: Autor-Dorn-Hanson 2013."
         options={[
-          { value: 'current', label: 'Current tariffs' },
-          { value: 'free_trade', label: 'Free trade' },
+          { value: 'current', label: 'Current tariffs (baseline)' },
+          { value: 'free_trade', label: 'Trade liberalization' },
           { value: 'escalating_tariffs', label: 'Escalating tariffs' },
-        ]}
-      />
-      <SelectControl label="Government Response" value={state.govtResponse}
-        onChange={v => onChange({ govtResponse: v as ScenarioState['govtResponse'] })}
-        info="Policy intervention reduces displacement over time but requires deficit spending."
-        options={[
-          { value: 'none', label: 'No intervention' },
-          { value: 'retraining', label: 'Retraining programs' },
-          { value: 'ubi', label: 'Universal Basic Income' },
-        ]}
-      />
-      <SelectControl label="Corporate Profits" value={state.corporateProfit}
-        onChange={v => onChange({ corporateProfit: v as ScenarioState['corporateProfit'] })}
-        info="Profit surge generates tax revenue that funds government floor. Decline accelerates deficit spiral."
-        options={[
-          { value: 'baseline', label: 'Baseline growth' },
-          { value: 'surge', label: 'Profit surge (10x)' },
-          { value: 'decline', label: 'Profit decline' },
-        ]}
-      />
-      <SelectControl label="AI Equity Loop" value={state.equityLoop}
-        onChange={v => onChange({ equityLoop: v as ScenarioState['equityLoop'] })}
-        info="Speculative. Loop intact = AI capex sustains equity wealth effect. Loop breaks = AI investment disappoints, triggering spending contraction."
-        options={[
-          { value: 'intact', label: 'Loop intact' },
-          { value: 'breaks', label: 'Loop breaks (speculative)' },
         ]}
       />
       <SelectControl label="Fed Response" value={state.fedResponse}
         onChange={v => onChange({ fedResponse: v as ScenarioState['fedResponse'] })}
-        info="Federal Reserve interest rate policy. Long-term projections assume policy normalization after 2-5 years regardless of initial stance."
+        info="Bartik shift-share response via BEA IO propagation. Construction and real estate counties shift most. Source: Carlino & DeFina 1998."
         options={[
-          { value: 'hold', label: 'Hold rates' },
-          { value: 'cut', label: 'Rate cuts' },
-          { value: 'zero', label: 'Zero rate policy' },
+          { value: 'hold', label: 'Hold rates (baseline)' },
+          { value: 'cut', label: 'Rate cuts (150bp)' },
+          { value: 'zero', label: 'Zero rate policy (400bp)' },
         ]}
       />
+      <div style={{
+        fontSize: 11, color: 'var(--text-dim)', fontStyle: 'italic',
+        marginTop: 8, padding: '6px 0', borderTop: '1px solid var(--border)',
+        lineHeight: 1.4,
+      }}>
+        Additional scenario controls coming in v3.
+      </div>
 
       {/* Section 3: Map Layer — only when map is visible */}
       {showMapControls && (
@@ -132,11 +120,7 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
           <SelectControl label="Color by" value={state.mapLayer}
             onChange={v => onChange({ mapLayer: v })}
             options={[
-              { value: 'composite', label: 'Composite displacement' },
-              { value: 'cognitive', label: 'Cognitive AI only' },
-              { value: 'robotics', label: 'Robotics only' },
-              { value: 'agentic', label: 'Agentic AI' },
-              { value: 'offshoring', label: 'Offshoring risk' },
+              { value: 'composite', label: 'AI exposure' },
               { value: 'fragility', label: 'Local economy fragility' },
               { value: 'govt_floor', label: 'Government floor strength' },
               { value: 'cascade', label: 'Competitive cascade' },
@@ -150,11 +134,6 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
             checked={state.showCompanyDots}
             onChange={v => onChange({ showCompanyDots: v })}
             info="Shows verified AI-driven layoff events from 22 companies. Dot size = headcount impact. Red = high confidence, orange = moderate."
-          />
-          <OverlayToggle label="Reshoring paradox (mfg counties)"
-            checked={state.showReshoringParadox}
-            onChange={v => onChange({ showReshoringParadox: v })}
-            info="Manufacturing counties that benefit from reshoring but face accelerated robotics automation. Tariffs boost factory returns but also fund robot deployment."
           />
           <OverlayToggle label="Transfer payment dependency"
             checked={state.showTransferDependency}

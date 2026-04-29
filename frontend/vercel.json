@@ -7,6 +7,7 @@
     { "source": "/story", "destination": "/index.html" },
     { "source": "/embed", "destination": "/index.html" },
     { "source": "/tool", "destination": "/index.html" },
-    { "source": "/outlook", "destination": "/index.html" }
+    { "source": "/outlook", "destination": "/index.html" },
+    { "source": "/methodology", "destination": "/index.html" }
   ]
 }

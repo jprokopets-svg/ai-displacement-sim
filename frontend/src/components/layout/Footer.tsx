@@ -13,10 +13,10 @@ export default function Footer({ lastUpdated, confidence = 'medium' }: Props) {
     <footer style={style}>
       <div style={groupStyle}>
         <span style={dimStyle}>Sources:</span>
-        <span style={textStyle}>O*NET 29.1 · BLS OEWS/QCEW 2024 · Felten-Raj-Rock 2021 · IFR · World Bank</span>
+        <span style={textStyle}>O*NET 29.1 · BLS OEWS/QCEW 2024 · Eloundou et al. 2024</span>
       </div>
       <div style={groupStyle}>
-        <a href="https://jakeprokopets.substack.com/p/why-the-most-ai-exposed-counties" target="_blank" rel="noopener" style={linkStyle}>Methodology</a>
+        <a href="/methodology" style={linkStyle}>Methodology</a>
         <span style={sepStyle}>·</span>
         <span style={dimStyle}>Updated</span>
         <span className="data-value" style={{ fontSize: 11, color: 'var(--text-secondary)' }}>

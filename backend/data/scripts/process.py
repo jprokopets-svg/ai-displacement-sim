@@ -22,8 +22,9 @@ import sqlite3
 import numpy as np
 import pandas as pd
 
-from .config import RAW_DIR, DB_PATH, ASSUMPTIONS, BLS_OEWS_MANUAL_INSTRUCTIONS
+from .config import RAW_DIR, DB_PATH, ASSUMPTIONS, BLS_OEWS_MANUAL_INSTRUCTIONS, EXPOSURE_SOURCE
 from .compute_aioe import compute_aioe
+from .compute_eloundou import compute_eloundou
 
 
 def _normalize_soc(soc_code: str) -> str | None:
@@ -38,12 +39,23 @@ def _normalize_soc(soc_code: str) -> str | None:
     return match.group(1) if match else None
 
 
-def load_aioe() -> pd.DataFrame:
+def load_aioe(source: str | None = None) -> pd.DataFrame:
     """
-    Compute AI exposure scores from O*NET Abilities data.
+    Load AI exposure scores from the configured source.
+
+    Args:
+        source: "frs" for Felten-Raj-Seamans 2021, "eloundou" for Eloundou 2024.
+                Defaults to EXPOSURE_SOURCE from config (env var or "eloundou").
+
     Returns DataFrame with columns: [soc_code, occupation_title, ai_exposure].
     """
-    return compute_aioe()
+    source = source or EXPOSURE_SOURCE
+    if source == "eloundou":
+        return compute_eloundou()
+    elif source == "frs":
+        return compute_aioe()
+    else:
+        raise ValueError(f"Unknown exposure source: {source!r}. Use 'frs' or 'eloundou'.")
 
 
 def load_bls_oews() -> pd.DataFrame:
@@ -440,13 +452,20 @@ def write_to_sqlite(
     print("  Done.")
 
 
-def run_pipeline():
-    """Run the full data processing pipeline."""
+def run_pipeline(source: str | None = None):
+    """Run the full data processing pipeline.
+
+    Args:
+        source: Exposure source override ("frs" or "eloundou").
+                Defaults to config.EXPOSURE_SOURCE.
+    """
+    effective_source = source or EXPOSURE_SOURCE
     print("=" * 60)
     print("  AI Displacement Data Pipeline")
+    print(f"  Exposure source: {effective_source}")
     print("=" * 60)
 
-    aioe = load_aioe()
+    aioe = load_aioe(source=source)
     oews = load_bls_oews()
     crosswalk = load_msa_county_crosswalk()
     qcew = load_qcew_county_employment()

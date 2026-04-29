@@ -1,13 +1,12 @@
 import type { ReactNode } from 'react'
 import { SITE_CONFIG } from '../../config/site'
 
-export type Tab = 'map' | 'simulate' | 'job' | 'market' | 'news' | 'my_risk' | 'outlook'
+export type Tab = 'map' | 'simulate' | 'job' | 'news' | 'my_risk' | 'outlook'
 
 const TAB_LABELS: Record<Tab, string> = {
   map: 'Map',
   simulate: 'Simulate',
   job: 'Check My Job',
-  market: 'Market',
   news: 'News',
   my_risk: 'My Risk',
   outlook: 'Career Outlook',
@@ -45,12 +44,10 @@ export default function Header({ tab, onTabChange, ticker }: Props) {
           </button>
         ))}
         <a
-          href="https://jakeprokopets.substack.com/p/why-the-most-ai-exposed-counties"
-          target="_blank"
-          rel="noopener"
+          href="/methodology"
           style={methodologyLinkStyle}
         >
-          Methodology ↗
+          Methodology
         </a>
       </nav>
     </header>

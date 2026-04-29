@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
-import { getExposureColor, formatExposure, formatNumber } from '../utils/colors'
-import { getUncertaintyState, getHatchPatternDef, BAND_LABELS } from '../utils/uncertainty'
+import { getExposureColor, getDeltaColor, formatNumber, MAGMA_GRADIENT_CSS } from '../utils/colors'
+import { bucketColor, bucketLabel, formatExposureWhole } from '../utils/buckets'
+// uncertainty.ts still used by right panel — not imported here
 import { countyLabel } from '../utils/countyLabel'
 import type { ScenarioState } from './ControlPanel'
 
@@ -15,6 +16,8 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
+  bucket?: number
+  _bartik_delta?: number
 }
 
 interface USMapProps {
@@ -25,6 +28,7 @@ interface USMapProps {
   overlays?: Record<string, Record<string, Record<string, unknown>>>
   companyData?: Record<string, unknown>[]
   scenario?: ScenarioState
+  scenarioActive?: boolean
 }
 
 interface TooltipState {
@@ -65,7 +69,7 @@ function rankOverlay(
   return out
 }
 
-export default function USMap({ counties, onCountyClick, selectedCounty, year = 2025, overlays, companyData, scenario }: USMapProps) {
+export default function USMap({ counties, onCountyClick, selectedCounty, year: _year, overlays, companyData, scenario, scenarioActive = false }: USMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, data: null,
@@ -83,10 +87,7 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
   const countyMap = new Map(counties.map(c => [c.county_fips, c]))
 
   // Raw layer score lookup — returns the unranked value (0-1 typically) so
-  // we can rank across all counties and color by percentile. This keeps each
-  // layer visually distinct: if a layer's raw values cluster in a narrow
-  // band (e.g. score * 60 for robotics sits mostly in 0.12-0.36), ranking
-  // by percentile spreads the colors across the full low→high gradient.
+  // we can rank across all counties and color by percentile.
   function getRawLayerScore(fips: string, layer: string): number | null {
     if (layer === 'composite') return null // use default percentile
     if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
@@ -101,23 +102,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       const smallBiz = (d.small_biz_concentration as number) || 0
       return cascade * 0.5 + smallBiz * 0.5
     }
-    // Multi-track (backend-provided) — preferred when available.
-    const mt = overlays?.multi_track?.[fips] as Record<string, number> | undefined
-    if (mt) {
-      if (layer === 'cognitive') return mt.cognitive_score ?? null
-      if (layer === 'robotics') return mt.robotics_score ?? null
-      if (layer === 'agentic') return mt.agentic_score ?? null
-      if (layer === 'offshoring') return mt.offshoring_score ?? null
-    }
-    // Fallback: approximate tracks from composite score (multi_track is
-    // empty in the current backend, so this path actually runs in prod).
-    const county = countyMap.get(fips)
-    if (!county) return null
-    const score = county.ai_exposure_score
-    if (layer === 'cognitive') return score * 1.10
-    if (layer === 'robotics') return score * 0.60
-    if (layer === 'agentic') return year > 2026 ? score * 0.90 : score * 0.20
-    if (layer === 'offshoring') return score * 0.70
     return null
   }
 
@@ -155,20 +139,12 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
 
-    const uncertainty = getUncertaintyState(year)
-
     const width = 960
     const height = 600
     const projection = d3.geoAlbersUsa().fitSize([width, height],
       topojson.feature(topoData, topoData.objects.nation) as unknown as d3.GeoPermissibleObjects
     )
     const path = d3.geoPath().projection(projection)
-
-    // Add hatch pattern definition if needed
-    const defs = svg.append('defs')
-    if (uncertainty.hatchDensity > 0) {
-      defs.html(getHatchPatternDef(uncertainty.hatchDensity))
-    }
 
     // County shapes
     const countyFeatures = topojson.feature(
@@ -179,7 +155,17 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
     const g = svg.append('g')
 
     const layer = scenario?.mapLayer || 'composite'
+    const displayMode = scenario?.displayMode || 'bucket'
     const layerPercentiles = getLayerPercentiles(layer)
+
+    // For scenario delta view: compute max absolute delta for color normalization
+    let maxDelta = 0
+    if (scenarioActive) {
+      for (const c of counties) {
+        const d = c._bartik_delta
+        if (d != null) maxDelta = Math.max(maxDelta, Math.abs(d))
+      }
+    }
 
     g.selectAll('path')
       .data(countyFeatures.features)
@@ -190,6 +176,17 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         const county = countyMap.get(fips)
         if (!county) return '#1a1a25'
 
+        // Scenario active: show delta-from-baseline with diverging palette
+        if (scenarioActive && layer === 'composite') {
+          const delta = county._bartik_delta
+          return getDeltaColor(delta ?? 0, maxDelta)
+        }
+
+        // Bucket mode: 4 discrete colors (no scenario)
+        if (displayMode === 'bucket' && layer === 'composite') {
+          return bucketColor(county.bucket)
+        }
+
         // Non-composite layer: color by percentile rank within the layer's
         // distribution so every layer uses the full low→high color range.
         if (layerPercentiles) {
@@ -198,10 +195,9 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
           return '#1a1a25' // county has no data for this layer
         }
 
-        // Default: composite displacement percentile
+        // Continuous mode: composite displacement percentile gradient
         return getExposureColor(county.exposure_percentile)
       })
-      .attr('opacity', uncertainty.opacity)
       .attr('stroke', d => {
         const fips = String(d.id).padStart(5, '0')
         return fips === selectedCounty ? '#fff' : '#2a2a3a'
@@ -288,19 +284,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         .attr('stroke', 'none')
     }
 
-    // Hatch pattern overlay (uncertainty visualization)
-    if (uncertainty.hatchDensity > 0) {
-      const nationFeature = topojson.feature(
-        topoData,
-        topoData.objects.nation,
-      ) as unknown as GeoJSON.FeatureCollection
-      g.append('path')
-        .datum(nationFeature.features[0])
-        .attr('d', d => path(d) || '')
-        .attr('fill', 'url(#hatch)')
-        .attr('pointer-events', 'none')
-    }
-
     // Company displacement dots
     if (scenario?.showCompanyDots && companyData && companyData.length > 0) {
       const dotsGroup = g.append('g').attr('class', 'company-dots')
@@ -345,39 +328,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
       }
     }
 
-    // Reshoring paradox indicators
-    if (scenario?.showReshoringParadox && overlays?.dynamics) {
-      const mfgGroup = g.append('g').attr('class', 'reshoring')
-      for (const [fips, data] of Object.entries(overlays.dynamics)) {
-        const mfgPct = (data.manufacturing_emp_pct as number) || 0
-        const paradox = (data.reshoring_paradox_score as number) || 0
-        if (mfgPct < 0.10 || paradox < 0.1) continue
-        const feature = countyFeatures.features.find(f => String(f.id).padStart(5, '0') === fips)
-        if (!feature) continue
-        const centroid = path.centroid(feature)
-        if (!centroid || isNaN(centroid[0])) continue
-        mfgGroup.append('circle')
-          .attr('cx', centroid[0])
-          .attr('cy', centroid[1])
-          .attr('r', 5)
-          .attr('fill', '#f97316')
-          .attr('fill-opacity', 0.9)
-          .attr('stroke', '#fff')
-          .attr('stroke-width', 0.8)
-          .attr('pointer-events', 'none')
-        mfgGroup.append('text')
-          .attr('x', centroid[0])
-          .attr('y', centroid[1])
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'central')
-          .attr('font-size', 7)
-          .attr('font-weight', 'bold')
-          .attr('fill', '#fff')
-          .attr('pointer-events', 'none')
-          .text('R')
-      }
-    }
-
     // Zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 12])
@@ -387,18 +337,12 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
     svg.call(zoom)
 
-  }, [topoData, counties, selectedCounty, onCountyClick, year, overlays, companyData, scenario])
-
-  const uncertainty = getUncertaintyState(year)
-  const bandInfo = BAND_LABELS[uncertainty.band]
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- year intentionally excluded: map is year-independent
+  }, [topoData, counties, selectedCounty, onCountyClick, overlays, companyData, scenario, scenarioActive])
 
   const layerName = scenario?.mapLayer || 'composite'
   const LAYER_NAMES: Record<string, string> = {
     composite: 'AI Exposure',
-    cognitive: 'Cognitive AI',
-    robotics: 'Industrial Robotics',
-    agentic: 'Agentic AI',
-    offshoring: 'Offshoring Risk',
     fragility: 'Local Economy Fragility',
     govt_floor: 'Govt Floor Strength',
     cascade: 'Competitive Cascade',
@@ -406,37 +350,6 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-      {/* Uncertainty banner */}
-      {uncertainty.bannerText && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 60,
-          background: uncertainty.bannerColor,
-          padding: '6px 16px',
-          textAlign: 'center',
-          fontSize: 12,
-          color: '#e8e8ed',
-          borderBottom: '1px solid var(--border)',
-        }}>
-          {uncertainty.bannerText}
-        </div>
-      )}
-
-      {/* Confidence indicator (top right) */}
-      <div style={{
-        position: 'absolute', top: uncertainty.bannerText ? 36 : 12, right: 12,
-        zIndex: 55, background: 'var(--bg-panel)', padding: '6px 10px',
-        borderRadius: 6, border: '1px solid var(--border)',
-        fontSize: 11, textAlign: 'center', minWidth: 80,
-      }}>
-        <div style={{ color: 'var(--text-muted)' }}>Confidence</div>
-        <div style={{
-          fontSize: 18, fontWeight: 700,
-          color: bandInfo.color,
-        }}>
-          {bandInfo.label}
-        </div>
-      </div>
-
       <svg
         ref={svgRef}
         viewBox="0 0 960 600"
@@ -457,16 +370,41 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
         fontSize: 12,
       }}>
         <div style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>
-          {LAYER_NAMES[layerName] || 'AI Exposure'}
+          {scenarioActive ? 'Scenario Impact' : (LAYER_NAMES[layerName] || 'AI Exposure')}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ color: 'var(--text-muted)' }}>Low</span>
-          <div style={{
-            width: 120, height: 10, borderRadius: 2,
-            background: 'linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c, #c0392b, #7b241c)',
-          }} />
-          <span style={{ color: 'var(--text-muted)' }}>High</span>
-        </div>
+        {scenarioActive && layerName === 'composite' ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#0d9488', fontSize: 10 }}>Less exposed</span>
+            <div style={{
+              width: 120, height: 10, borderRadius: 2,
+              background: 'linear-gradient(to right, #0d9488, #5eead4, #d4d4d8, #fbbf24, #d97706)',
+            }} />
+            <span style={{ color: '#d97706', fontSize: 10 }}>More exposed</span>
+          </div>
+        ) : scenario?.displayMode === 'bucket' && layerName === 'composite' ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {[1, 2, 3, 4].map(b => (
+              <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <div style={{ width: 12, height: 10, borderRadius: 2, background: bucketColor(b) }} />
+                <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{bucketLabel(b)}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: 'var(--text-muted)' }}>Low</span>
+            <div style={{
+              width: 120, height: 10, borderRadius: 2,
+              background: MAGMA_GRADIENT_CSS,
+            }} />
+            <span style={{ color: 'var(--text-muted)' }}>High</span>
+          </div>
+        )}
+        {!scenarioActive && (
+          <div style={{ color: 'var(--text-dim)', fontSize: 9, marginTop: 4 }}>
+            Activate Trade Policy or Fed Response to see scenario impact
+          </div>
+        )}
       </div>
 
       {/* Tooltip */}
@@ -492,11 +430,33 @@ export default function USMap({ counties, onCountyClick, selectedCounty, year = 
               </span>
             )}
           </div>
-          <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-            Exposure: <span style={{ color: getExposureColor(tooltip.data.exposure_percentile) }}>
-              {formatExposure(tooltip.data.ai_exposure_score)}
-            </span>
-          </div>
+          {scenarioActive ? (
+            <div style={{ marginTop: 4 }}>
+              <div style={{ color: 'var(--text-secondary)' }}>
+                Adjusted exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
+              </div>
+              {tooltip.data._bartik_delta != null && (
+                <div style={{
+                  color: (tooltip.data._bartik_delta as number) >= 0 ? '#d97706' : '#0d9488',
+                  fontSize: 12, fontWeight: 600,
+                }}>
+                  Scenario shift: {(tooltip.data._bartik_delta as number) >= 0 ? '+' : ''}
+                  {((tooltip.data._bartik_delta as number) * 100).toFixed(1)} pp
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              {scenario?.displayMode === 'bucket' && tooltip.data.bucket ? (
+                <div style={{ color: bucketColor(tooltip.data.bucket), marginTop: 4, fontWeight: 600, fontSize: 13 }}>
+                  {bucketLabel(tooltip.data.bucket)} exposure
+                </div>
+              ) : null}
+              <div style={{ color: 'var(--text-secondary)', marginTop: scenario?.displayMode === 'bucket' ? 2 : 4 }}>
+                Exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
+              </div>
+            </>
+          )}
           <div style={{ color: 'var(--text-secondary)' }}>
             Percentile: p{tooltip.data.exposure_percentile.toFixed(0)}
           </div>

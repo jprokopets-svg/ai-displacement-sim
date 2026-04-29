@@ -5,10 +5,10 @@ import CountyDetailPanel from './components/CountyDetailPanel'
 import SimulationTab from './components/Simulation'
 import JobSearch from './components/JobSearch'
 import ControlPanel from './components/ControlPanel'
-import MarketImplications from './components/MarketImplications'
 import type { ScenarioState } from './components/ControlPanel'
 import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
 import { applyScenarioModifiers } from './utils/scenarios'
+import { getStoredDisplayMode, setStoredDisplayMode } from './utils/buckets'
 
 import Header from './components/layout/Header'
 import type { Tab } from './components/layout/Header'
@@ -33,6 +33,8 @@ interface CountyScore {
   exposed_employment: number
   exposure_percentile: number
   is_estimated?: boolean
+  bucket?: number
+  _bartik_delta?: number
 }
 
 export default function App() {
@@ -53,12 +55,13 @@ export default function App() {
     equityLoop: 'intact',
     fedResponse: 'hold',
     mapLayer: 'composite',
+    displayMode: getStoredDisplayMode(),
     showCompanyDots: false,
-    showReshoringParadox: false,
     showTransferDependency: false,
     showKshapeDivergence: false,
   })
   const updateScenario = useCallback((updates: Partial<ScenarioState>) => {
+    if (updates.displayMode) setStoredDisplayMode(updates.displayMode)
     setScenario(prev => ({ ...prev, ...updates }))
   }, [])
 
@@ -67,6 +70,7 @@ export default function App() {
   const [compareMode, setCompareMode] = useState(false)
 
   const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
+  const [bartikData, setBartikData] = useState<Record<string, Record<string, number>>>({})
   const [countries, setCountries] = useState<Record<string, unknown>[]>([])
   const [overlays, setOverlays] = useState<Record<string, Record<string, Record<string, unknown>>>>({})
   const [companyData, setCompanyData] = useState<Record<string, unknown>[]>([])
@@ -76,7 +80,10 @@ export default function App() {
 
   useEffect(() => {
     Promise.all([
-      fetchCounties().then(data => setBaseCounties(data.counties)),
+      fetchCounties().then(data => {
+        setBaseCounties(data.counties)
+        setBartikData(data.bartik || {})
+      }),
       fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
       fetchOverlays().then(data => setOverlays(data)).catch(e => console.error('[Overlays] failed:', e)),
       fetchCompanyDisplacement().then(data => setCompanyData(data.companies || []))
@@ -85,6 +92,28 @@ export default function App() {
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
+
+  // Whether any Bartik scenario is active
+  const scenarioActive = scenario.tradePolicy !== 'current' || scenario.fedResponse !== 'hold'
+
+  // Counties with Bartik adjustments applied (for map rendering when scenario active)
+  const scenarioCounties = useMemo(() => {
+    if (!scenarioActive) return baseCounties
+    return baseCounties.map(c => {
+      const b = bartikData[c.county_fips]
+      if (!b) return c
+      let delta = 0
+      if (scenario.tradePolicy === 'free_trade') delta += b.trade_free_trade || 0
+      if (scenario.tradePolicy === 'escalating_tariffs') delta += b.trade_escalating_tariffs || 0
+      if (scenario.fedResponse === 'cut') delta += b.fed_cut || 0
+      if (scenario.fedResponse === 'zero') delta += b.fed_zero || 0
+      return {
+        ...c,
+        ai_exposure_score: Math.max(0, Math.min(1, c.ai_exposure_score + delta)),
+        _bartik_delta: delta,
+      }
+    })
+  }, [baseCounties, bartikData, scenario.tradePolicy, scenario.fedResponse, scenarioActive])
 
   const counties = useMemo(
     () => applyScenarioModifiers(baseCounties, scenario),
@@ -170,6 +199,26 @@ export default function App() {
                     </button>
                   ))}
                 </div>
+                <div style={{
+                  display: 'flex', gap: 2, marginLeft: 10,
+                  background: 'var(--bg-inset)', border: '1px solid var(--border-strong)',
+                  borderRadius: 6, padding: 2,
+                }}>
+                  {(['bucket', 'continuous'] as const).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => updateScenario({ displayMode: m })}
+                      style={{
+                        padding: '5px 10px', borderRadius: 4, border: 'none',
+                        background: scenario.displayMode === m ? 'var(--bg-panel-hover)' : 'transparent',
+                        color: scenario.displayMode === m ? 'var(--text-primary)' : 'var(--text-muted)',
+                        fontSize: 11, fontWeight: 500, cursor: 'pointer',
+                      }}
+                    >
+                      {m === 'bucket' ? 'Buckets' : 'Continuous'}
+                    </button>
+                  ))}
+                </div>
                 <button
                   onClick={() => setCompareMode(true)}
                   style={{
@@ -190,13 +239,14 @@ export default function App() {
               <div style={mapAreaStyle}>
                 {mapView === 'us' ? (
                   <USMap
-                    counties={counties}
+                    counties={scenarioCounties}
                     onCountyClick={handleCountyClick}
                     year={scenario.year}
                     selectedCounty={selectedCounty}
                     overlays={overlays}
                     companyData={companyData}
                     scenario={scenario}
+                    scenarioActive={scenarioActive}
                   />
                 ) : (
                   <WorldMap countries={countries as never[]} scenario={scenario} />
@@ -221,14 +271,6 @@ export default function App() {
           )}
           {!loading && !error && tab === 'job' && (
             <div style={scrollTabStyle}><JobSearch /></div>
-          )}
-          {!loading && !error && tab === 'market' && (
-            <div style={scrollTabStyle}>
-              <MarketImplications
-                companyData={companyData as unknown as Parameters<typeof MarketImplications>[0]['companyData']}
-                onShowCompanyInNews={(name) => { setNewsFilter(name); setTab('news') }}
-              />
-            </div>
           )}
           {!loading && !error && tab === 'news' && (
             <NewsFeed

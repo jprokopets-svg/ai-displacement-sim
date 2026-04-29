@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { trackForSector, colorForTrack } from '../../utils/trackClassifier'
 
 type Company = {
   name: string
@@ -94,9 +93,6 @@ function TickerEntry({ item, onClick }: { item: TickerItem; onClick?: () => void
     conf >= 4 ? 'var(--danger)' :
     conf >= 3 ? 'var(--amber)' :
     'var(--text-muted)'
-  const track = trackForSector(item.sector)
-  const trackColor = colorForTrack(track)
-
   const clickable = Boolean(onClick)
 
   return (
@@ -119,7 +115,7 @@ function TickerEntry({ item, onClick }: { item: TickerItem; onClick?: () => void
         {item.jobs.toLocaleString()} roles
       </span>
       <Sep />
-      <span style={{ color: trackColor, fontSize: 11, fontWeight: 500 }}>{track}</span>
+      <span style={{ color: 'var(--text-muted)', fontSize: 11, fontWeight: 500 }}>{item.sector}</span>
       <Sep />
       <span style={{ color: confColor, fontSize: 11, fontWeight: 500 }}>C{conf}</span>
     </button>

@@ -26,7 +26,9 @@ def get_all_county_scores() -> List[Dict]:
             SELECT county_fips, county_name, ai_exposure_score,
                    total_employment, exposed_employment,
                    mean_wage_weighted, exposure_percentile, n_occupations,
-                   CASE WHEN is_estimated = 1 THEN 1 ELSE 0 END as is_estimated
+                   CASE WHEN is_estimated = 1 THEN 1 ELSE 0 END as is_estimated,
+                   raw_exposure_score, shrinkage_weight, state_anchor,
+                   bucket
             FROM county_scores
             ORDER BY ai_exposure_score DESC
             """
@@ -37,6 +39,18 @@ def get_all_county_scores() -> List[Dict]:
         d["is_estimated"] = bool(d.get("is_estimated", 0))
         results.append(d)
     return results
+
+
+def get_bucket_boundaries() -> Dict:
+    """Get quartile bucket boundary values for methodology reference."""
+    import json as _json
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT description FROM model_assumptions WHERE key = 'bucket_boundaries'"
+        ).fetchone()
+    if row:
+        return _json.loads(row[0])
+    return {}
 
 
 def get_county_detail(county_fips: str) -> Optional[Dict]:
@@ -225,25 +239,29 @@ def get_county_overlays() -> Dict:
         except Exception:
             pass
 
-        # Multi-track scores (cognitive, robotics, agentic, offshoring per county)
-        multi_track = {}
-        try:
-            for r in conn.execute(
-                """SELECT county_fips, cognitive_score, robotics_score,
-                          agentic_score, offshoring_score, regulatory_friction,
-                          fragility_score
-                   FROM multi_track_scores"""
-            ):
-                multi_track[r["county_fips"]] = dict(r)
-        except Exception:
-            pass
-
     return {
         "dynamics": dynamics,
         "govt_floor": govt,
         "kshape": kshape,
-        "multi_track": multi_track,
     }
+
+
+def get_bartik_adjustments() -> Dict[str, Dict[str, float]]:
+    """Get pre-computed Bartik shift-share adjustments keyed by county FIPS.
+
+    Returns: { county_fips: { trade_free_trade, trade_escalating_tariffs,
+                               fed_cut, fed_zero } }
+    """
+    with get_db() as conn:
+        try:
+            rows = conn.execute(
+                """SELECT county_fips, trade_free_trade, trade_escalating_tariffs,
+                          fed_cut, fed_zero
+                   FROM county_bartik"""
+            ).fetchall()
+        except Exception:
+            return {}
+    return {r["county_fips"]: dict(r) for r in rows}
 
 
 def get_company_displacement() -> List[Dict]:

@@ -106,44 +106,40 @@ const ALIASES: Record<string, string> = {
   scheduler: 'scheduler,dispatcher,planner,coordinator',
 }
 
-// Replacement mechanism: what AI/automation is most likely to replace each occupation group
+// Replacement mechanism: what LLM/AI tools are most likely to affect each occupation group.
+// Eloundou-based exposure only measures cognitive/LLM displacement.
 const REPLACEMENT_MAP: Record<string, string> = {
-  '13': 'Financial AI agents (Bloomberg GPT, Kensho), automated audit & tax platforms',
-  '15': 'AI code assistants (Copilot, Cursor, Devin), automated testing & deployment',
+  '11': 'AI strategic planning tools, automated KPI dashboards, AI-driven decision support',
+  '13': 'Financial AI agents (Bloomberg GPT, Kensho), automated audit and tax platforms',
+  '15': 'AI code assistants (Copilot, Cursor, Devin), automated testing and deployment',
   '17': 'CAD/BIM AI (Autodesk AI, nTopology), generative design optimization',
-  '19': 'AI lab assistants (Emerald Cloud Lab), automated hypothesis generation',
+  '19': 'AI lab assistants, automated hypothesis generation and literature review',
+  '21': 'AI counseling chatbots, automated case management, benefits processing AI',
   '23': 'Legal AI agents (Harvey, CoCounsel), document review automation',
-  '25': 'AI tutoring (Khan Academy, Khanmigo), automated grading & curriculum',
+  '25': 'AI tutoring (Khanmigo, adaptive curriculum), automated grading',
   '27': 'Generative AI (DALL-E, Sora, Suno), automated content production',
-  '29': 'Diagnostic AI (PathAI, Viz.ai), robotic surgery (da Vinci), clinical decision support',
-  '31': 'Companion robots, remote patient monitoring, automated care scheduling',
-  '33': 'Surveillance AI, predictive policing, autonomous patrol drones',
-  '35': 'Kitchen robotics (Miso, Flippy), automated ordering & inventory',
-  '37': 'Autonomous cleaning robots (Brain Corp), facility management AI',
-  '39': 'Service robots (SoftBank Pepper), AI personal assistants',
+  '29': 'Diagnostic AI (PathAI, Viz.ai), clinical decision support',
+  '31': 'Limited current AI exposure; most tasks involve physical patient care and interpersonal support',
+  '33': 'Limited current AI exposure; most tasks require physical presence and public trust mandates',
+  '35': 'Limited current AI exposure; most tasks involve physical food preparation and in-person service',
+  '37': 'Limited current AI exposure; most tasks involve physical cleaning and facility maintenance',
+  '39': 'Limited current AI exposure; most tasks require personal presence and human interaction',
   '41': 'AI sales agents (Regie.ai, Outreach), recommendation engines',
   '43': 'RPA (UiPath, Automation Anywhere), AI document processing, chatbot customer service',
-  '45': 'Agricultural robotics (John Deere See & Spray), autonomous harvesters',
-  '47': 'Construction robotics (Built Robotics), prefab automation, drone surveys',
-  '49': 'Predictive maintenance AI, diagnostic robots, AR-guided repair',
-  '51': 'Industrial robotics (Fanuc, ABB), lights-out manufacturing, cobot assembly',
-  '53': 'Autonomous vehicles (Waymo, Aurora), drone delivery, warehouse AGVs',
-  '11': 'AI strategic planning tools, automated KPI dashboards, AI-driven decision support',
-  '21': 'AI counseling chatbots, automated case management, benefits processing AI',
+  '45': 'Limited current AI exposure; most tasks involve physical outdoor labor',
+  '47': 'Limited current AI exposure; most tasks involve physical on-site construction work',
+  '49': 'Predictive maintenance AI, AR-guided repair diagnostics',
+  '51': 'Limited current AI exposure; most tasks involve physical production-line work',
+  '53': 'Limited current AI exposure; most tasks involve physical vehicle operation and material handling',
 }
 
-// Enhanced track breakdown with more lifespan model variables
-function getTrackBreakdown(soc: string, exposure: number) {
+// Displacement risk factors — computed from SOC group characteristics.
+function getRiskFactors(soc: string, exposure: number) {
   const group = soc.substring(0, 2)
-  const isPhysical = ['35', '37', '45', '47', '49', '51', '53'].includes(group)
   const isKnowledge = ['13', '15', '17', '19', '23', '25', '27'].includes(group)
   const isOffice = ['43', '13', '15', '23'].includes(group)
+  const isPhysical = ['35', '37', '45', '47', '49', '51', '53'].includes(group)
   const isHealthcare = ['29', '31'].includes(group)
-
-  const cognitive = isKnowledge ? exposure * 1.1 : exposure * 0.7
-  const robotics = isPhysical ? 0.30 + exposure * 0.4 : 0.02 + exposure * 0.1
-  const agentic = isKnowledge ? exposure * 0.9 : isOffice ? exposure * 0.7 : exposure * 0.3
-  const offshoring = isOffice ? exposure * 0.8 : isPhysical ? 0.02 : exposure * 0.4
 
   // Regulatory friction by group
   const frictionMap: Record<string, number> = {
@@ -160,42 +156,24 @@ function getTrackBreakdown(soc: string, exposure: number) {
   }
   const automationPressure = automationCompaniesMap[group] || 0.3
 
-  // Ease of replacement (can tasks be fully automated or only partially?)
   const easeOfReplacement = isOffice ? 0.8 : isKnowledge ? 0.6 : isPhysical ? 0.5 : isHealthcare ? 0.3 : 0.5
-
-  // Economic pressure to automate (labor cost as % of revenue)
   const laborCostPressure = isPhysical ? 0.7 : isOffice ? 0.65 : isKnowledge ? 0.5 : 0.4
-
-  // Wage drop probability before full displacement
   const wageDropProb = exposure > 0.6 ? 0.8 : exposure > 0.4 ? 0.6 : 0.3
-
-  // Business closure risk from competitive pressure
   const closureRisk = isKnowledge ? exposure * 0.5 : isOffice ? exposure * 0.6 : exposure * 0.3
 
-  return {
-    cognitive: Math.min(1, Math.max(0, cognitive)),
-    robotics: Math.min(1, Math.max(0, robotics)),
-    agentic: Math.min(1, Math.max(0, agentic)),
-    offshoring: Math.min(1, Math.max(0, offshoring)),
-    friction,
-    automationPressure,
-    easeOfReplacement,
-    laborCostPressure,
-    wageDropProb,
-    closureRisk,
-  }
+  return { friction, automationPressure, easeOfReplacement, laborCostPressure, wageDropProb, closureRisk }
 }
 
 function getTimelineScores(exposure: number, soc: string) {
-  const tracks = getTrackBreakdown(soc, exposure)
-  const isPhysical = tracks.robotics > 0.3
-  // Enhanced: factor in automation pressure and ease of replacement
-  const accelerator = 1.0 + (tracks.automationPressure - 0.5) * 0.3 + (tracks.easeOfReplacement - 0.5) * 0.2
+  const factors = getRiskFactors(soc, exposure)
+  const isHighExposure = exposure > 0.5
+  const accelerator = 1.0 + (factors.automationPressure - 0.5) * 0.3 + (factors.easeOfReplacement - 0.5) * 0.2
+  const boost = isHighExposure ? 0.05 : 0.03
   return [
     { year: 2025, score: exposure },
-    { year: 2028, score: Math.min(1, exposure * (1 + (isPhysical ? 0.08 : 0.05) * accelerator + (tracks.agentic > 0.5 ? 0.10 : 0))) },
-    { year: 2032, score: Math.min(1, exposure * (1 + (isPhysical ? 0.15 : 0.10) * accelerator + (tracks.agentic > 0.5 ? 0.20 : 0.05))) },
-    { year: 2035, score: Math.min(1, exposure * (1 + (isPhysical ? 0.20 : 0.15) * accelerator + (tracks.agentic > 0.5 ? 0.25 : 0.10))) },
+    { year: 2028, score: Math.min(1, exposure * (1 + boost * accelerator)) },
+    { year: 2032, score: Math.min(1, exposure * (1 + boost * 2 * accelerator)) },
+    { year: 2035, score: Math.min(1, exposure * (1 + boost * 3 * accelerator)) },
   ]
 }
 
@@ -234,7 +212,7 @@ export default function JobSearch() {
     <div style={{ padding: 24, maxWidth: 700 }}>
       <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Check Your Job</h2>
       <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 16 }}>
-        Enter your occupation to see its AI displacement risk with full track breakdown,
+        Enter your occupation to see its AI displacement risk based on Eloundou LLM exposure,
         time-aware projections, and replacement mechanism analysis.
       </p>
 
@@ -260,7 +238,7 @@ export default function JobSearch() {
         </button>
       </div>
       <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-        Search returns all matching O*NET occupations. Scores include composite displacement with all four tracks.
+        Search returns all matching O*NET occupations. Scores reflect Eloundou LLM exposure.
       </div>
 
       {/* Results list */}
@@ -322,7 +300,7 @@ function OccupationDetail({ occ, onBack }: { occ: Record<string, unknown>; onBac
   const soc = occ.soc_code as string
   const title = occ.occupation_title as string
   const group = soc.substring(0, 2)
-  const tracks = getTrackBreakdown(soc, exposure)
+  const factors = getRiskFactors(soc, exposure)
   const timeline = getTimelineScores(exposure, soc)
   const replacement = REPLACEMENT_MAP[group]
 
@@ -348,7 +326,7 @@ function OccupationDetail({ occ, onBack }: { occ: Record<string, unknown>; onBac
           }}>
             {formatExposure(exposure)}
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Composite Displacement</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>AI Exposure</div>
         </div>
       </div>
 
@@ -366,17 +344,6 @@ function OccupationDetail({ occ, onBack }: { occ: Record<string, unknown>; onBac
           </div>
         </div>
       )}
-
-      {/* Track breakdown bars */}
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>
-          Track Breakdown
-        </div>
-        <TrackBar label="Cognitive AI" value={tracks.cognitive} color="#4a9eff" />
-        <TrackBar label="Industrial Robotics" value={tracks.robotics} color="#f97316" />
-        <TrackBar label="Agentic AI (2026+)" value={tracks.agentic} color="#b44aff" />
-        <TrackBar label="Offshoring Risk" value={tracks.offshoring} color="#4ade80" />
-      </div>
 
       {/* Timeline */}
       <div style={{ marginTop: 16 }}>
@@ -407,15 +374,15 @@ function OccupationDetail({ occ, onBack }: { occ: Record<string, unknown>; onBac
         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>
           Displacement Risk Factors
         </div>
-        <FactorBar label="Automation companies in field" value={tracks.automationPressure}
+        <FactorBar label="Automation companies in field" value={factors.automationPressure}
           hint="How many AI companies target this occupation" />
-        <FactorBar label="Ease of replacement" value={tracks.easeOfReplacement}
+        <FactorBar label="Ease of replacement" value={factors.easeOfReplacement}
           hint="Can tasks be fully automated or only partially" />
-        <FactorBar label="Economic pressure to automate" value={tracks.laborCostPressure}
+        <FactorBar label="Economic pressure to automate" value={factors.laborCostPressure}
           hint="Labor cost as % of revenue driving automation ROI" />
-        <FactorBar label="Wage drop probability" value={tracks.wageDropProb}
+        <FactorBar label="Wage drop probability" value={factors.wageDropProb}
           hint="Likelihood of wage compression before full displacement" />
-        <FactorBar label="Business closure risk" value={tracks.closureRisk}
+        <FactorBar label="Business closure risk" value={factors.closureRisk}
           hint="Risk of employer closure from competitive pressure" />
       </div>
 
@@ -428,39 +395,21 @@ function OccupationDetail({ occ, onBack }: { occ: Record<string, unknown>; onBac
           height: 8, background: '#1a1a25', borderRadius: 4, overflow: 'hidden',
         }}>
           <div style={{
-            height: '100%', width: `${tracks.friction * 100}%`,
-            background: tracks.friction > 0.5 ? '#22c55e' : tracks.friction > 0.25 ? '#eab308' : '#ef4444',
+            height: '100%', width: `${factors.friction * 100}%`,
+            background: factors.friction > 0.5 ? '#22c55e' : factors.friction > 0.25 ? '#eab308' : '#ef4444',
             borderRadius: 4,
           }} />
         </div>
         <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-          {tracks.friction > 0.5 ? 'High -- licensing, unions, regulation slow automation'
-            : tracks.friction > 0.25 ? 'Moderate -- some regulatory barriers'
+          {factors.friction > 0.5 ? 'High -- licensing, unions, regulation slow automation'
+            : factors.friction > 0.25 ? 'Moderate -- some regulatory barriers'
             : 'Low -- minimal barriers to automation'}
         </div>
       </div>
 
       <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 16 }}>
-        Source: O*NET 29.1, Felten-Raj-Rock 2021, Frey-Osborne 2017.
-        Track breakdown is directional -- derived from occupation group characteristics.
+        Source: O*NET 29.1, Eloundou et al. 2023 (LLM exposure).
         Displacement risk factors are model estimates, not precise predictions.
-      </div>
-    </div>
-  )
-}
-
-function TrackBar({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div style={{ marginBottom: 6 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-        <span style={{ color, fontWeight: 600 }}>{(value * 100).toFixed(0)}%</span>
-      </div>
-      <div style={{ height: 6, background: '#1a1a25', borderRadius: 3, marginTop: 2 }}>
-        <div style={{
-          height: '100%', width: `${value * 100}%`,
-          background: color, borderRadius: 3,
-        }} />
       </div>
     </div>
   )
