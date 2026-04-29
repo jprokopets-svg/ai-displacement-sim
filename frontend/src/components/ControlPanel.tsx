@@ -54,26 +54,13 @@ export default function ControlPanel({ state, onChange, showMapControls = false 
         </label>
         <InfoTip text="How aggressively AI displacement accelerates itself. Left = Goldman Sachs gradual baseline. Right = full self-reinforcing cascade." />
       </div>
-      <div style={{ ...sliderWrapStyle, position: 'relative' }}>
+      <div style={sliderWrapStyle}>
         <input
           type="range" min="0" max="1" step="0.05"
           value={state.feedbackAggressiveness}
           onChange={e => onChange({ feedbackAggressiveness: +e.target.value })}
           style={{ width: '100%' }}
         />
-        {/* Author prediction marker at 7.5/10 = 0.75 */}
-        <div style={{
-          position: 'absolute', top: -2, left: '75%', transform: 'translateX(-50%)',
-          width: 2, height: 20, background: 'var(--accent)',
-          pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute', top: 18, left: '75%', transform: 'translateX(-50%)',
-          fontSize: 9, color: 'var(--accent)', whiteSpace: 'nowrap',
-          pointerEvents: 'none',
-        }}>
-          Author prediction
-        </div>
       </div>
       <div style={{
         fontSize: 11, color: 'var(--text-dim)', fontStyle: 'italic',

@@ -27,7 +27,7 @@ export default function RightPanel({ children, width }: Props) {
       <button onClick={() => setHidden(true)} style={hideBtnTopLeft} title="Hide panel">
         ›
       </button>
-      <div style={contentStyle}>{children}</div>
+      <div style={{ ...contentStyle, paddingTop: 36 }}>{children}</div>
     </aside>
   )
 }
