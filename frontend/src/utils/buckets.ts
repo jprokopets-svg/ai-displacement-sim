@@ -1,7 +1,6 @@
 /**
  * Bucket (quartile) labels, colors, and helpers for dual presentation mode.
  */
-import * as d3 from 'd3'
 
 export type DisplayMode = 'bucket' | 'continuous'
 
@@ -13,12 +12,14 @@ export const BUCKET_LABELS: Record<number, string> = {
 }
 
 // Magma palette sampled at quartile midpoints within 0.15–0.95 range.
-// Q1 midpoint=12.5% → magma(0.25), Q2=37.5% → magma(0.45), etc.
+// Hardcoded to avoid Vite production bundling order issue with top-level
+// d3.interpolateMagma() calls. Values verified via Playwright against
+// d3.interpolateMagma(0.25), (0.45), (0.65), (0.85).
 export const BUCKET_COLORS: Record<number, string> = {
-  1: d3.interpolateMagma(0.25),
-  2: d3.interpolateMagma(0.45),
-  3: d3.interpolateMagma(0.65),
-  4: d3.interpolateMagma(0.85),
+  1: '#51127c',  // magma(0.25)
+  2: '#a1307e',  // magma(0.45)
+  3: '#ed5a5f',  // magma(0.65)
+  4: '#feb77e',  // magma(0.85)
 }
 
 export function bucketLabel(bucket: number | undefined): string {
