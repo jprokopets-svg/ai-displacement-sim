@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import USMap from './components/USMap'
 import WorldMap from './components/WorldMap'
 import CountyDetailPanel from './components/CountyDetailPanel'
@@ -85,13 +85,25 @@ export default function App() {
         setBartikData(data.bartik || {})
       }),
       fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
-      fetchOverlays().then(data => setOverlays(data)).catch(e => console.error('[Overlays] failed:', e)),
       fetchCompanyDisplacement().then(data => setCompanyData(data.companies || []))
         .catch(e => console.error('[Companies] failed:', e)),
     ])
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
+
+  // Lazy-load overlay data on first use: overlay toggles or non-composite map layers.
+  const overlaysLoaded = useRef(false)
+  const needsOverlays = scenario.showTransferDependency
+    || scenario.showKshapeDivergence
+    || (scenario.mapLayer !== 'composite')
+  useEffect(() => {
+    if (!needsOverlays || overlaysLoaded.current) return
+    overlaysLoaded.current = true
+    fetchOverlays()
+      .then(data => setOverlays(data))
+      .catch(e => console.error('[Overlays] failed:', e))
+  }, [needsOverlays])
 
   // Whether any Bartik scenario is active
   const scenarioActive = scenario.tradePolicy !== 'current' || scenario.fedResponse !== 'hold'

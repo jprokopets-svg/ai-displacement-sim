@@ -15,6 +15,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from .database import (
     get_all_county_scores,
@@ -49,6 +50,7 @@ def _startup():
     except Exception as e:
         logging.warning(f"Signal fetcher startup failed (non-fatal): {e}")
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
