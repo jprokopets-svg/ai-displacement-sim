@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { searchOccupations } from '../utils/api'
-import { getOccupationExposureColor, formatExposure } from '../utils/colors'
+import { BUCKET_BLURBS, bucketColor, bucketLabel, formatExposure, occupationBucket } from '../utils/buckets'
 
 // Multi-term aliases: broad terms expand to comma-separated search across O*NET.
 // Each alias lists semantically-related occupation words/phrases the backend
@@ -106,327 +106,150 @@ const ALIASES: Record<string, string> = {
   scheduler: 'scheduler,dispatcher,planner,coordinator',
 }
 
-// Replacement mechanism: what LLM/AI tools are most likely to affect each occupation group.
-// Eloundou-based exposure only measures cognitive/LLM displacement.
-const REPLACEMENT_MAP: Record<string, string> = {
-  '11': 'AI strategic planning tools, automated KPI dashboards, AI-driven decision support',
-  '13': 'Financial AI agents (Bloomberg GPT, Kensho), automated audit and tax platforms',
-  '15': 'AI code assistants (Copilot, Cursor, Devin), automated testing and deployment',
-  '17': 'CAD/BIM AI (Autodesk AI, nTopology), generative design optimization',
-  '19': 'AI lab assistants, automated hypothesis generation and literature review',
-  '21': 'AI counseling chatbots, automated case management, benefits processing AI',
-  '23': 'Legal AI agents (Harvey, CoCounsel), document review automation',
-  '25': 'AI tutoring (Khanmigo, adaptive curriculum), automated grading',
-  '27': 'Generative AI (DALL-E, Sora, Suno), automated content production',
-  '29': 'Diagnostic AI (PathAI, Viz.ai), clinical decision support',
-  '31': 'Limited current AI exposure; most tasks involve physical patient care and interpersonal support',
-  '33': 'Limited current AI exposure; most tasks require physical presence and public trust mandates',
-  '35': 'Limited current AI exposure; most tasks involve physical food preparation and in-person service',
-  '37': 'Limited current AI exposure; most tasks involve physical cleaning and facility maintenance',
-  '39': 'Limited current AI exposure; most tasks require personal presence and human interaction',
-  '41': 'AI sales agents (Regie.ai, Outreach), recommendation engines',
-  '43': 'RPA (UiPath, Automation Anywhere), AI document processing, chatbot customer service',
-  '45': 'Limited current AI exposure; most tasks involve physical outdoor labor',
-  '47': 'Limited current AI exposure; most tasks involve physical on-site construction work',
-  '49': 'Predictive maintenance AI, AR-guided repair diagnostics',
-  '51': 'Limited current AI exposure; most tasks involve physical production-line work',
-  '53': 'Limited current AI exposure; most tasks involve physical vehicle operation and material handling',
+interface Occupation {
+  soc_code: string
+  occupation_title: string
+  ai_exposure: number
 }
 
-// Displacement risk factors — computed from SOC group characteristics.
-function getRiskFactors(soc: string, exposure: number) {
-  const group = soc.substring(0, 2)
-  const isKnowledge = ['13', '15', '17', '19', '23', '25', '27'].includes(group)
-  const isOffice = ['43', '13', '15', '23'].includes(group)
-  const isPhysical = ['35', '37', '45', '47', '49', '51', '53'].includes(group)
-  const isHealthcare = ['29', '31'].includes(group)
-
-  // Regulatory friction by group
-  const frictionMap: Record<string, number> = {
-    '29': 0.75, '23': 0.70, '33': 0.65, '25': 0.55, '31': 0.35,
-    '47': 0.30, '53': 0.35, '51': 0.30,
-  }
-  const friction = frictionMap[group] || 0.15
-
-  // Active automation companies (how many companies are building solutions for this field)
-  const automationCompaniesMap: Record<string, number> = {
-    '15': 0.9, '43': 0.85, '53': 0.8, '51': 0.85, '41': 0.7,
-    '13': 0.75, '23': 0.65, '27': 0.8, '29': 0.6, '25': 0.55,
-    '35': 0.6, '47': 0.5, '45': 0.5, '33': 0.4, '37': 0.45,
-  }
-  const automationPressure = automationCompaniesMap[group] || 0.3
-
-  const easeOfReplacement = isOffice ? 0.8 : isKnowledge ? 0.6 : isPhysical ? 0.5 : isHealthcare ? 0.3 : 0.5
-  const laborCostPressure = isPhysical ? 0.7 : isOffice ? 0.65 : isKnowledge ? 0.5 : 0.4
-  const wageDropProb = exposure > 0.6 ? 0.8 : exposure > 0.4 ? 0.6 : 0.3
-  const closureRisk = isKnowledge ? exposure * 0.5 : isOffice ? exposure * 0.6 : exposure * 0.3
-
-  return { friction, automationPressure, easeOfReplacement, laborCostPressure, wageDropProb, closureRisk }
-}
-
-function getTimelineScores(exposure: number, soc: string) {
-  const factors = getRiskFactors(soc, exposure)
-  const isHighExposure = exposure > 0.5
-  const accelerator = 1.0 + (factors.automationPressure - 0.5) * 0.3 + (factors.easeOfReplacement - 0.5) * 0.2
-  const boost = isHighExposure ? 0.05 : 0.03
-  return [
-    { year: 2025, score: exposure },
-    { year: 2028, score: Math.min(1, exposure * (1 + boost * accelerator)) },
-    { year: 2032, score: Math.min(1, exposure * (1 + boost * 2 * accelerator)) },
-    { year: 2035, score: Math.min(1, exposure * (1 + boost * 3 * accelerator)) },
-  ]
-}
-
+/** Typeahead over the O*NET occupation list, with the matched job's exposure. */
 export default function JobSearch() {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<Record<string, unknown>[]>([])
-  const [loading, setLoading] = useState(false)
-  const [selected, setSelected] = useState<Record<string, unknown> | null>(null)
+  const [results, setResults] = useState<Occupation[]>([])
+  const [selected, setSelected] = useState<Occupation | null>(null)
+  const [open, setOpen] = useState(false)
+  const boxRef = useRef<HTMLDivElement>(null)
+  // Set when `query` was filled in by picking a suggestion, so that write
+  // doesn't fire a fresh search and reopen the list over the result.
+  const skipSearch = useRef(false)
 
-  const handleSearch = async () => {
-    if (query.length < 2) return
-    setLoading(true)
-    setSelected(null)
-
-    const aliasMatch = ALIASES[query.toLowerCase().trim()]
-    const searchTerm = aliasMatch || query
-
-    try {
-      let data = await searchOccupations(searchTerm)
-      // If alias didn't help, try the raw query
-      if (data.occupations.length === 0 && aliasMatch) {
-        data = await searchOccupations(query)
-      }
-      setResults(data.occupations)
-      if (data.occupations.length === 1) {
-        setSelected(data.occupations[0])
-      }
-    } catch {
-      setResults([])
-    } finally {
-      setLoading(false)
+  // Debounced search. `stale` guards against out-of-order responses.
+  useEffect(() => {
+    if (skipSearch.current) {
+      skipSearch.current = false
+      return
     }
+    const q = query.trim()
+    if (q.length < 2) {
+      setResults([])
+      return
+    }
+    let stale = false
+    const timer = setTimeout(async () => {
+      const alias = ALIASES[q.toLowerCase()]
+      try {
+        let data = await searchOccupations(alias || q)
+        if (alias && data.occupations.length === 0) data = await searchOccupations(q)
+        if (!stale) {
+          setResults(data.occupations)
+          setOpen(true)
+        }
+      } catch {
+        if (!stale) setResults([])
+      }
+    }, 200)
+    return () => { stale = true; clearTimeout(timer) }
+  }, [query])
+
+  // Close the suggestion list on outside click.
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [])
+
+  function choose(occ: Occupation) {
+    skipSearch.current = true
+    setSelected(occ)
+    setQuery(occ.occupation_title)
+    setResults([])
+    setOpen(false)
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 700 }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Check Your Job</h2>
-      <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 16 }}>
-        Enter your occupation to see its AI displacement risk based on Eloundou LLM exposure,
-        time-aware projections, and replacement mechanism analysis.
-      </p>
-
-      <div style={{ display: 'flex', gap: 8 }}>
+    <div>
+      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>Check my job</h2>
+      <div ref={boxRef} style={{ position: 'relative', maxWidth: 420 }}>
         <input
           type="text"
-          placeholder="e.g. doctor, lawyer, truck driver, accountant, programmer"
+          placeholder="Start typing an occupation"
           value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSearch()}
-          style={{
-            flex: 1, padding: '8px 12px', borderRadius: 6,
-            background: 'var(--bg-secondary)', color: 'var(--text-primary)',
-            border: '1px solid var(--border)', fontSize: 14,
-          }}
+          onChange={e => { setQuery(e.target.value); setSelected(null) }}
+          onFocus={() => { if (results.length > 0) setOpen(true) }}
+          style={inputStyle}
         />
-        <button onClick={handleSearch} disabled={loading} style={{
-          padding: '8px 16px', borderRadius: 6,
-          background: 'var(--accent)', color: '#fff',
-          border: 'none', fontSize: 14, cursor: 'pointer',
-        }}>
-          {loading ? '...' : 'Search'}
-        </button>
-      </div>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-        Search returns all matching O*NET occupations. Scores reflect Eloundou LLM exposure.
+        {open && results.length > 0 && (
+          <ul style={listStyle}>
+            {results.map(occ => (
+              <li key={occ.soc_code}>
+                <button type="button" onClick={() => choose(occ)} style={optionStyle}>
+                  <span>{occ.occupation_title}</span>
+                  <span style={{ color: '#555' }}>{formatExposure(occ.ai_exposure)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {/* Results list */}
-      {results.length > 0 && !selected && (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
-            {results.length} occupation{results.length !== 1 ? 's' : ''} found -- click for details
-          </div>
-          <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-          {results.map((occ, i) => {
-            const soc = occ.soc_code as string
-            const group = soc.substring(0, 2)
-            const replacement = REPLACEMENT_MAP[group]
-            return (
-              <div key={i} onClick={() => setSelected(occ)} style={{
-                padding: '8px 12px', borderBottom: '1px solid var(--border)',
-                cursor: 'pointer',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 500 }}>{occ.occupation_title as string}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>SOC: {soc}</div>
-                  </div>
-                  <div style={{
-                    fontSize: 18, fontWeight: 700,
-                    color: getOccupationExposureColor(occ.ai_exposure as number),
-                  }}>
-                    {formatExposure(occ.ai_exposure as number)}
-                  </div>
-                </div>
-                {replacement && (
-                  <div style={{
-                    fontSize: 11, color: 'var(--warning)', marginTop: 4,
-                    padding: '3px 6px', background: 'rgba(255,168,74,0.08)', borderRadius: 3,
-                  }}>
-                    Most exposed to: {replacement}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-          </div>
-        </div>
-      )}
-
-      {/* Detailed breakdown for selected occupation */}
-      {selected && (
-        <OccupationDetail
-          occ={selected}
-          onBack={() => setSelected(null)}
-        />
-      )}
+      {selected && <Result occ={selected} />}
     </div>
   )
 }
 
-function OccupationDetail({ occ, onBack }: { occ: Record<string, unknown>; onBack: () => void }) {
-  const exposure = occ.ai_exposure as number
-  const soc = occ.soc_code as string
-  const title = occ.occupation_title as string
-  const group = soc.substring(0, 2)
-  const factors = getRiskFactors(soc, exposure)
-  const timeline = getTimelineScores(exposure, soc)
-  const replacement = REPLACEMENT_MAP[group]
-
+function Result({ occ }: { occ: Occupation }) {
+  const bucket = occupationBucket(occ.ai_exposure)
   return (
-    <div style={{ marginTop: 16 }}>
-      <button onClick={onBack} style={{
-        background: 'none', border: '1px solid var(--border)',
-        color: 'var(--text-secondary)', borderRadius: 4,
-        padding: '4px 10px', cursor: 'pointer', fontSize: 12, marginBottom: 12,
-      }}>
-        Back to results
-      </button>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-        <div>
-          <h3 style={{ fontSize: 18, fontWeight: 700 }}>{title}</h3>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>SOC: {soc}</div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{
-            fontSize: 32, fontWeight: 800,
-            color: getOccupationExposureColor(exposure),
-          }}>
-            {formatExposure(exposure)}
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>AI Exposure</div>
-        </div>
-      </div>
-
-      {/* Replacement mechanism */}
-      {replacement && (
-        <div style={{
-          marginTop: 12, padding: '8px 12px', borderRadius: 6,
-          background: 'rgba(255,168,74,0.08)', border: '1px solid rgba(255,168,74,0.2)',
+    <div style={{ marginTop: 14, maxWidth: 420 }}>
+      <div style={{ fontWeight: 600, fontSize: 15 }}>{occ.occupation_title}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+        <span style={{
+          background: bucketColor(bucket), color: bucket >= 3 ? '#fff' : '#111',
+          padding: '2px 8px', fontSize: 13, fontWeight: 600,
         }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--warning)', marginBottom: 2 }}>
-            Primary Displacement Mechanism
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>
-            {replacement}
-          </div>
-        </div>
-      )}
-
-      {/* Timeline */}
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>
-          Score Over Time
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {timeline.map(t => (
-            <div key={t.year} style={{
-              flex: 1, textAlign: 'center', padding: '6px 4px',
-              background: 'var(--bg-secondary)', borderRadius: 4,
-              border: '1px solid var(--border)',
-            }}>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{t.year}</div>
-              <div style={{
-                fontSize: 16, fontWeight: 700,
-                color: getOccupationExposureColor(t.score),
-              }}>
-                {(t.score * 100).toFixed(0)}%
-              </div>
-            </div>
-          ))}
-        </div>
+          {bucketLabel(bucket)} exposure
+        </span>
+        <span style={{ fontSize: 20, fontWeight: 700 }}>{formatExposure(occ.ai_exposure)}</span>
       </div>
-
-      {/* Lifespan model factors */}
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>
-          Displacement Risk Factors
-        </div>
-        <FactorBar label="Automation companies in field" value={factors.automationPressure}
-          hint="How many AI companies target this occupation" />
-        <FactorBar label="Ease of replacement" value={factors.easeOfReplacement}
-          hint="Can tasks be fully automated or only partially" />
-        <FactorBar label="Economic pressure to automate" value={factors.laborCostPressure}
-          hint="Labor cost as % of revenue driving automation ROI" />
-        <FactorBar label="Wage drop probability" value={factors.wageDropProb}
-          hint="Likelihood of wage compression before full displacement" />
-        <FactorBar label="Business closure risk" value={factors.closureRisk}
-          hint="Risk of employer closure from competitive pressure" />
-      </div>
-
-      {/* Regulatory friction */}
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>
-          Regulatory Friction
-        </div>
-        <div style={{
-          height: 8, background: '#1a1a25', borderRadius: 4, overflow: 'hidden',
-        }}>
-          <div style={{
-            height: '100%', width: `${factors.friction * 100}%`,
-            background: factors.friction > 0.5 ? '#22c55e' : factors.friction > 0.25 ? '#eab308' : '#ef4444',
-            borderRadius: 4,
-          }} />
-        </div>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-          {factors.friction > 0.5 ? 'High -- licensing, unions, regulation slow automation'
-            : factors.friction > 0.25 ? 'Moderate -- some regulatory barriers'
-            : 'Low -- minimal barriers to automation'}
-        </div>
-      </div>
-
-      <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 16 }}>
-        Source: O*NET 29.1, Eloundou et al. 2023 (LLM exposure).
-        Displacement risk factors are model estimates, not precise predictions.
-      </div>
+      <p style={{ fontSize: 13, color: '#333', marginTop: 8 }}>{BUCKET_BLURBS[bucket]}</p>
     </div>
   )
 }
 
-function FactorBar({ label, value, hint }: { label: string; value: number; hint: string }) {
-  const color = value > 0.7 ? '#ef4444' : value > 0.4 ? '#eab308' : '#22c55e'
-  return (
-    <div style={{ marginBottom: 5 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-        <span style={{ color, fontWeight: 600 }}>{(value * 100).toFixed(0)}%</span>
-      </div>
-      <div style={{ height: 4, background: '#1a1a25', borderRadius: 2, marginTop: 1 }}>
-        <div style={{ height: '100%', width: `${value * 100}%`, background: color, borderRadius: 2 }} />
-      </div>
-      <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{hint}</div>
-    </div>
-  )
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '8px 10px',
+  fontSize: 14,
+  border: '1px solid #999',
+  background: '#fff',
+  color: '#111',
+}
+
+const listStyle: React.CSSProperties = {
+  position: 'absolute',
+  zIndex: 20,
+  left: 0,
+  right: 0,
+  maxHeight: 280,
+  overflowY: 'auto',
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+  background: '#fff',
+  border: '1px solid #999',
+  borderTop: 'none',
+}
+
+const optionStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: 12,
+  width: '100%',
+  textAlign: 'left',
+  padding: '6px 10px',
+  fontSize: 13,
+  color: '#111',
+  cursor: 'pointer',
 }

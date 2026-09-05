@@ -1,10 +1,14 @@
 # AI Workforce Displacement Simulator
 
-A comprehensive, interactive tool for modeling AI-driven workforce displacement across US counties and internationally. Built with a multi-track displacement model (cognitive AI, industrial robotics, agentic AI, offshoring acceleration), six economic dynamics (competitive cascade, trade policy, K-shape wealth effect, AI equity loop, government demand floor, deficit/profit scenarios), and a Monte Carlo simulation engine that produces probability distributions — not point predictions. Pairs with a Substack series on AI's macroeconomic impact.
+Backend model and data pipeline for county- and occupation-level AI exposure scores, pairing with a Substack series on AI's macroeconomic impact.
 
-## Key Features
+**The public site ([yourjobrisk.com](https://yourjobrisk.com), `frontend/`) is deliberately narrow: a static county exposure choropleth and a "Check my job" occupation search.** The simulator UI — year slider, Monte Carlo scenarios, world map, company overlays — has been removed from the site. The model, pipeline, and API endpoints that powered it remain in `backend/` and are documented below.
 
-- **US county choropleth map** — 3,204 counties colored by AI displacement risk, zoom/pan, click for detailed breakdown
+## Model Features
+
+These describe the backend model and API. Only the county choropleth and occupation search are exposed on the site.
+
+- **US county choropleth map** — 3,204 counties colored by AI displacement risk
 - **4-track displacement model** — cognitive AI, industrial robotics, agentic AI, and offshoring acceleration with independent time scaling
 - **6 economic dynamics** — competitive cascade, trade policy scenarios, K-shape wealth effect, AI equity reflexive loop, government demand floor, deficit spiral vs corporate profit surge
 - **Year slider (2025-2040)** — visual uncertainty system with progressive opacity, hatch patterns, confidence interval widening, and time-band banners

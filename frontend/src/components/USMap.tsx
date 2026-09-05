@@ -2,37 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
 import type { Topology } from 'topojson-specification'
-import { getExposureColor, getDeltaColor, formatNumber, MAGMA_GRADIENT_CSS } from '../utils/colors'
-import { bucketColor, bucketLabel, formatExposureWhole } from '../utils/buckets'
-// uncertainty.ts still used by right panel — not imported here
+import { bucketColor, bucketLabel, formatExposure, NO_DATA_COLOR } from '../utils/buckets'
 import { countyLabel } from '../utils/countyLabel'
-import type { ScenarioState } from './ControlPanel'
 
-interface CountyScore {
+export interface CountyScore {
   county_fips: string
   county_name: string
   ai_exposure_score: number
-  total_employment: number
-  exposed_employment: number
-  exposure_percentile: number
-  is_estimated?: boolean
   bucket?: number
-  _bartik_delta?: number
-}
-
-interface USMapProps {
-  counties: CountyScore[]
-  onCountyClick: (fips: string) => void
-  selectedCounty: string | null
-  year?: number
-  overlays?: Record<string, Record<string, Record<string, unknown>>>
-  companyData?: Record<string, unknown>[]
-  scenario?: ScenarioState
-  scenarioActive?: boolean
 }
 
 interface TooltipState {
-  visible: boolean
   x: number
   y: number
   data: CountyScore | null
@@ -40,439 +20,118 @@ interface TooltipState {
 
 const TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'
 
-/**
- * Rank an overlay dict by a numeric field and return fips → percentile (0-100).
- * Used to spread overlay-driven opacity across the full visible range so
- * cross-county variance is immediately obvious regardless of the field's
- * absolute distribution.
- */
-function rankOverlay(
-  data: Record<string, Record<string, unknown>>,
-  field: string,
-): Map<string, number> {
-  const pairs: Array<[string, number]> = []
-  for (const [fips, row] of Object.entries(data)) {
-    const v = row[field]
-    if (typeof v === 'number' && Number.isFinite(v)) pairs.push([fips, v])
-  }
-  const sorted = pairs.map(p => p[1]).sort((a, b) => a - b)
-  const out = new Map<string, number>()
-  for (const [fips, v] of pairs) {
-    let lo = 0, hi = sorted.length
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1
-      if (sorted[mid] <= v) lo = mid + 1
-      else hi = mid
-    }
-    out.set(fips, (lo / sorted.length) * 100)
-  }
-  return out
-}
-
-export default function USMap({ counties, onCountyClick, selectedCounty, year: _year, overlays, companyData, scenario, scenarioActive = false }: USMapProps) {
+/** Static county choropleth of AI exposure. Hover for county name, bucket, score. */
+export default function USMap({ counties }: { counties: CountyScore[] }) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const [tooltip, setTooltip] = useState<TooltipState>({
-    visible: false, x: 0, y: 0, data: null,
-  })
   const [topoData, setTopoData] = useState<Topology | null>(null)
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
-  // Load TopoJSON
   useEffect(() => {
     d3.json<Topology>(TOPOJSON_URL).then(data => {
       if (data) setTopoData(data)
     })
   }, [])
 
-  // Build lookup map
-  const countyMap = new Map(counties.map(c => [c.county_fips, c]))
-
-  // Raw layer score lookup — returns the unranked value (0-1 typically) so
-  // we can rank across all counties and color by percentile.
-  function getRawLayerScore(fips: string, layer: string): number | null {
-    if (layer === 'composite') return null // use default percentile
-    if (layer === 'govt_floor' && overlays?.govt_floor?.[fips]) {
-      return (overlays.govt_floor[fips].govt_floor_score as number) ?? null
-    }
-    if (layer === 'cascade' && overlays?.dynamics?.[fips]) {
-      return (overlays.dynamics[fips].cascade_score as number) ?? null
-    }
-    if (layer === 'fragility' && overlays?.dynamics?.[fips]) {
-      const d = overlays.dynamics[fips]
-      const cascade = (d.cascade_score as number) || 0
-      const smallBiz = (d.small_biz_concentration as number) || 0
-      return cascade * 0.5 + smallBiz * 0.5
-    }
-    return null
-  }
-
-  // Precompute a fips → percentile (0-100) map for the active layer so we
-  // can color counties by their rank within the layer's distribution.
-  // `null` return means use the default (composite) coloring path.
-  function getLayerPercentiles(layer: string): Map<string, number> | null {
-    if (layer === 'composite') return null
-    const rawByFips: Array<[string, number]> = []
-    for (const c of counties) {
-      const raw = getRawLayerScore(c.county_fips, layer)
-      if (raw === null || !Number.isFinite(raw)) continue
-      rawByFips.push([c.county_fips, raw])
-    }
-    if (rawByFips.length === 0) return null
-    const sortedRaws = rawByFips.map(([, v]) => v).sort((a, b) => a - b)
-    // Binary-search each raw to its percentile rank.
-    const pctByFips = new Map<string, number>()
-    for (const [fips, raw] of rawByFips) {
-      let lo = 0, hi = sortedRaws.length
-      while (lo < hi) {
-        const mid = (lo + hi) >> 1
-        if (sortedRaws[mid] <= raw) lo = mid + 1
-        else hi = mid
-      }
-      pctByFips.set(fips, (lo / sortedRaws.length) * 100)
-    }
-    return pctByFips
-  }
-
-  // Render map
   useEffect(() => {
     if (!svgRef.current || !topoData || counties.length === 0) return
 
+    const countyMap = new Map(counties.map(c => [c.county_fips, c]))
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
 
-    const width = 960
-    const height = 600
-    const projection = d3.geoAlbersUsa().fitSize([width, height],
+    const projection = d3.geoAlbersUsa().fitSize([960, 600],
       topojson.feature(topoData, topoData.objects.nation) as unknown as d3.GeoPermissibleObjects
     )
     const path = d3.geoPath().projection(projection)
-
-    // County shapes
     const countyFeatures = topojson.feature(
-      topoData,
-      topoData.objects.counties
+      topoData, topoData.objects.counties
     ) as unknown as GeoJSON.FeatureCollection
 
     const g = svg.append('g')
-
-    const layer = scenario?.mapLayer || 'composite'
-    const displayMode = scenario?.displayMode || 'bucket'
-    const layerPercentiles = getLayerPercentiles(layer)
-
-    // For scenario delta view: compute max absolute delta for color normalization
-    let maxDelta = 0
-    if (scenarioActive) {
-      for (const c of counties) {
-        const d = c._bartik_delta
-        if (d != null) maxDelta = Math.max(maxDelta, Math.abs(d))
-      }
-    }
 
     g.selectAll('path')
       .data(countyFeatures.features)
       .join('path')
       .attr('d', d => path(d) || '')
       .attr('fill', d => {
-        const fips = String(d.id).padStart(5, '0')
-        const county = countyMap.get(fips)
-        if (!county) return '#1a1a25'
-
-        // Scenario active: show delta-from-baseline with diverging palette
-        if (scenarioActive && layer === 'composite') {
-          const delta = county._bartik_delta
-          return getDeltaColor(delta ?? 0, maxDelta)
-        }
-
-        // Bucket mode: 4 discrete colors (no scenario)
-        if (displayMode === 'bucket' && layer === 'composite') {
-          return bucketColor(county.bucket)
-        }
-
-        // Non-composite layer: color by percentile rank within the layer's
-        // distribution so every layer uses the full low→high color range.
-        if (layerPercentiles) {
-          const pct = layerPercentiles.get(fips)
-          if (pct != null) return getExposureColor(pct)
-          return '#1a1a25' // county has no data for this layer
-        }
-
-        // Continuous mode: composite displacement percentile gradient
-        return getExposureColor(county.exposure_percentile)
+        const county = countyMap.get(String(d.id).padStart(5, '0'))
+        return county ? bucketColor(county.bucket) : NO_DATA_COLOR
       })
-      .attr('stroke', d => {
-        const fips = String(d.id).padStart(5, '0')
-        return fips === selectedCounty ? '#fff' : '#2a2a3a'
-      })
-      .attr('stroke-width', d => {
-        const fips = String(d.id).padStart(5, '0')
-        return fips === selectedCounty ? 2 : 0.3
-      })
-      .style('cursor', 'pointer')
+      .attr('stroke', '#ffffff')
+      .attr('stroke-width', 0.3)
       .on('mouseenter', (event, d) => {
-        const fips = String(d.id).padStart(5, '0')
-        const county = countyMap.get(fips)
-        if (county) {
-          setTooltip({
-            visible: true,
-            x: event.clientX,
-            y: event.clientY,
-            data: county,
-          })
-        }
+        const county = countyMap.get(String(d.id).padStart(5, '0'))
+        if (county) setTooltip({ x: event.clientX, y: event.clientY, data: county })
       })
-      .on('mousemove', (event) => {
-        setTooltip(prev => ({ ...prev, x: event.clientX, y: event.clientY }))
+      .on('mousemove', event => {
+        setTooltip(prev => (prev ? { ...prev, x: event.clientX, y: event.clientY } : prev))
       })
-      .on('mouseleave', () => {
-        setTooltip(prev => ({ ...prev, visible: false }))
-      })
-      .on('click', (_event, d) => {
-        const fips = String(d.id).padStart(5, '0')
-        // Clear tooltip when county detail panel opens
-        setTooltip({ visible: false, x: 0, y: 0, data: null })
-        onCountyClick(fips)
-      })
+      .on('mouseleave', () => setTooltip(null))
 
-    // State borders — increased stroke weight
-    const stateFeatures = topojson.mesh(
-      topoData,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      topoData.objects.states as any,
-      (a, b) => a !== b
-    )
+    // State borders
     g.append('path')
-      .datum(stateFeatures)
+      .datum(topojson.mesh(
+        topoData,
+        topoData.objects.states as Parameters<typeof topojson.mesh>[1],
+        (a, b) => a !== b,
+      ))
       .attr('d', path)
       .attr('fill', 'none')
-      .attr('stroke', '#4a4a5a')
-      .attr('stroke-width', 1.5)
-
-    // Transfer payment tint layer — percentile-based opacity so variance is
-    // visible regardless of absolute range. Owsley KY (~81%, top percentile)
-    // renders at full 0.35, Fairfax VA (~27%, bottom quartile) near 0.
-    if (scenario?.showTransferDependency && overlays?.govt_floor) {
-      const pctByFips = rankOverlay(overlays.govt_floor, 'transfer_pct')
-      const tintGroup = g.append('g').attr('class', 'transfer-tint').attr('pointer-events', 'none')
-      tintGroup.selectAll('path')
-        .data(countyFeatures.features)
-        .join('path')
-        .attr('d', d => path(d) || '')
-        .attr('fill', '#4169E1')  // Royal blue
-        .attr('fill-opacity', d => {
-          const fips = String(d.id).padStart(5, '0')
-          const pct = pctByFips.get(fips)
-          if (pct == null) return 0
-          return (pct / 100) * 0.35  // 0th percentile → 0 opacity, 100th → 0.35
-        })
-        .attr('stroke', 'none')
-    }
-
-    // K-shape tint layer — percentile-based opacity.
-    if (scenario?.showKshapeDivergence && overlays?.kshape) {
-      const pctByFips = rankOverlay(overlays.kshape, 'equity_wage_ratio')
-      const tintGroup = g.append('g').attr('class', 'kshape-tint').attr('pointer-events', 'none')
-      tintGroup.selectAll('path')
-        .data(countyFeatures.features)
-        .join('path')
-        .attr('d', d => path(d) || '')
-        .attr('fill', '#FF1493')  // Deep pink
-        .attr('fill-opacity', d => {
-          const fips = String(d.id).padStart(5, '0')
-          const pct = pctByFips.get(fips)
-          if (pct == null) return 0
-          return (pct / 100) * 0.35
-        })
-        .attr('stroke', 'none')
-    }
-
-    // Company displacement dots
-    if (scenario?.showCompanyDots && companyData && companyData.length > 0) {
-      const dotsGroup = g.append('g').attr('class', 'company-dots')
-      for (const company of companyData) {
-        const c = company as Record<string, unknown>
-        const offices = (c.offices as Record<string, unknown>[]) || []
-        const events = (c.displacement_events as Record<string, unknown>[]) || []
-        const totalHc = events.reduce((sum: number, e: Record<string, unknown>) =>
-          sum + ((e.headcount_impact as number) || 0), 0)
-        const maxConf = Math.max(0, ...events.map((e: Record<string, unknown>) => (e.confidence_score as number) || 0))
-        const companyName = (c.name as string) || ''
-
-        for (const office of offices) {
-          const country = (office.country as string) || 'US'
-          if (country !== 'US') continue
-          const lat = office.lat as number
-          const lng = office.lng as number
-          if (!lat || !lng) continue
-          const coords = projection([lng, lat])
-          if (!coords) continue
-
-          const radius = Math.max(4, Math.min(18, Math.sqrt(Math.max(totalHc, 100) / 50)))
-          dotsGroup.append('circle')
-            .attr('cx', coords[0])
-            .attr('cy', coords[1])
-            .attr('r', radius)
-            .attr('fill', maxConf >= 4 ? '#ef4444' : '#f97316')
-            .attr('fill-opacity', 0.8)
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 1)
-          if (radius >= 6) {
-            dotsGroup.append('text')
-              .attr('x', coords[0])
-              .attr('y', coords[1] - radius - 3)
-              .attr('text-anchor', 'middle')
-              .attr('font-size', 5)
-              .attr('fill', '#fff')
-              .attr('pointer-events', 'none')
-              .text(companyName.split(' ')[0])
-          }
-        }
-      }
-    }
-
-    // Zoom
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([1, 12])
-      .on('zoom', (event) => {
-        g.attr('transform', event.transform.toString())
-      })
-
-    svg.call(zoom)
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- year intentionally excluded: map is year-independent
-  }, [topoData, counties, selectedCounty, onCountyClick, overlays, companyData, scenario, scenarioActive])
-
-  const layerName = scenario?.mapLayer || 'composite'
-  const LAYER_NAMES: Record<string, string> = {
-    composite: 'AI Exposure',
-    fragility: 'Local Economy Fragility',
-    govt_floor: 'Govt Floor Strength',
-    cascade: 'Competitive Cascade',
-  }
+      .attr('stroke', '#9aa4b2')
+      .attr('stroke-width', 0.7)
+      .attr('pointer-events', 'none')
+  }, [topoData, counties])
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%' }}>
       <svg
         ref={svgRef}
         viewBox="0 0 960 600"
         preserveAspectRatio="xMidYMid meet"
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'block',
-          background: 'var(--bg-primary)',
-        }}
+        style={{ width: '100%', height: 'auto', display: 'block' }}
       />
 
-      {/* Color legend */}
-      <div style={{
-        position: 'absolute', bottom: 16, left: 16,
-        background: 'var(--bg-panel)', padding: '8px 12px',
-        borderRadius: 6, border: '1px solid var(--border)',
-        fontSize: 12,
-      }}>
-        <div style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>
-          {scenarioActive ? 'Scenario Impact' : (LAYER_NAMES[layerName] || 'AI Exposure')}
-        </div>
-        {scenarioActive && layerName === 'composite' ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ color: '#0d9488', fontSize: 10 }}>Less exposed</span>
-            <div style={{
-              width: 120, height: 10, borderRadius: 2,
-              background: 'linear-gradient(to right, #0d9488, #5eead4, #d4d4d8, #fbbf24, #d97706)',
+      <div style={legendStyle}>
+        <span style={{ color: '#555' }}>AI exposure</span>
+        {[1, 2, 3, 4].map(b => (
+          <span key={b} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <span style={{
+              width: 14, height: 10, background: bucketColor(b),
+              border: '1px solid #ccc', display: 'inline-block',
             }} />
-            <span style={{ color: '#d97706', fontSize: 10 }}>More exposed</span>
-          </div>
-        ) : scenario?.displayMode === 'bucket' && layerName === 'composite' ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {[1, 2, 3, 4].map(b => (
-              <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                <div style={{ width: 12, height: 10, borderRadius: 2, background: bucketColor(b) }} />
-                <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{bucketLabel(b)}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ color: 'var(--text-muted)' }}>Low</span>
-            <div style={{
-              width: 120, height: 10, borderRadius: 2,
-              background: MAGMA_GRADIENT_CSS,
-            }} />
-            <span style={{ color: 'var(--text-muted)' }}>High</span>
-          </div>
-        )}
-        {!scenarioActive && (
-          <div style={{ color: 'var(--text-dim)', fontSize: 9, marginTop: 4 }}>
-            Activate Trade Policy or Fed Response to see scenario impact
-          </div>
-        )}
+            {bucketLabel(b)}
+          </span>
+        ))}
       </div>
 
-      {/* Tooltip */}
-      {tooltip.visible && tooltip.data && (
-        <div style={{
-          position: 'fixed',
-          left: tooltip.x + 12,
-          top: tooltip.y - 10,
-          background: 'var(--bg-panel)',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          padding: '8px 12px',
-          fontSize: 13,
-          pointerEvents: 'none',
-          zIndex: 1000,
-          minWidth: 180,
-        }}>
-          <div style={{ fontWeight: 600 }}>
-            {countyLabel(tooltip.data)}
-            {tooltip.data.is_estimated && (
-              <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 6, fontWeight: 400 }}>
-                ESTIMATED
-              </span>
-            )}
-          </div>
-          {scenarioActive ? (
-            <div style={{ marginTop: 4 }}>
-              <div style={{ color: 'var(--text-secondary)' }}>
-                Adjusted exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
-              </div>
-              {tooltip.data._bartik_delta != null && (
-                <div style={{
-                  color: (tooltip.data._bartik_delta as number) >= 0 ? '#d97706' : '#0d9488',
-                  fontSize: 12, fontWeight: 600,
-                }}>
-                  Scenario shift: {(tooltip.data._bartik_delta as number) >= 0 ? '+' : ''}
-                  {((tooltip.data._bartik_delta as number) * 100).toFixed(1)} pp
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              {scenario?.displayMode === 'bucket' && tooltip.data.bucket ? (
-                <div style={{ color: bucketColor(tooltip.data.bucket), marginTop: 4, fontWeight: 600, fontSize: 13 }}>
-                  {bucketLabel(tooltip.data.bucket)} exposure
-                </div>
-              ) : null}
-              <div style={{ color: 'var(--text-secondary)', marginTop: scenario?.displayMode === 'bucket' ? 2 : 4 }}>
-                Exposure: {formatExposureWhole(tooltip.data.ai_exposure_score)}
-              </div>
-            </>
-          )}
-          <div style={{ color: 'var(--text-secondary)' }}>
-            Percentile: p{tooltip.data.exposure_percentile.toFixed(0)}
-          </div>
-          <div style={{ color: 'var(--text-secondary)' }}>
-            Employment: {formatNumber(tooltip.data.total_employment)}
-          </div>
-          {tooltip.data.is_estimated && (
-            <div style={{ color: 'var(--warning)', fontSize: 10, marginTop: 4 }}>
-              Based on industry mix (no occupation-level data)
-            </div>
-          )}
-          <div style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
-            Click for details
-          </div>
+      {tooltip?.data && (
+        <div style={{ ...tooltipStyle, left: tooltip.x + 14, top: tooltip.y + 14 }}>
+          <div style={{ fontWeight: 600 }}>{countyLabel(tooltip.data)}</div>
+          <div>{bucketLabel(tooltip.data.bucket)} exposure &middot; {formatExposure(tooltip.data.ai_exposure_score)}</div>
         </div>
       )}
     </div>
   )
+}
+
+const legendStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: 12,
+  fontSize: 12,
+  color: '#333',
+  marginTop: 4,
+}
+
+const tooltipStyle: React.CSSProperties = {
+  position: 'fixed',
+  background: '#fff',
+  border: '1px solid #ccc',
+  padding: '6px 10px',
+  fontSize: 13,
+  color: '#111',
+  pointerEvents: 'none',
+  zIndex: 10,
+  whiteSpace: 'nowrap',
 }

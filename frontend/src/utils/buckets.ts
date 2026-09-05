@@ -1,8 +1,10 @@
 /**
- * Bucket (quartile) labels, colors, and helpers for dual presentation mode.
+ * Exposure buckets: labels, colors, and plain-language descriptions.
+ *
+ * County buckets (1-4) come from the API - quartiles of the county score
+ * distribution. Occupation buckets are quartiles of the 0-1 score itself,
+ * since a single occupation has no distribution to sit in.
  */
-
-export type DisplayMode = 'bucket' | 'continuous'
 
 export const BUCKET_LABELS: Record<number, string> = {
   1: 'Lower',
@@ -11,42 +13,42 @@ export const BUCKET_LABELS: Record<number, string> = {
   4: 'Higher',
 }
 
-// Magma palette sampled at quartile midpoints within 0.15–0.95 range.
-// Hardcoded to avoid Vite production bundling order issue with top-level
-// d3.interpolateMagma() calls. Values verified via Playwright against
-// d3.interpolateMagma(0.25), (0.45), (0.65), (0.85).
+// Simple sequential blues, light to dark. Readable on white.
 export const BUCKET_COLORS: Record<number, string> = {
-  1: '#51127c',  // magma(0.25)
-  2: '#a1307e',  // magma(0.45)
-  3: '#ed5a5f',  // magma(0.65)
-  4: '#feb77e',  // magma(0.85)
+  1: '#dbe9f6',
+  2: '#a4c8e4',
+  3: '#5b9bd0',
+  4: '#1f5b96',
 }
 
+// Counties with no row in the API response.
+export const NO_DATA_COLOR = '#eeeeee'
+
 export function bucketLabel(bucket: number | undefined): string {
-  if (!bucket) return ''
-  return BUCKET_LABELS[bucket] ?? ''
+  return bucket ? BUCKET_LABELS[bucket] ?? '' : ''
 }
 
 export function bucketColor(bucket: number | undefined): string {
-  if (!bucket) return '#1a1a25'
-  return BUCKET_COLORS[bucket] ?? '#1a1a25'
+  return bucket ? BUCKET_COLORS[bucket] ?? NO_DATA_COLOR : NO_DATA_COLOR
 }
 
-export function formatExposureWhole(score: number): string {
+/** Bucket an occupation by its own 0-1 exposure score. */
+export function occupationBucket(score: number): number {
+  if (score < 0.25) return 1
+  if (score < 0.5) return 2
+  if (score < 0.75) return 3
+  return 4
+}
+
+/** One plain-language line describing an occupation's bucket. */
+export const BUCKET_BLURBS: Record<number, string> = {
+  1: "Few of this job's tasks are ones current language models can do.",
+  2: "Some of this job's tasks are ones current language models can do.",
+  3: "Many of this job's tasks are ones current language models can do.",
+  4: "Most of this job's tasks are ones current language models can do.",
+}
+
+/** Format an exposure score (0-1) as a whole percentage. */
+export function formatExposure(score: number): string {
   return `${Math.round(score * 100)}%`
-}
-
-/** Read display mode from localStorage, defaulting to bucket. */
-export function getStoredDisplayMode(): DisplayMode {
-  if (typeof localStorage === 'undefined') return 'bucket'
-  const stored = localStorage.getItem('displayMode')
-  if (stored === 'continuous') return 'continuous'
-  return 'bucket'
-}
-
-/** Persist display mode to localStorage. */
-export function setStoredDisplayMode(mode: DisplayMode): void {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('displayMode', mode)
-  }
 }

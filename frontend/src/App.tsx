@@ -1,402 +1,55 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import USMap from './components/USMap'
-import WorldMap from './components/WorldMap'
-import CountyDetailPanel from './components/CountyDetailPanel'
-import SimulationTab from './components/Simulation'
+import type { CountyScore } from './components/USMap'
 import JobSearch from './components/JobSearch'
-import ControlPanel from './components/ControlPanel'
-import type { ScenarioState } from './components/ControlPanel'
-import { fetchCounties, fetchCountries, fetchOverlays, fetchCompanyDisplacement } from './utils/api'
-import { applyScenarioModifiers } from './utils/scenarios'
-import { getStoredDisplayMode, setStoredDisplayMode } from './utils/buckets'
-
-import Header from './components/layout/Header'
-import type { Tab } from './components/layout/Header'
-import Sidebar from './components/layout/Sidebar'
-import RightPanel from './components/layout/RightPanel'
-import Footer from './components/layout/Footer'
-import Ticker from './components/layout/Ticker'
-import DefaultRightPanel from './components/layout/DefaultRightPanel'
-import NewsFeed from './components/layout/NewsFeed'
-import ResizeHandle from './components/layout/ResizeHandle'
-import MyRisk from './components/MyRisk'
-import CompareCounties from './components/CompareCounties'
-import CareerOutlook from './components/CareerOutlook'
-
-type MapView = 'us' | 'world'
-
-interface CountyScore {
-  county_fips: string
-  county_name: string
-  ai_exposure_score: number
-  total_employment: number
-  exposed_employment: number
-  exposure_percentile: number
-  is_estimated?: boolean
-  bucket?: number
-  _bartik_delta?: number
-}
+import { fetchCounties } from './utils/api'
+import { SITE_CONFIG } from './config/site'
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>('map')
-  const [mapView, setMapView] = useState<MapView>('us')
-  const [newsFilter, setNewsFilter] = useState<string | null>(null)
-  const [mobileBannerDismissed, setMobileBannerDismissed] = useState(
-    () => typeof sessionStorage !== 'undefined' && sessionStorage.getItem('mobileBannerDismissed') === 'true'
-  )
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-
-  const [scenario, setScenario] = useState<ScenarioState>({
-    year: 2025,
-    feedbackAggressiveness: 0.5,
-    tradePolicy: 'current',
-    govtResponse: 'none',
-    corporateProfit: 'baseline',
-    equityLoop: 'intact',
-    fedResponse: 'hold',
-    mapLayer: 'composite',
-    displayMode: getStoredDisplayMode(),
-    showCompanyDots: false,
-    showTransferDependency: false,
-    showKshapeDivergence: false,
-  })
-  const updateScenario = useCallback((updates: Partial<ScenarioState>) => {
-    if (updates.displayMode) setStoredDisplayMode(updates.displayMode)
-    setScenario(prev => ({ ...prev, ...updates }))
-  }, [])
-
-  const [sidebarWidth, setSidebarWidth] = useState(280)
-  const [rightPanelWidth, setRightPanelWidth] = useState(320)
-  const [compareMode, setCompareMode] = useState(false)
-
-  const [baseCounties, setBaseCounties] = useState<CountyScore[]>([])
-  const [bartikData, setBartikData] = useState<Record<string, Record<string, number>>>({})
-  const [countries, setCountries] = useState<Record<string, unknown>[]>([])
-  const [overlays, setOverlays] = useState<Record<string, Record<string, Record<string, unknown>>>>({})
-  const [companyData, setCompanyData] = useState<Record<string, unknown>[]>([])
-  const [selectedCounty, setSelectedCounty] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [counties, setCounties] = useState<CountyScore[]>([])
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([
-      fetchCounties().then(data => {
-        setBaseCounties(data.counties)
-        setBartikData(data.bartik || {})
-      }),
-      fetchCountries().then(data => setCountries(data.countries)).catch(() => {}),
-      fetchCompanyDisplacement().then(data => setCompanyData(data.companies || []))
-        .catch(e => console.error('[Companies] failed:', e)),
-    ])
+    fetchCounties()
+      .then(data => setCounties(data.counties))
       .catch(e => setError(e.message))
-      .finally(() => setLoading(false))
   }, [])
-
-  // Lazy-load overlay data on first use: overlay toggles or non-composite map layers.
-  const overlaysLoaded = useRef(false)
-  const needsOverlays = scenario.showTransferDependency
-    || scenario.showKshapeDivergence
-    || (scenario.mapLayer !== 'composite')
-  useEffect(() => {
-    if (!needsOverlays || overlaysLoaded.current) return
-    overlaysLoaded.current = true
-    fetchOverlays()
-      .then(data => setOverlays(data))
-      .catch(e => console.error('[Overlays] failed:', e))
-  }, [needsOverlays])
-
-  // Whether any Bartik scenario is active
-  const scenarioActive = scenario.tradePolicy !== 'current' || scenario.fedResponse !== 'hold'
-
-  // Counties with Bartik adjustments applied (for map rendering when scenario active)
-  const scenarioCounties = useMemo(() => {
-    if (!scenarioActive) return baseCounties
-    return baseCounties.map(c => {
-      const b = bartikData[c.county_fips]
-      if (!b) return c
-      let delta = 0
-      if (scenario.tradePolicy === 'free_trade') delta += b.trade_free_trade || 0
-      if (scenario.tradePolicy === 'escalating_tariffs') delta += b.trade_escalating_tariffs || 0
-      if (scenario.fedResponse === 'cut') delta += b.fed_cut || 0
-      if (scenario.fedResponse === 'zero') delta += b.fed_zero || 0
-      return {
-        ...c,
-        ai_exposure_score: Math.max(0, Math.min(1, c.ai_exposure_score + delta)),
-        _bartik_delta: delta,
-      }
-    })
-  }, [baseCounties, bartikData, scenario.tradePolicy, scenario.fedResponse, scenarioActive])
-
-  const counties = useMemo(
-    () => applyScenarioModifiers(baseCounties, scenario),
-    [baseCounties, scenario],
-  )
-
-  const handleCountyClick = useCallback((fips: string) => {
-    setSelectedCounty(prev => prev === fips ? null : fips)
-  }, [])
-
-  const handleTickerCompanyClick = useCallback((companyName: string) => {
-    setNewsFilter(companyName)
-    setTab('news')
-  }, [])
-
-  const tickerCompanies = companyData as unknown as Parameters<typeof Ticker>[0]['companies']
 
   return (
-    <>
-      {isMobile && !mobileBannerDismissed && (
-        <div style={{
-          background: '#1e293b', borderBottom: '1px solid #334155',
-          padding: '10px 16px', display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', fontSize: 13, color: '#94a3b8',
-          position: 'sticky', top: 0, zIndex: 1000,
-        }}>
-          <span>Best experienced on desktop.</span>
-          <button
-            onClick={() => { sessionStorage.setItem('mobileBannerDismissed', 'true'); setMobileBannerDismissed(true) }}
-            style={{
-              background: 'transparent', border: '1px solid #475569',
-              color: '#94a3b8', padding: '4px 10px', borderRadius: 4,
-              cursor: 'pointer', fontSize: 12,
-            }}
-          >
-            Continue anyway
-          </button>
-        </div>
-      )}
-      <Header
-        tab={tab}
-        onTabChange={setTab}
-        ticker={<Ticker companies={tickerCompanies} onCompanyClick={handleTickerCompanyClick} />}
-      />
+    <div style={pageStyle}>
+      <h1 style={{ fontSize: 22, fontWeight: 700 }}>{SITE_CONFIG.name}</h1>
+      <p style={{ fontSize: 14, color: '#333', marginTop: 4 }}>
+        AI exposure by US county and occupation.
+      </p>
 
-      <main style={mainStyle}>
-        <Sidebar width={sidebarWidth}>
-          <ControlPanel state={scenario} onChange={updateScenario} showMapControls={tab === 'map'} />
-        </Sidebar>
-        <ResizeHandle width={sidebarWidth} side="left" onResize={setSidebarWidth} />
+      <section style={{ marginTop: 24 }}>
+        <JobSearch />
+      </section>
 
-        <section style={centerStyle}>
-          {loading && <CenterMessage>Loading data…</CenterMessage>}
-          {error && (
-            <CenterMessage error>
-              Failed to load data: {error}
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
-                Make sure the backend is running.
-              </div>
-            </CenterMessage>
-          )}
+      <section style={{ marginTop: 28 }}>
+        {error
+          ? <p style={{ color: '#b00' }}>Could not load county data: {error}</p>
+          : <USMap counties={counties} />}
+      </section>
 
-          {!loading && !error && tab === 'map' && !compareMode && (
-            <div style={mapColumnStyle}>
-              <div style={toggleRowStyle}>
-                <div style={viewToggleStyle}>
-                  {(['us', 'world'] as MapView[]).map(v => (
-                    <button
-                      key={v}
-                      onClick={() => { setMapView(v); setSelectedCounty(null) }}
-                      style={{
-                        padding: '7px 16px',
-                        borderRadius: 4,
-                        background: mapView === v ? 'var(--accent)' : 'transparent',
-                        color: mapView === v ? '#fff' : 'var(--text-secondary)',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        letterSpacing: '0.02em',
-                        transition: 'background var(--motion-fast), color var(--motion-fast)',
-                      }}
-                    >
-                      {v === 'us' ? 'US Counties' : 'World'}
-                    </button>
-                  ))}
-                </div>
-                <div style={{
-                  display: 'flex', gap: 2, marginLeft: 10,
-                  background: 'var(--bg-inset)', border: '1px solid var(--border-strong)',
-                  borderRadius: 6, padding: 2,
-                }}>
-                  {(['bucket', 'continuous'] as const).map(m => (
-                    <button
-                      key={m}
-                      onClick={() => updateScenario({ displayMode: m })}
-                      style={{
-                        padding: '5px 10px', borderRadius: 4, border: 'none',
-                        background: scenario.displayMode === m ? 'var(--bg-panel-hover)' : 'transparent',
-                        color: scenario.displayMode === m ? 'var(--text-primary)' : 'var(--text-muted)',
-                        fontSize: 11, fontWeight: 500, cursor: 'pointer',
-                      }}
-                    >
-                      {m === 'bucket' ? 'Buckets' : 'Continuous'}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={() => setCompareMode(true)}
-                  style={{
-                    padding: '7px 14px',
-                    borderRadius: 4,
-                    background: 'transparent',
-                    color: 'var(--text-secondary)',
-                    border: '1px solid var(--border-strong)',
-                    fontSize: 12,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    marginLeft: 10,
-                  }}
-                >
-                  Compare counties →
-                </button>
-              </div>
-              <div style={mapAreaStyle}>
-                {mapView === 'us' ? (
-                  <USMap
-                    counties={scenarioCounties}
-                    onCountyClick={handleCountyClick}
-                    year={scenario.year}
-                    selectedCounty={selectedCounty}
-                    overlays={overlays}
-                    companyData={companyData}
-                    scenario={scenario}
-                    scenarioActive={scenarioActive}
-                  />
-                ) : (
-                  <WorldMap countries={countries as never[]} scenario={scenario} />
-                )}
-              </div>
-            </div>
-          )}
-
-          {!loading && !error && tab === 'map' && compareMode && (
-            <CompareCounties
-              baseCounties={baseCounties}
-              counties={counties}
-              overlays={overlays}
-              scenario={scenario}
-              onYearChange={(y) => updateScenario({ year: y })}
-              onClose={() => setCompareMode(false)}
-            />
-          )}
-
-          {!loading && !error && tab === 'simulate' && (
-            <div style={scrollTabStyle}><SimulationTab /></div>
-          )}
-          {!loading && !error && tab === 'job' && (
-            <div style={scrollTabStyle}><JobSearch /></div>
-          )}
-          {!loading && !error && tab === 'news' && (
-            <NewsFeed
-              companies={companyData as Parameters<typeof NewsFeed>[0]['companies']}
-              filterCompany={newsFilter}
-              onClearFilter={() => setNewsFilter(null)}
-            />
-          )}
-          {!loading && !error && tab === 'my_risk' && (
-            <div style={scrollTabStyle}>
-              <MyRisk companyData={companyData as unknown as Parameters<typeof MyRisk>[0]['companyData']} />
-            </div>
-          )}
-          {!loading && !error && tab === 'outlook' && (
-            <div style={scrollTabStyle}>
-              <CareerOutlook />
-            </div>
-          )}
-        </section>
-
-        <ResizeHandle width={rightPanelWidth} side="right" onResize={setRightPanelWidth} />
-        <RightPanel width={rightPanelWidth}>
-          {selectedCounty && tab === 'map' ? (
-            <CountyDetailPanel
-              countyFips={selectedCounty}
-              year={scenario.year}
-              onClose={() => setSelectedCounty(null)}
-            />
-          ) : (
-            <DefaultRightPanel
-              counties={counties}
-              companies={companyData as Parameters<typeof DefaultRightPanel>[0]['companies']}
-              scenario={scenario}
-            />
-          )}
-        </RightPanel>
-      </main>
-
-      <Footer
-        lastUpdated={new Date().toISOString().slice(0, 10)}
-        confidence={scenario.year <= 2027 ? 'high' : scenario.year <= 2032 ? 'medium' : 'low'}
-      />
-    </>
-  )
-}
-
-function CenterMessage({ children, error }: { children: React.ReactNode; error?: boolean }) {
-  return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: error ? 'var(--danger)' : 'var(--text-secondary)',
-      textAlign: 'center',
-      padding: 40,
-    }}>
-      <div>{children}</div>
+      <footer style={footerStyle}>
+        County and occupation exposure scores derived from Eloundou et al. 2024
+        GPT-4 task exposure, with O*NET 29.1 and BLS employment data.
+      </footer>
     </div>
   )
 }
 
-const mainStyle: React.CSSProperties = {
-  display: 'flex',
-  minHeight: 0,
-  height: '100%',
-  overflow: 'hidden',
+const pageStyle: React.CSSProperties = {
+  maxWidth: 960,
+  margin: '0 auto',
+  padding: '32px 16px 48px',
 }
 
-const centerStyle: React.CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  position: 'relative',
-  background: 'var(--bg-primary)',
-  overflow: 'hidden',
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-}
-
-const mapColumnStyle: React.CSSProperties = {
-  flex: 1,
-  minHeight: 0,
-  display: 'flex',
-  flexDirection: 'column',
-}
-
-const toggleRowStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'center',
-  padding: '12px 16px 0',
-  flexShrink: 0,
-  zIndex: 40,
-  background: 'var(--bg-primary)',
-}
-
-const viewToggleStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 2,
-  background: 'var(--bg-inset)',
-  border: '1px solid var(--border-strong)',
-  borderRadius: 6,
-  padding: 2,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.4)',
-}
-
-const mapAreaStyle: React.CSSProperties = {
-  flex: 1,
-  minHeight: 0,
-  position: 'relative',
-  overflow: 'hidden',
-}
-
-const scrollTabStyle: React.CSSProperties = {
-  overflow: 'auto',
-  height: '100%',
+const footerStyle: React.CSSProperties = {
+  marginTop: 32,
+  paddingTop: 12,
+  borderTop: '1px solid #ddd',
+  fontSize: 12,
+  color: '#555',
 }
