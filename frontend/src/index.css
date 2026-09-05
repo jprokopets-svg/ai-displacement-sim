@@ -29,3 +29,13 @@ li button:hover, li button:focus-visible {
 }
 
 svg text { user-select: none; }
+
+/* Map: drag to pan, but a vertical swipe over it still scrolls the page. */
+.us-map {
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.us-map.dragging {
+  cursor: grabbing;
+}
